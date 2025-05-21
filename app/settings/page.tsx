@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useUser } from "@/context/user-context"
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("credentials")
@@ -22,6 +23,7 @@ export default function SettingsPage() {
   const [showServerClientId, setShowServerClientId] = useState(false)
   const [showPublicKey, setShowPublicKey] = useState(false)
   const [showServerKey, setShowServerKey] = useState(false)
+  const { user, login } = useUser()
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -44,6 +46,12 @@ export default function SettingsPage() {
               className="rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               Users
+            </TabsTrigger>
+            <TabsTrigger
+              value="subscription"
+              className="rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              Subscription
             </TabsTrigger>
           </TabsList>
 
@@ -111,7 +119,7 @@ export default function SettingsPage() {
                           <p className="font-mono text-sm">
                             {showPublicKey
                               ? "dtect_pk_5678_1234_efgh_ijkl_mnopqrstuvwxyz"
-                              : "•••••••••••••••••••••••••••••••••••••���••••"}
+                              : "•••••••••••••••••••••••••••••••••••••••••"}
                           </p>
                           <div className="flex items-center gap-1">
                             <Button
@@ -355,6 +363,152 @@ export default function SettingsPage() {
                     </Button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="subscription" className="mt-6">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Subscription Management</h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className={`border rounded-lg p-6 ${user?.subscriptionTier === "basic" ? "border-black" : ""}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-medium">Basic</h3>
+                    {user?.subscriptionTier === "basic" && (
+                      <span className="px-2 py-1 bg-black text-white text-xs rounded-full">Current</span>
+                    )}
+                  </div>
+                  <p className="text-3xl font-bold mb-4">
+                    $49<span className="text-sm font-normal text-gray-500">/mo</span>
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-start">
+                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-sm">Link Protector access</span>
+                    </li>
+                    <li className="flex items-start text-gray-400">
+                      <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-gray-300"></div>
+                      </div>
+                      <span className="text-sm">API access</span>
+                    </li>
+                    <li className="flex items-start text-gray-400">
+                      <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-gray-300"></div>
+                      </div>
+                      <span className="text-sm">Advanced analytics</span>
+                    </li>
+                  </ul>
+                  <Button variant="outline" className="w-full" disabled={user?.subscriptionTier === "basic"}>
+                    {user?.subscriptionTier === "basic" ? "Current Plan" : "Downgrade"}
+                  </Button>
+                </div>
+
+                <div className={`border rounded-lg p-6 ${user?.subscriptionTier === "premium" ? "border-black" : ""}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-medium">Premium</h3>
+                    {user?.subscriptionTier === "premium" && (
+                      <span className="px-2 py-1 bg-black text-white text-xs rounded-full">Current</span>
+                    )}
+                  </div>
+                  <p className="text-3xl font-bold mb-4">
+                    $149<span className="text-sm font-normal text-gray-500">/mo</span>
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-start">
+                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-sm">Link Protector access</span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-sm">API access</span>
+                    </li>
+                    <li className="flex items-start text-gray-400">
+                      <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-gray-300"></div>
+                      </div>
+                      <span className="text-sm">Advanced analytics</span>
+                    </li>
+                  </ul>
+                  <Button
+                    variant={user?.subscriptionTier === "basic" ? "default" : "outline"}
+                    className={`w-full ${user?.subscriptionTier === "basic" ? "bg-black text-white hover:bg-gray-800" : ""}`}
+                    disabled={user?.subscriptionTier === "premium"}
+                    onClick={() => {
+                      if (user?.subscriptionTier === "basic") {
+                        login()
+                      }
+                    }}
+                  >
+                    {user?.subscriptionTier === "premium"
+                      ? "Current Plan"
+                      : user?.subscriptionTier === "enterprise"
+                        ? "Downgrade"
+                        : "Upgrade"}
+                  </Button>
+                </div>
+
+                <div
+                  className={`border rounded-lg p-6 ${user?.subscriptionTier === "enterprise" ? "border-black" : ""}`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-medium">Enterprise</h3>
+                    {user?.subscriptionTier === "enterprise" && (
+                      <span className="px-2 py-1 bg-black text-white text-xs rounded-full">Current</span>
+                    )}
+                  </div>
+                  <p className="text-3xl font-bold mb-4">
+                    $499<span className="text-sm font-normal text-gray-500">/mo</span>
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-start">
+                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-sm">Link Protector access</span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-sm">API access</span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
+                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <span className="text-sm">Advanced analytics</span>
+                    </li>
+                  </ul>
+                  <Button
+                    variant={user?.subscriptionTier !== "enterprise" ? "default" : "outline"}
+                    className={`w-full ${user?.subscriptionTier !== "enterprise" ? "bg-black text-white hover:bg-gray-800" : ""}`}
+                    disabled={user?.subscriptionTier === "enterprise"}
+                    onClick={() => {
+                      if (user?.subscriptionTier !== "enterprise") {
+                        login()
+                      }
+                    }}
+                  >
+                    {user?.subscriptionTier === "enterprise" ? "Current Plan" : "Upgrade"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 border rounded-lg p-6">
+                <h3 className="text-lg font-medium mb-4">Need a custom plan?</h3>
+                <p className="text-gray-600 mb-4">
+                  Contact our sales team to discuss custom pricing options for your specific needs.
+                </p>
+                <Button className="bg-black text-white hover:bg-gray-800">Contact Sales</Button>
               </div>
             </div>
           </TabsContent>

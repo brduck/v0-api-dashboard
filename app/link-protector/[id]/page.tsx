@@ -26,7 +26,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
@@ -590,13 +589,17 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     </span>
                     <span>{project.totalParticipants.toLocaleString()} participants</span>
                   </div>
-                  <Progress
-                    value={
-                      project.totalParticipants > 0 ? (project.trafficBlocked / project.totalParticipants) * 100 : 0
-                    }
-                    className="h-2 bg-gray-100"
-                    indicatorClassName="bg-red-500"
-                  />
+                  {/* Custom progress bar implementation */}
+                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-red-600"
+                      style={{
+                        width: `${
+                          project.totalParticipants > 0 ? (project.trafficBlocked / project.totalParticipants) * 100 : 0
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>Blocked: {project.trafficBlocked.toLocaleString()}</span>
                     <span>Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}</span>

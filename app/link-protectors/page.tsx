@@ -9,13 +9,19 @@ import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal } from "luc
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import { getProjects } from "@/lib/project-storage"
+
+// Add this after the imports
+const progressBarStyles = {
+  "& > div": {
+    backgroundColor: "#dc2626 !important",
+  },
+}
 
 export default function LinkProtectors() {
   const router = useRouter()
@@ -78,7 +84,7 @@ export default function LinkProtectors() {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6" style={{ "--progress-foreground": "rgb(220, 38, 38)" } as React.CSSProperties}>
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold">Link Protectors</h1>
@@ -250,15 +256,19 @@ export default function LinkProtectors() {
                                   Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}
                                 </span>
                               </div>
-                              <Progress
-                                value={
-                                  project.totalParticipants > 0
-                                    ? (project.trafficBlocked / project.totalParticipants) * 100
-                                    : 0
-                                }
-                                className="h-2 bg-gray-100"
-                                indicatorClassName="bg-red-500"
-                              />
+                              {/* Custom progress bar implementation */}
+                              <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-red-600"
+                                  style={{
+                                    width: `${
+                                      project.totalParticipants > 0
+                                        ? (project.trafficBlocked / project.totalParticipants) * 100
+                                        : 0
+                                    }%`,
+                                  }}
+                                ></div>
+                              </div>
                             </div>
                           </div>
                         </div>

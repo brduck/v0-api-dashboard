@@ -3,11 +3,13 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { LogOut } from "lucide-react"
+import { LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@/context/user-context"
 
 export function Header() {
   const pathname = usePathname()
+  const { user, logout } = useUser()
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center border-b bg-white px-4 md:px-6">
@@ -33,7 +35,10 @@ export function Header() {
             href="/usage"
             className={`text-sm font-medium ${pathname === "/usage" ? "text-black" : "text-gray-500"}`}
           >
-            API Usage
+            API Usage{" "}
+            {!user?.hasApiAccess && (
+              <span className="ml-1 text-xs px-1.5 py-0.5 bg-gray-100 rounded-full">Upgrade</span>
+            )}
           </Link>
           <Link
             href="/settings"
@@ -46,7 +51,13 @@ export function Header() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-4">
-          <Button variant="outline" className="hidden gap-2 md:flex">
+          {user && (
+            <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
+              <User className="h-4 w-4" />
+              <span>{user.subscriptionTier.charAt(0).toUpperCase() + user.subscriptionTier.slice(1)} Plan</span>
+            </div>
+          )}
+          <Button variant="outline" className="hidden gap-2 md:flex" onClick={logout}>
             <LogOut className="w-4 h-4" />
             Sign Out
           </Button>

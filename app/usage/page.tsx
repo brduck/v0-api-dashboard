@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Pie, PieChart, Cell } from "recharts"
 import React from "react"
+import { useUser } from "@/context/user-context"
+import { RestrictedAccess } from "@/components/restricted-access"
 
 export default function Dashboard() {
   // Data for the pie chart
@@ -15,6 +17,12 @@ export default function Dashboard() {
   ]
 
   const [activeTab, setActiveTab] = React.useState("bad")
+  const { user, isLoading } = useUser()
+
+  // Show restricted access view if user doesn't have API access
+  if (!isLoading && (!user || !user.hasApiAccess)) {
+    return <RestrictedAccess />
+  }
 
   return (
     <div className="p-4 md:p-6">

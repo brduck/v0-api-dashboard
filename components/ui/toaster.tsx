@@ -1,35 +1,35 @@
 "use client"
 
-import { X } from "lucide-react"
-// Update the import path if needed
-import { useToast } from "./use-toast"
+import { useToast } from "@/hooks/use-toast"
+import {
+  Toast,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+} from "@/components/ui/toast"
 
 export function Toaster() {
-  const { toasts, dismiss } = useToast()
-
-  if (toasts.length === 0) {
-    return null
-  }
+  const { toasts } = useToast()
 
   return (
-    <div className="fixed top-0 right-0 p-4 z-50 flex flex-col items-end">
-      {toasts.map((toast, index) => (
-        <div key={index} className="bg-white border rounded-md shadow-md p-4 mb-2 max-w-md">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-medium">{toast.title}</h3>
-              <p className="text-sm text-gray-500">{toast.description}</p>
+    <ToastProvider>
+      {toasts.map(function ({ id, title, description, action, ...props }) {
+        return (
+          <Toast key={id} {...props}>
+            <div className="grid gap-1">
+              {title && <ToastTitle>{title}</ToastTitle>}
+              {description && (
+                <ToastDescription>{description}</ToastDescription>
+              )}
             </div>
-            <button
-              onClick={() => dismiss(index)}
-              className="text-gray-400 hover:text-gray-500"
-              aria-label="Close toast"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
+            {action}
+            <ToastClose />
+          </Toast>
+        )
+      })}
+      <ToastViewport />
+    </ToastProvider>
   )
 }

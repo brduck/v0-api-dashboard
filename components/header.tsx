@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { LogOut, User } from "lucide-react"
+import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/context/user-context"
 
@@ -51,12 +51,6 @@ export function Header() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-4">
-          {user && (
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
-              <User className="h-4 w-4" />
-              <span>{user.subscriptionTier.charAt(0).toUpperCase() + user.subscriptionTier.slice(1)} Plan</span>
-            </div>
-          )}
           <Button variant="outline" className="hidden gap-2 md:flex" onClick={logout}>
             <LogOut className="w-4 h-4" />
             Sign Out

@@ -47,15 +47,45 @@ export default function SettingsPage() {
             >
               Users
             </TabsTrigger>
-            <TabsTrigger
-              value="subscription"
-              className="rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
-              Subscription
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="credentials" className="mt-6">
+            <div className="mb-6 p-4 border rounded-lg bg-amber-50 border-amber-200">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-amber-500"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-amber-800">API Access Not Available</h3>
+                  <div className="mt-1 text-sm text-amber-700">
+                    <p>
+                      API access is not available on your current subscription. Please contact our sales team to learn
+                      more about our API offerings.
+                    </p>
+                  </div>
+                  <div className="mt-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-amber-800 bg-amber-100 border-amber-300 hover:bg-amber-200"
+                    >
+                      Contact Sales
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="space-y-8">
               {/* Public Keys Section */}
               <div>
@@ -363,152 +393,6 @@ export default function SettingsPage() {
                     </Button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="subscription" className="mt-6">
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Subscription Management</h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className={`border rounded-lg p-6 ${user?.subscriptionTier === "basic" ? "border-black" : ""}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-medium">Basic</h3>
-                    {user?.subscriptionTier === "basic" && (
-                      <span className="px-2 py-1 bg-black text-white text-xs rounded-full">Current</span>
-                    )}
-                  </div>
-                  <p className="text-3xl font-bold mb-4">
-                    $49<span className="text-sm font-normal text-gray-500">/mo</span>
-                  </p>
-                  <ul className="space-y-2 mb-6">
-                    <li className="flex items-start">
-                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <span className="text-sm">Link Protector access</span>
-                    </li>
-                    <li className="flex items-start text-gray-400">
-                      <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-gray-300"></div>
-                      </div>
-                      <span className="text-sm">API access</span>
-                    </li>
-                    <li className="flex items-start text-gray-400">
-                      <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-gray-300"></div>
-                      </div>
-                      <span className="text-sm">Advanced analytics</span>
-                    </li>
-                  </ul>
-                  <Button variant="outline" className="w-full" disabled={user?.subscriptionTier === "basic"}>
-                    {user?.subscriptionTier === "basic" ? "Current Plan" : "Downgrade"}
-                  </Button>
-                </div>
-
-                <div className={`border rounded-lg p-6 ${user?.subscriptionTier === "premium" ? "border-black" : ""}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-medium">Premium</h3>
-                    {user?.subscriptionTier === "premium" && (
-                      <span className="px-2 py-1 bg-black text-white text-xs rounded-full">Current</span>
-                    )}
-                  </div>
-                  <p className="text-3xl font-bold mb-4">
-                    $149<span className="text-sm font-normal text-gray-500">/mo</span>
-                  </p>
-                  <ul className="space-y-2 mb-6">
-                    <li className="flex items-start">
-                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <span className="text-sm">Link Protector access</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <span className="text-sm">API access</span>
-                    </li>
-                    <li className="flex items-start text-gray-400">
-                      <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-gray-300"></div>
-                      </div>
-                      <span className="text-sm">Advanced analytics</span>
-                    </li>
-                  </ul>
-                  <Button
-                    variant={user?.subscriptionTier === "basic" ? "default" : "outline"}
-                    className={`w-full ${user?.subscriptionTier === "basic" ? "bg-black text-white hover:bg-gray-800" : ""}`}
-                    disabled={user?.subscriptionTier === "premium"}
-                    onClick={() => {
-                      if (user?.subscriptionTier === "basic") {
-                        login()
-                      }
-                    }}
-                  >
-                    {user?.subscriptionTier === "premium"
-                      ? "Current Plan"
-                      : user?.subscriptionTier === "enterprise"
-                        ? "Downgrade"
-                        : "Upgrade"}
-                  </Button>
-                </div>
-
-                <div
-                  className={`border rounded-lg p-6 ${user?.subscriptionTier === "enterprise" ? "border-black" : ""}`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-medium">Enterprise</h3>
-                    {user?.subscriptionTier === "enterprise" && (
-                      <span className="px-2 py-1 bg-black text-white text-xs rounded-full">Current</span>
-                    )}
-                  </div>
-                  <p className="text-3xl font-bold mb-4">
-                    $499<span className="text-sm font-normal text-gray-500">/mo</span>
-                  </p>
-                  <ul className="space-y-2 mb-6">
-                    <li className="flex items-start">
-                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <span className="text-sm">Link Protector access</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <span className="text-sm">API access</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center mr-2 mt-0.5">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <span className="text-sm">Advanced analytics</span>
-                    </li>
-                  </ul>
-                  <Button
-                    variant={user?.subscriptionTier !== "enterprise" ? "default" : "outline"}
-                    className={`w-full ${user?.subscriptionTier !== "enterprise" ? "bg-black text-white hover:bg-gray-800" : ""}`}
-                    disabled={user?.subscriptionTier === "enterprise"}
-                    onClick={() => {
-                      if (user?.subscriptionTier !== "enterprise") {
-                        login()
-                      }
-                    }}
-                  >
-                    {user?.subscriptionTier === "enterprise" ? "Current Plan" : "Upgrade"}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 border rounded-lg p-6">
-                <h3 className="text-lg font-medium mb-4">Need a custom plan?</h3>
-                <p className="text-gray-600 mb-4">
-                  Contact our sales team to discuss custom pricing options for your specific needs.
-                </p>
-                <Button className="bg-black text-white hover:bg-gray-800">Contact Sales</Button>
               </div>
             </div>
           </TabsContent>

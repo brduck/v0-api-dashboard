@@ -5,7 +5,6 @@ import type React from "react"
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
-  ArrowLeft,
   Check,
   ChevronDown,
   ChevronUp,
@@ -29,7 +28,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { addProject } from "@/lib/project-storage"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function CreateLinkProtector() {
@@ -45,15 +43,15 @@ export default function CreateLinkProtector() {
 
   const [securityFeatures, setSecurityFeatures] = useState({
     deviceDeduplication: false,
-    ipDeduplication: false,
+    ipDeduplication: true,
     automationDetection: false,
     trustedBrowsers: false,
-    audienceValidation: false,
-    aiDetection: false,
+    audienceValidation: true,
+    aiDetection: true,
     locationLock: false,
     locationValidation: false,
     suspiciousUsers: false,
-    duplicateId: false,
+    duplicateId: true,
   })
 
   // Add these new state variables
@@ -81,7 +79,7 @@ export default function CreateLinkProtector() {
   const [customPausedLinkEnabled, setCustomPausedLinkEnabled] = useState(false)
   const [customPausedLinkUrl, setCustomPausedLinkUrl] = useState("")
 
-  const [enableAll, setEnableAll] = useState(false)
+  const [enableAll, setEnableAll] = useState(Object.values(securityFeatures).every((feature) => feature))
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // New state variables for audience and AI validation
@@ -92,6 +90,8 @@ export default function CreateLinkProtector() {
 
   const [surveyLinkError, setSurveyLinkError] = useState("")
   const surveyLinkRef = useRef<HTMLInputElement>(null)
+
+  const [showSecuritySection, setShowSecuritySection] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -142,15 +142,13 @@ export default function CreateLinkProtector() {
 
     // Reset error state
     setSurveyLinkError("")
-
-    // No need to validate {dtect.id} anymore since we've changed the feature
-
     setIsSubmitting(true)
 
-    try {
-      // Create the new project with advanced options
-      const newProject = addProject({
-        ...formData,
+    // Store form data in localStorage to retrieve it after signup
+    localStorage.setItem(
+      "pendingLinkProtector",
+      JSON.stringify({
+        formData,
         securityFeatures,
         advancedOptions: {
           enableDtectRedirects,
@@ -168,36 +166,24 @@ export default function CreateLinkProtector() {
           type: aiDetectionType,
           category: aiDetectionCategory,
         },
-      })
+      }),
+    )
 
-      // Show success toast
+    // Simulate successful creation
+    setTimeout(() => {
       toast({
         title: "Link protector created successfully",
-        description: `${newProject.name} has been created and is now active.`,
+        description: `${formData.name} has been created and is now active.`,
       })
 
-      // Redirect to the project details page
-      router.push(`/link-protector/${newProject.id}`)
-    } catch (error) {
-      console.error("Error creating link protector:", error)
-      toast({
-        title: "Error creating link protector",
-        description: "There was an error creating your link protector. Please try again.",
-      })
-      setIsSubmitting(false)
-    }
+      // Redirect to the signup page
+      router.push("/signup")
+    }, 1000)
   }
 
   return (
     <div className="p-4 md:p-6">
       <div className="flex flex-col gap-6 max-w-4xl mx-auto">
-        <div className="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" className="gap-1" onClick={() => router.push("/link-protectors")}>
-            <ArrowLeft className="h-4 w-4" />
-            Back to Link Protectors
-          </Button>
-        </div>
-
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             <Card>
@@ -387,555 +373,609 @@ export default function CreateLinkProtector() {
 
             <Card>
               <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSecuritySection(!showSecuritySection)}
+                    className="flex items-center gap-2 text-left focus:outline-none"
+                  >
                     <h2 className="text-2xl font-bold">Security</h2>
-                    <p className="text-gray-500 text-sm">
-                      Configure the best security checks to protect your link protector
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Enable All</span>
-                    <Switch checked={enableAll} onCheckedChange={handleToggleAll} />
-                  </div>
+                    <ChevronDown
+                      className={`h-5 w-5 transition-transform ${showSecuritySection ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  <p className="text-gray-500 text-sm">
+                    Configure the best security checks to protect your link protector
+                  </p>
+
+                  {!showSecuritySection && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Enabled features:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(securityFeatures).filter(([_, enabled]) => enabled).length === 0 ? (
+                          <Badge variant="outline" className="bg-gray-100">
+                            No security features enabled
+                          </Badge>
+                        ) : (
+                          <>
+                            {Object.entries(securityFeatures).map(([feature, enabled]) => {
+                              if (!enabled) return null
+
+                              // Map feature keys to readable names
+                              const featureNames: Record<string, string> = {
+                                deviceDeduplication: "Device Deduplication",
+                                ipDeduplication: "IP Deduplication",
+                                automationDetection: "Automation Detection",
+                                trustedBrowsers: "Trusted Browsers",
+                                audienceValidation: "Audience Validation",
+                                aiDetection: "AI Detection",
+                                locationLock: "Location Lock",
+                                locationValidation: "Location Validation",
+                                suspiciousUsers: "Suspicious Users",
+                                duplicateId: "Duplicate ID",
+                              }
+
+                              return (
+                                <Badge
+                                  key={feature}
+                                  variant="secondary"
+                                  className="bg-blue-50 text-blue-700 border-blue-200"
+                                >
+                                  {featureNames[feature]}
+                                </Badge>
+                              )
+                            })}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Smartphone className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Device Deduplication</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.deviceDeduplication}
-                        onCheckedChange={(checked) => handleToggleFeature("deviceDeduplication", checked)}
-                      />
-                    </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Blocks multiple attempts from the same browser on a device.
-                    </p>
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Globe className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">IP Deduplication</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.ipDeduplication}
-                        onCheckedChange={(checked) => handleToggleFeature("ipDeduplication", checked)}
-                      />
-                    </div>
-                    <p className="text-gray-500 text-sm ml-7">Blocks multiple attempts from the same IP address.</p>
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Automation Detection</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.automationDetection}
-                        onCheckedChange={(checked) => handleToggleFeature("automationDetection", checked)}
-                      />
-                    </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Blocks entrants using automated technology, such as bots and survey farms.
-                    </p>
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Trusted Browsers & OS</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.trustedBrowsers}
-                        onCheckedChange={(checked) => handleToggleFeature("trustedBrowsers", checked)}
-                      />
-                    </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Restrict participation to trusted browsers and operating systems, blocking those associated with
-                      high-risk activity.
-                    </p>
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <UserCheck className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Audience Validation</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.audienceValidation}
-                        onCheckedChange={(checked) => handleToggleFeature("audienceValidation", checked)}
-                      />
-                    </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Validates that entrants qualify as the target audience with randomized, audience-specific,
-                      closed-end questions.
-                    </p>
-
-                    {securityFeatures.audienceValidation && (
-                      <div className="mt-4 ml-7 border-t pt-4">
-                        <h4 className="text-sm font-medium mb-3">Validation Type</h4>
-                        <div className="grid grid-cols-2 gap-2 p-1 rounded-md bg-gray-100 mb-4">
-                          <button
-                            type="button"
-                            className={`px-3 py-2 rounded-md text-sm font-medium ${
-                              audienceValidationType !== "b2b" ? "bg-white shadow-sm" : "text-gray-600"
-                            }`}
-                            onClick={() => setAudienceValidationType("response")}
-                          >
-                            Response Validation
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-2 rounded-md text-sm font-medium ${
-                              audienceValidationType === "b2b" ? "bg-white shadow-sm" : "text-gray-600"
-                            }`}
-                            onClick={() => setAudienceValidationType("b2b")}
-                          >
-                            B2B Audience Validation
-                          </button>
+                {showSecuritySection && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Smartphone className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Device Deduplication</h3>
                         </div>
+                        <Switch
+                          checked={securityFeatures.deviceDeduplication}
+                          onCheckedChange={(checked) => handleToggleFeature("deviceDeduplication", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Blocks multiple attempts from the same browser on a device.
+                      </p>
+                    </div>
 
-                        <div className="relative">
-                          <select
-                            className="w-full p-2 pr-8 border rounded-md appearance-none bg-white"
-                            value={audienceValidationCategory}
-                            onChange={(e) => setAudienceValidationCategory(e.target.value)}
-                          >
-                            {audienceValidationType === "b2b" ? (
-                              <>
-                                <option value="Small Business Owner">Small Business Owner</option>
-                                <option value="HR Manager/Director">HR Manager/Director</option>
-                                <option value="Finance Director">Finance Director</option>
-                                <option value="Marketing Manager/Director">Marketing Manager/Director</option>
-                              </>
-                            ) : (
-                              <>
-                                <option value="Consumer/Shopper">Consumer/Shopper</option>
-                                <option value="Travel">Travel</option>
-                                <option value="Entertainment">Entertainment</option>
-                                <option value="Finance and Banking">Finance and Banking</option>
-                                <option value="General">General</option>
-                              </>
-                            )}
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                            <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">IP Deduplication</h3>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.ipDeduplication}
+                          onCheckedChange={(checked) => handleToggleFeature("ipDeduplication", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">Blocks multiple attempts from the same IP address.</p>
+                    </div>
+
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Automation Detection</h3>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.automationDetection}
+                          onCheckedChange={(checked) => handleToggleFeature("automationDetection", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Blocks entrants using automated technology, such as bots and survey farms.
+                      </p>
+                    </div>
+
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Trusted Browsers & OS</h3>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.trustedBrowsers}
+                          onCheckedChange={(checked) => handleToggleFeature("trustedBrowsers", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Restrict participation to trusted browsers and operating systems, blocking those associated with
+                        high-risk activity.
+                      </p>
+                    </div>
+
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <UserCheck className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Audience Validation</h3>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.audienceValidation}
+                          onCheckedChange={(checked) => handleToggleFeature("audienceValidation", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Validates that entrants qualify as the target audience with randomized, audience-specific,
+                        closed-end questions.
+                      </p>
+
+                      {securityFeatures.audienceValidation && (
+                        <div className="mt-4 ml-7 border-t pt-4">
+                          <h4 className="text-sm font-medium mb-3">Validation Type</h4>
+                          <div className="grid grid-cols-2 gap-2 p-1 rounded-md bg-gray-100 mb-4">
+                            <button
+                              type="button"
+                              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                audienceValidationType !== "b2b" ? "bg-white shadow-sm" : "text-gray-600"
+                              }`}
+                              onClick={() => setAudienceValidationType("response")}
+                            >
+                              Response Validation
+                            </button>
+                            <button
+                              type="button"
+                              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                audienceValidationType === "b2b" ? "bg-white shadow-sm" : "text-gray-600"
+                              }`}
+                              onClick={() => setAudienceValidationType("b2b")}
+                            >
+                              B2B Audience Validation
+                            </button>
+                          </div>
+
+                          <div className="relative">
+                            <select
+                              className="w-full p-2 pr-8 border rounded-md appearance-none bg-white"
+                              value={audienceValidationCategory}
+                              onChange={(e) => setAudienceValidationCategory(e.target.value)}
+                            >
+                              {audienceValidationType === "b2b" ? (
+                                <>
+                                  <option value="Small Business Owner">Small Business Owner</option>
+                                  <option value="HR Manager/Director">HR Manager/Director</option>
+                                  <option value="Finance Director">Finance Director</option>
+                                  <option value="Marketing Manager/Director">Marketing Manager/Director</option>
+                                </>
+                              ) : (
+                                <>
+                                  <option value="Consumer/Shopper">Consumer/Shopper</option>
+                                  <option value="Travel">Travel</option>
+                                  <option value="Entertainment">Entertainment</option>
+                                  <option value="Finance and Banking">Finance and Banking</option>
+                                  <option value="General">General</option>
+                                </>
+                              )}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                              <ChevronDown className="h-4 w-4 text-gray-500" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Terminal className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">AI Detection</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.aiDetection}
-                        onCheckedChange={(checked) => handleToggleFeature("aiDetection", checked)}
-                      />
+                      )}
                     </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Detects AI use by presenting entrants with randomized, audience-specific, open-end questions.
-                    </p>
 
-                    {securityFeatures.aiDetection && (
-                      <div className="mt-4 ml-7 border-t pt-4">
-                        <h4 className="text-sm font-medium mb-3">Validation Type</h4>
-                        <div className="grid grid-cols-2 gap-2 p-1 rounded-md bg-gray-100 mb-4">
-                          <button
-                            type="button"
-                            className={`px-3 py-2 rounded-md text-sm font-medium ${
-                              aiDetectionType !== "b2b" ? "bg-white shadow-sm" : "text-gray-600"
-                            }`}
-                            onClick={() => setAiDetectionType("response")}
-                          >
-                            Response Validation
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-2 rounded-md text-sm font-medium ${
-                              aiDetectionType === "b2b" ? "bg-white shadow-sm" : "text-gray-600"
-                            }`}
-                            onClick={() => setAiDetectionType("b2b")}
-                          >
-                            B2B Audience Validation
-                          </button>
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Terminal className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">AI Detection</h3>
                         </div>
+                        <Switch
+                          checked={securityFeatures.aiDetection}
+                          onCheckedChange={(checked) => handleToggleFeature("aiDetection", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Detects AI use by presenting entrants with randomized, audience-specific, open-end questions.
+                      </p>
 
-                        <div className="relative">
-                          <select
-                            className="w-full p-2 pr-8 border rounded-md appearance-none bg-white"
-                            value={aiDetectionCategory}
-                            onChange={(e) => setAiDetectionCategory(e.target.value)}
-                          >
-                            {aiDetectionType === "b2b" ? (
-                              <>
-                                <option value="Small Business Owner">Small Business Owner</option>
-                                <option value="HR Manager/Director">HR Manager/Director</option>
-                                <option value="Finance Director">Finance Director</option>
-                                <option value="Marketing Manager/Director">Marketing Manager/Director</option>
-                              </>
-                            ) : (
-                              <>
-                                <option value="Consumer/Shopper">Consumer/Shopper</option>
-                                <option value="Travel">Travel</option>
-                                <option value="Entertainment">Entertainment</option>
-                                <option value="Finance and Banking">Finance and Banking</option>
-                                <option value="General">General</option>
-                              </>
-                            )}
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                            <ChevronDown className="h-4 w-4 text-gray-500" />
+                      {securityFeatures.aiDetection && (
+                        <div className="mt-4 ml-7 border-t pt-4">
+                          <h4 className="text-sm font-medium mb-3">Validation Type</h4>
+                          <div className="grid grid-cols-2 gap-2 p-1 rounded-md bg-gray-100 mb-4">
+                            <button
+                              type="button"
+                              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                aiDetectionType !== "b2b" ? "bg-white shadow-sm" : "text-gray-600"
+                              }`}
+                              onClick={() => setAiDetectionType("response")}
+                            >
+                              Response Validation
+                            </button>
+                            <button
+                              type="button"
+                              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                aiDetectionType === "b2b" ? "bg-white shadow-sm" : "text-gray-600"
+                              }`}
+                              onClick={() => setAiDetectionType("b2b")}
+                            >
+                              B2B Audience Validation
+                            </button>
+                          </div>
+
+                          <div className="relative">
+                            <select
+                              className="w-full p-2 pr-8 border rounded-md appearance-none bg-white"
+                              value={aiDetectionCategory}
+                              onChange={(e) => setAiDetectionCategory(e.target.value)}
+                            >
+                              {aiDetectionType === "b2b" ? (
+                                <>
+                                  <option value="Small Business Owner">Small Business Owner</option>
+                                  <option value="HR Manager/Director">HR Manager/Director</option>
+                                  <option value="Finance Director">Finance Director</option>
+                                  <option value="Marketing Manager/Director">Marketing Manager/Director</option>
+                                </>
+                              ) : (
+                                <>
+                                  <option value="Consumer/Shopper">Consumer/Shopper</option>
+                                  <option value="Travel">Travel</option>
+                                  <option value="Entertainment">Entertainment</option>
+                                  <option value="Finance and Banking">Finance and Banking</option>
+                                  <option value="General">General</option>
+                                </>
+                              )}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                              <ChevronDown className="h-4 w-4 text-gray-500" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Location Lock</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.locationLock}
-                        onCheckedChange={(checked) => handleToggleFeature("locationLock", checked)}
-                      />
+                      )}
                     </div>
-                    <p className="text-gray-500 text-sm ml-7">Blocks entrants not located in specified countries.</p>
 
-                    {securityFeatures.locationLock && (
-                      <div className="mt-4 ml-7 border-t pt-4">
-                        <label className="block text-sm font-medium mb-2">Allowed Countries</label>
-                        <div className="relative">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className="w-full justify-between h-auto min-h-10"
-                              >
-                                {selectedCountries.length > 0 ? (
-                                  <div className="flex flex-wrap gap-1 py-1">
-                                    {selectedCountries.map((country) => (
-                                      <Badge key={country} variant="secondary" className="mr-1 mb-1">
-                                        {country}
-                                        <button
-                                          className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                          onMouseDown={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            setSelectedCountries(selectedCountries.filter((c) => c !== country))
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Location Lock</h3>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.locationLock}
+                          onCheckedChange={(checked) => handleToggleFeature("locationLock", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">Blocks entrants not located in specified countries.</p>
+
+                      {securityFeatures.locationLock && (
+                        <div className="mt-4 ml-7 border-t pt-4">
+                          <label className="block text-sm font-medium mb-2">Allowed Countries</label>
+                          <div className="relative">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full justify-between h-auto min-h-10"
+                                >
+                                  {selectedCountries.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1 py-1">
+                                      {selectedCountries.map((country) => (
+                                        <Badge key={country} variant="secondary" className="mr-1 mb-1">
+                                          {country}
+                                          <button
+                                            className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                            onMouseDown={(e) => {
+                                              e.preventDefault()
+                                              e.stopPropagation()
+                                              setSelectedCountries(selectedCountries.filter((c) => c !== country))
+                                            }}
+                                          >
+                                            ×
+                                          </button>
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span className="text-muted-foreground">Select countries...</span>
+                                  )}
+                                  <span className="ml-2">
+                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                  </span>
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0" align="start">
+                                <Command>
+                                  <CommandInput placeholder="Search country..." />
+                                  <CommandList>
+                                    <CommandEmpty>No country found.</CommandEmpty>
+                                    <CommandGroup className="max-h-64 overflow-auto">
+                                      {[
+                                        "Australia",
+                                        "Brazil",
+                                        "Canada",
+                                        "France",
+                                        "Germany",
+                                        "India",
+                                        "Italy",
+                                        "Japan",
+                                        "Mexico",
+                                        "Netherlands",
+                                        "Spain",
+                                        "Sweden",
+                                        "United Kingdom",
+                                        "United States",
+                                      ].map((country) => (
+                                        <CommandItem
+                                          key={country}
+                                          onSelect={() => {
+                                            setSelectedCountries(
+                                              selectedCountries.includes(country)
+                                                ? selectedCountries.filter((c) => c !== country)
+                                                : [...selectedCountries, country],
+                                            )
                                           }}
                                         >
-                                          ×
-                                        </button>
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground">Select countries...</span>
-                                )}
-                                <span className="ml-2">
-                                  <ChevronDown className="h-4 w-4 opacity-50" />
-                                </span>
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-full p-0" align="start">
-                              <Command>
-                                <CommandInput placeholder="Search country..." />
-                                <CommandList>
-                                  <CommandEmpty>No country found.</CommandEmpty>
-                                  <CommandGroup className="max-h-64 overflow-auto">
-                                    {[
-                                      "Australia",
-                                      "Brazil",
-                                      "Canada",
-                                      "France",
-                                      "Germany",
-                                      "India",
-                                      "Italy",
-                                      "Japan",
-                                      "Mexico",
-                                      "Netherlands",
-                                      "Spain",
-                                      "Sweden",
-                                      "United Kingdom",
-                                      "United States",
-                                    ].map((country) => (
-                                      <CommandItem
-                                        key={country}
-                                        onSelect={() => {
-                                          setSelectedCountries(
-                                            selectedCountries.includes(country)
-                                              ? selectedCountries.filter((c) => c !== country)
-                                              : [...selectedCountries, country],
-                                          )
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4",
-                                            selectedCountries.includes(country) ? "opacity-100" : "opacity-0",
-                                          )}
-                                        />
-                                        {country}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4",
+                                              selectedCountries.includes(country) ? "opacity-100" : "opacity-0",
+                                            )}
+                                          />
+                                          {country}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Globe className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Location Validation</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.locationValidation}
-                        onCheckedChange={(checked) => handleToggleFeature("locationValidation", checked)}
-                      />
+                      )}
                     </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Using a location-specific question, validates entrants who appear to be spoofing their location.
-                    </p>
-                  </div>
 
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Siren className="h-5 w-5 text-gray-500" />
-                        <div className="flex items-center">
-                          <h3 className="font-medium">Suspicious Users</h3>
-                          <Badge className="ml-2 bg-black text-white">NEW</Badge>
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Location Validation</h3>
                         </div>
+                        <Switch
+                          checked={securityFeatures.locationValidation}
+                          onCheckedChange={(checked) => handleToggleFeature("locationValidation", checked)}
+                        />
                       </div>
-                      <Switch
-                        checked={securityFeatures.suspiciousUsers}
-                        onCheckedChange={(checked) => handleToggleFeature("suspiciousUsers", checked)}
-                      />
+                      <p className="text-gray-500 text-sm ml-7">
+                        Using a location-specific question, validates entrants who appear to be spoofing their location.
+                      </p>
                     </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Blocks participants who display unusual behaviors that may indicate potential risk.
-                    </p>
 
-                    {securityFeatures.suspiciousUsers && (
-                      <div className="mt-4 ml-7 border-t pt-4">
-                        <h4 className="text-sm font-medium mb-3">Select signals to detect and block:</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div className="space-y-3">
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="vpnDetection"
-                                checked={suspiciousSignals.vpnDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({ ...prev, vpnDetection: checked === true }))
-                                }
-                              />
-                              <label
-                                htmlFor="vpnDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                VPN Detection
-                              </label>
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Siren className="h-5 w-5 text-gray-500" />
+                          <div className="flex items-center">
+                            <h3 className="font-medium">Suspicious Users</h3>
+                            <Badge className="ml-2 bg-black text-white">NEW</Badge>
+                          </div>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.suspiciousUsers}
+                          onCheckedChange={(checked) => handleToggleFeature("suspiciousUsers", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Blocks participants who display unusual behaviors that may indicate potential risk.
+                      </p>
+
+                      {securityFeatures.suspiciousUsers && (
+                        <div className="mt-4 ml-7 border-t pt-4">
+                          <h4 className="text-sm font-medium mb-3">Select signals to detect and block:</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="vpnDetection"
+                                  checked={suspiciousSignals.vpnDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({ ...prev, vpnDetection: checked === true }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="vpnDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  VPN Detection
+                                </label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="deviceTamperingDetection"
+                                  checked={suspiciousSignals.deviceTamperingDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      deviceTamperingDetection: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="deviceTamperingDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Device Tampering Detection
+                                </label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="virtualMachineDetection"
+                                  checked={suspiciousSignals.virtualMachineDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      virtualMachineDetection: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="virtualMachineDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Virtual Machine Detection
+                                </label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="devToolsDetection"
+                                  checked={suspiciousSignals.devToolsDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({ ...prev, devToolsDetection: checked === true }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="devToolsDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Dev Tools Detection
+                                </label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="privacyFocusedSettings"
+                                  checked={suspiciousSignals.privacyFocusedSettings}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      privacyFocusedSettings: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="privacyFocusedSettings"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Privacy-Focused Settings
+                                </label>
+                              </div>
                             </div>
 
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="deviceTamperingDetection"
-                                checked={suspiciousSignals.deviceTamperingDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({
-                                    ...prev,
-                                    deviceTamperingDetection: checked === true,
-                                  }))
-                                }
-                              />
-                              <label
-                                htmlFor="deviceTamperingDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Device Tampering Detection
-                              </label>
-                            </div>
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="torExitNodeDetection"
+                                  checked={suspiciousSignals.torExitNodeDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      torExitNodeDetection: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="torExitNodeDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Tor Exit Node Detection
+                                </label>
+                              </div>
 
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="virtualMachineDetection"
-                                checked={suspiciousSignals.virtualMachineDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({
-                                    ...prev,
-                                    virtualMachineDetection: checked === true,
-                                  }))
-                                }
-                              />
-                              <label
-                                htmlFor="virtualMachineDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Virtual Machine Detection
-                              </label>
-                            </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="publicProxyDetection"
+                                  checked={suspiciousSignals.publicProxyDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      publicProxyDetection: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="publicProxyDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Public Proxy Detection
+                                </label>
+                              </div>
 
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="devToolsDetection"
-                                checked={suspiciousSignals.devToolsDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({ ...prev, devToolsDetection: checked === true }))
-                                }
-                              />
-                              <label
-                                htmlFor="devToolsDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Dev Tools Detection
-                              </label>
-                            </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="highActivityDeviceDetection"
+                                  checked={suspiciousSignals.highActivityDeviceDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      highActivityDeviceDetection: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="highActivityDeviceDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  High-Activity Device Detection
+                                </label>
+                              </div>
 
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="privacyFocusedSettings"
-                                checked={suspiciousSignals.privacyFocusedSettings}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({
-                                    ...prev,
-                                    privacyFocusedSettings: checked === true,
-                                  }))
-                                }
-                              />
-                              <label
-                                htmlFor="privacyFocusedSettings"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Privacy-Focused Settings
-                              </label>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id="incognitoModeDetection"
+                                  checked={suspiciousSignals.incognitoModeDetection}
+                                  onCheckedChange={(checked) =>
+                                    setSuspiciousSignals((prev) => ({
+                                      ...prev,
+                                      incognitoModeDetection: checked === true,
+                                    }))
+                                  }
+                                />
+                                <label
+                                  htmlFor="incognitoModeDetection"
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  Incognito Mode Detection
+                                </label>
+                              </div>
                             </div>
                           </div>
 
-                          <div className="space-y-3">
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="torExitNodeDetection"
-                                checked={suspiciousSignals.torExitNodeDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({ ...prev, torExitNodeDetection: checked === true }))
-                                }
-                              />
-                              <label
-                                htmlFor="torExitNodeDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Tor Exit Node Detection
-                              </label>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="publicProxyDetection"
-                                checked={suspiciousSignals.publicProxyDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({ ...prev, publicProxyDetection: checked === true }))
-                                }
-                              />
-                              <label
-                                htmlFor="publicProxyDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Public Proxy Detection
-                              </label>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="highActivityDeviceDetection"
-                                checked={suspiciousSignals.highActivityDeviceDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({
-                                    ...prev,
-                                    highActivityDeviceDetection: checked === true,
-                                  }))
-                                }
-                              />
-                              <label
-                                htmlFor="highActivityDeviceDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                High-Activity Device Detection
-                              </label>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="incognitoModeDetection"
-                                checked={suspiciousSignals.incognitoModeDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({
-                                    ...prev,
-                                    incognitoModeDetection: checked === true,
-                                  }))
-                                }
-                              />
-                              <label
-                                htmlFor="incognitoModeDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Incognito Mode Detection
-                              </label>
-                            </div>
-                          </div>
+                          <p className="text-xs text-gray-500 mt-4">
+                            Participants matching any of these signals will be blocked from moving to your survey
+                          </p>
                         </div>
-
-                        <p className="text-xs text-gray-500 mt-4">
-                          Participants matching any of these signals will be blocked from moving to your survey
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border rounded-md p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Link className="h-5 w-5 text-gray-500" />
-                        <h3 className="font-medium">Duplicate ID</h3>
-                      </div>
-                      <Switch
-                        checked={securityFeatures.duplicateId}
-                        onCheckedChange={(checked) => handleToggleFeature("duplicateId", checked)}
-                      />
+                      )}
                     </div>
-                    <p className="text-gray-500 text-sm ml-7">
-                      Blocks multiple attempts from the same supplier participant ID.
-                    </p>
+
+                    <div className="border rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Link className="h-5 w-5 text-gray-500" />
+                          <h3 className="font-medium">Duplicate ID</h3>
+                        </div>
+                        <Switch
+                          checked={securityFeatures.duplicateId}
+                          onCheckedChange={(checked) => handleToggleFeature("duplicateId", checked)}
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm ml-7">
+                        Blocks multiple attempts from the same supplier participant ID.
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => router.push("/link-protectors")}>
+              <Button type="button" variant="outline" onClick={() => router.push("/")}>
                 Cancel
               </Button>
               <Button type="submit" className="bg-black text-white hover:bg-gray-800" disabled={isSubmitting}>

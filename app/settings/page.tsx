@@ -1,24 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Copy,
-  Eye,
-  EyeOff,
-  Trash,
-  Search,
-  Pencil,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react"
+import { Trash, Search, Pencil, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/context/user-context"
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("credentials")
+  // Changed default tab to "users" instead of "credentials"
+  const [activeTab, setActiveTab] = useState("users")
   const [showPublicClientId, setShowPublicClientId] = useState(false)
   const [showServerClientId, setShowServerClientId] = useState(false)
   const [showPublicKey, setShowPublicKey] = useState(false)
@@ -33,7 +23,7 @@ export default function SettingsPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="flex flex-col gap-6 max-w-7xl mx-auto">
-        <Tabs defaultValue="credentials" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="users" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-auto">
             <TabsTrigger
               value="credentials"
@@ -50,7 +40,7 @@ export default function SettingsPage() {
           </TabsList>
 
           <TabsContent value="credentials" className="mt-6">
-            <div className="mb-6 p-4 border rounded-lg bg-amber-50 border-amber-200">
+            <div className="p-6 border rounded-lg bg-amber-50 border-amber-200">
               <div className="flex items-start">
                 <div className="flex-shrink-0 mt-0.5">
                   <svg
@@ -71,213 +61,85 @@ export default function SettingsPage() {
                   <div className="mt-1 text-sm text-amber-700">
                     <p>
                       API access is not available on your current subscription. Please contact our sales team to learn
-                      more about our API offerings.
+                      more about our API offerings and how they can help your business.
                     </p>
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Button
                       variant="outline"
                       size="sm"
                       className="text-amber-800 bg-amber-100 border-amber-300 hover:bg-amber-200"
                     >
-                      Contact Sales
+                      Contact Sales About API Access
                     </Button>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="space-y-8">
-              {/* Public Keys Section */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <h2 className="text-xl font-semibold">Public Keys</h2>
-                    <p className="text-sm text-gray-500">Use public keys to make client-side requests.</p>
+
+            {/* Added information about API benefits */}
+            <div className="mt-6 p-6 border rounded-lg">
+              <h3 className="text-lg font-medium mb-4">API Features & Benefits</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-blue-500 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <h4 className="font-medium">Seamless Integration</h4>
                   </div>
-                  <Button variant="default" className="bg-black text-white hover:bg-gray-800">
-                    <span className="mr-1">+</span> New Client
-                  </Button>
+                  <p className="text-sm text-gray-600">
+                    Integrate our powerful API with your existing systems and workflows.
+                  </p>
                 </div>
-
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="p-6 border-r">
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Client Name</p>
-                          <p className="font-medium">frontend</p>
-                        </div>
-
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Client ID</p>
-                          <div className="flex items-center gap-2">
-                            <p className="font-mono text-sm">
-                              {showPublicClientId
-                                ? "dtect_client_1234_5678_abcd"
-                                : "••••••••_••••_••••_••••_••••••••••"}
-                            </p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => setShowPublicClientId(!showPublicClientId)}
-                            >
-                              {showPublicClientId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleCopy("dtect_client_1234_5678_abcd")}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <Button variant="destructive" className="w-full justify-center">
-                          <Trash className="h-4 w-4 mr-2" /> Delete Client
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <p className="text-sm text-gray-500 mb-4">API Keys</p>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <p className="font-mono text-sm">
-                            {showPublicKey
-                              ? "dtect_pk_5678_1234_efgh_ijkl_mnopqrstuvwxyz"
-                              : "•••••••••••••••••••••••••••••••••••••••••"}
-                          </p>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => setShowPublicKey(!showPublicKey)}
-                            >
-                              {showPublicKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleCopy("dtect_pk_5678_1234_efgh_ijkl_mnopqrstuvwxyz")}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button variant="destructive" size="sm" className="h-8 w-8 p-0">
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <Button variant="outline" className="w-full justify-center">
-                          <span className="mr-1">+</span> New API Key
-                        </Button>
-                      </div>
-                    </div>
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-blue-500 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <h4 className="font-medium">Developer-Friendly</h4>
                   </div>
+                  <p className="text-sm text-gray-600">
+                    Comprehensive documentation, SDKs, and code examples for quick implementation.
+                  </p>
                 </div>
-              </div>
-
-              {/* Server Keys Section */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <h2 className="text-xl font-semibold">Server Keys</h2>
-                    <p className="text-sm text-gray-500">
-                      Use server keys to make server-to-server requests to our API.
-                    </p>
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-blue-500 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <h4 className="font-medium">Enterprise Support</h4>
                   </div>
-                  <Button variant="default" className="bg-black text-white hover:bg-gray-800">
-                    <span className="mr-1">+</span> New Client
-                  </Button>
-                </div>
-
-                <div className="border rounded-lg overflow-hidden">
-                  <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="p-6 border-r">
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Client Name</p>
-                          <p className="font-medium">backend</p>
-                        </div>
-
-                        <div>
-                          <p className="text-sm text-gray-500 mb-1">Client ID</p>
-                          <div className="flex items-center gap-2">
-                            <p className="font-mono text-sm">
-                              {showServerClientId
-                                ? "dtect_client_9876_5432_wxyz"
-                                : "••••••••_••••_••••_••••_••••••••••"}
-                            </p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => setShowServerClientId(!showServerClientId)}
-                            >
-                              {showServerClientId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleCopy("dtect_client_9876_5432_wxyz")}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <Button variant="destructive" className="w-full justify-center">
-                          <Trash className="h-4 w-4 mr-2" /> Delete Client
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      <p className="text-sm text-gray-500 mb-4">API Keys</p>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <p className="font-mono text-sm">
-                            {showServerKey
-                              ? "dtect_sk_9876_5432_abcd_efgh_ijklmnopqrstuv"
-                              : "••••••••••••••••••••••••••••••••••••••••••"}
-                          </p>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => setShowServerKey(!showServerKey)}
-                            >
-                              {showServerKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleCopy("dtect_sk_9876_5432_abcd_efgh_ijklmnopqrstuv")}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button variant="destructive" size="sm" className="h-8 w-8 p-0">
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <Button variant="outline" className="w-full justify-center">
-                          <span className="mr-1">+</span> New API Key
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <p className="text-sm text-gray-600">
+                    Dedicated support team and SLAs to ensure your success with our API.
+                  </p>
                 </div>
               </div>
             </div>

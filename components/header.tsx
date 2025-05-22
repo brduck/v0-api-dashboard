@@ -3,7 +3,6 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/context/user-context"
 
@@ -50,10 +49,12 @@ export function Header() {
             Docs
           </Link>
         </nav>
-        <div className="ml-auto flex items-center gap-4">
-          <Button variant="outline" className="hidden gap-2 md:flex" onClick={logout}>
-            <LogOut className="w-4 h-4" />
-            Sign Out
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            Sign In
+          </Button>
+          <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
+            Sign Up
           </Button>
         </div>
       </div>

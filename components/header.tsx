@@ -21,7 +21,7 @@ export function Header() {
           />
         </div>
         <div className="ml-auto flex items-center gap-4">
-          <Button variant="outline" className="hidden gap-2 md:flex">
+          <Button className="hidden gap-2 md:flex">
             <LogIn className="w-4 h-4" />
             Sign In
           </Button>

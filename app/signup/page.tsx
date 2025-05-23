@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -122,6 +123,11 @@ export default function SignupPage() {
 
   return (
     <div className="container max-w-md mx-auto py-10">
+      <Button variant="ghost" className="mb-4 flex items-center gap-2" onClick={() => router.push("/protector/create")}>
+        <ArrowLeft className="h-4 w-4" />
+        Back to Link Protector
+      </Button>
+
       <Card>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>

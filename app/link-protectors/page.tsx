@@ -165,7 +165,7 @@ export default function LinkProtectors() {
                   <span>Upgrade to Create More</span>
                 </Button>
               ) : (
-                <Link href="/link-protector/create">
+                <Link href="/protector/create">
                   <Button variant="default" className="flex items-center gap-2 bg-black text-white hover:bg-gray-800">
                     <Plus className="h-4 w-4" />
                     <span>Create Protector</span>

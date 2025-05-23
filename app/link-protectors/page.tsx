@@ -255,7 +255,11 @@ export default function LinkProtectors() {
                                         : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
                                     }
                                   >
-                                    {project.status === "active" ? "Active" : "Paused"}
+                                    {project.status === "active"
+                                      ? "Active"
+                                      : isAtLimit
+                                        ? "Paused - Limit Reached"
+                                        : "Paused"}
                                   </Badge>
                                   {isAtLimit && <Badge className="bg-red-100 text-red-800">Limit Reached</Badge>}
                                 </div>
@@ -291,7 +295,7 @@ export default function LinkProtectors() {
                                         setShowUpgradeModal(true)
                                       }}
                                     >
-                                      Upgrade
+                                      {project.status === "paused" ? "Upgrade to Activate" : "Upgrade"}
                                     </Button>
                                   )}
                                 </div>
@@ -422,7 +426,11 @@ export default function LinkProtectors() {
                                     : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
                                 }
                               >
-                                {project.status === "active" ? "Active" : "Paused"}
+                                {project.status === "active"
+                                  ? "Active"
+                                  : isAtLimit
+                                    ? "Paused - Limit Reached"
+                                    : "Paused"}
                               </Badge>
                               {isAtLimit && <Badge className="bg-red-100 text-red-800 text-xs">Limit Reached</Badge>}
                             </div>
@@ -489,7 +497,7 @@ export default function LinkProtectors() {
             {showProjects ? "Hide Link Protectors" : "Show Link Protectors"}
           </Button>
         </div>
-        <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+        <PricingModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
       </div>
     </div>
   )

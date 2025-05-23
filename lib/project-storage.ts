@@ -58,7 +58,7 @@ const sampleProjects: Project[] = [
     totalParticipants: 100,
     trafficBlocked: 32456,
     lastActive: "2 hours ago",
-    status: "active",
+    status: "paused",
     createdAt: "2025-01-15",
   },
   {

@@ -35,8 +35,8 @@ export default function CreateLinkProtector() {
   const { toast } = useToast()
 
   const [formData, setFormData] = useState({
-    name: "Gen Z iPhone Users",
-    protectedLink: "https://www.mysurveylinkhere.com/",
+    name: "",
+    protectedLink: "",
     terminationType: "default" as const,
     customTerminationLink: "",
   })
@@ -203,7 +203,7 @@ export default function CreateLinkProtector() {
                     <Input
                       id="name"
                       name="name"
-                      placeholder="ex: iPhone Users Survey"
+                      placeholder="Enter a name for your link protector (e.g., iPhone Users Survey)"
                       value={formData.name}
                       onChange={handleInputChange}
                       required
@@ -221,7 +221,7 @@ export default function CreateLinkProtector() {
                     <Input
                       id="protectedLink"
                       name="protectedLink"
-                      placeholder="Link to your survey (ex: https://my-survey-link.com)"
+                      placeholder="https://your-survey-link.com"
                       value={formData.protectedLink}
                       onChange={handleInputChange}
                       required

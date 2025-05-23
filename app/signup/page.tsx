@@ -108,8 +108,8 @@ export default function SignupPage() {
         description: "Your account has been created and your link protector is now active.",
       })
 
-      // Redirect to dashboard or home page
-      router.push("/")
+      // Redirect to link protectors page
+      router.push("https://v0-api-dashboard-git-go-accf49-bruno-patinhos-projects-152503c5.vercel.app/link-protectors")
     } catch (error) {
       toast({
         title: "Error creating account",

@@ -55,7 +55,7 @@ const sampleProjects: Project[] = [
     advancedOptions: {
       maskParticipantId: false,
     },
-    totalParticipants: 245789,
+    totalParticipants: 100,
     trafficBlocked: 32456,
     lastActive: "2 hours ago",
     status: "active",
@@ -82,7 +82,7 @@ const sampleProjects: Project[] = [
     advancedOptions: {
       maskParticipantId: true,
     },
-    totalParticipants: 189632,
+    totalParticipants: 87,
     trafficBlocked: 45231,
     lastActive: "5 hours ago",
     status: "active",
@@ -109,7 +109,7 @@ const sampleProjects: Project[] = [
     advancedOptions: {
       maskParticipantId: false,
     },
-    totalParticipants: 523147,
+    totalParticipants: 33,
     trafficBlocked: 78562,
     lastActive: "1 day ago",
     status: "active",

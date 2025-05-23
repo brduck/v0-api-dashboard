@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
+import { Header } from "@/components/header"
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -15,7 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="flex min-h-screen flex-col bg-white">
+          <Header />
+          <main className="flex-1">{children}</main>
+        </div>
+      </body>
     </html>
   )
 }

@@ -189,8 +189,10 @@ export default function CreateLinkProtector() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold">Link Protector Details</h2>
-                  <p className="text-gray-500 text-sm">Configure your link protector by adding the required data</p>
+                  <h2 className="text-2xl font-bold">Protect your link with dtect</h2>
+                  <p className="text-gray-500 text-sm">
+                    Let's protect your first link with dtect by adding the data required below
+                  </p>
                 </div>
 
                 <div className="space-y-6">
@@ -214,7 +216,7 @@ export default function CreateLinkProtector() {
                       Protected Link
                     </Label>
                     <p className="text-xs text-gray-500 mb-2">
-                      This can be a Survey Link, Study Link or any other link you want to protect
+                      Add your Survey, Google Form, or any link you want to protect
                     </p>
                     <Input
                       id="protectedLink"

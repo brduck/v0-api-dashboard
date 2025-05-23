@@ -247,22 +247,19 @@ export default function LinkProtectors() {
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <h3 className="font-medium">{project.name}</h3>
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    className={
-                                      project.status === "active"
-                                        ? "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 transition-colors"
-                                        : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
-                                    }
-                                  >
-                                    {project.status === "active"
-                                      ? "Active"
-                                      : isAtLimit
-                                        ? "Paused - Limit Reached"
-                                        : "Paused"}
-                                  </Badge>
-                                  {isAtLimit && <Badge className="bg-red-100 text-red-800">Limit Reached</Badge>}
-                                </div>
+                                <Badge
+                                  className={
+                                    project.status === "active"
+                                      ? "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 transition-colors"
+                                      : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
+                                  }
+                                >
+                                  {project.status === "active"
+                                    ? "Active"
+                                    : isAtLimit
+                                      ? "Paused - Limit Reached"
+                                      : "Paused"}
+                                </Badge>
                               </div>
                               <Button
                                 variant="outline"
@@ -418,22 +415,15 @@ export default function LinkProtectors() {
                             <div className="font-medium">{project.name}</div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                className={
-                                  project.status === "active"
-                                    ? "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 transition-colors"
-                                    : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
-                                }
-                              >
-                                {project.status === "active"
-                                  ? "Active"
-                                  : isAtLimit
-                                    ? "Paused - Limit Reached"
-                                    : "Paused"}
-                              </Badge>
-                              {isAtLimit && <Badge className="bg-red-100 text-red-800 text-xs">Limit Reached</Badge>}
-                            </div>
+                            <Badge
+                              className={
+                                project.status === "active"
+                                  ? "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 transition-colors"
+                                  : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
+                              }
+                            >
+                              {project.status === "active" ? "Active" : isAtLimit ? "Paused - Limit Reached" : "Paused"}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="space-y-1">

@@ -261,7 +261,7 @@ export default function Dashboard() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Developer Tools Usage</span>
+                      <span className="text-sm">Dev Tools</span>
                       <span className="text-sm font-medium">43,762</span>
                     </div>
                     <Progress value={32} className="h-2 bg-gray-100" indicatorClassName="bg-black" />
@@ -277,7 +277,7 @@ export default function Dashboard() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Tor Usage</span>
+                      <span className="text-sm">Tor Exit Node</span>
                       <span className="text-sm font-medium">21,873</span>
                     </div>
                     <Progress value={16} className="h-2 bg-gray-100" indicatorClassName="bg-black" />
@@ -301,7 +301,7 @@ export default function Dashboard() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Incognito Usage</span>
+                      <span className="text-sm">Incognito Mode</span>
                       <span className="text-sm font-medium">12,984</span>
                     </div>
                     <Progress value={10} className="h-2 bg-gray-100" indicatorClassName="bg-black" />

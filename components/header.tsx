@@ -23,17 +23,8 @@ export function Header() {
           />
         </div>
         <nav className="hidden md:flex md:items-center md:gap-6 ml-10">
-          <Link
-            href="/link-protectors"
-            className={`text-sm font-medium ${pathname.startsWith("/link-protector") || pathname === "/link-protectors" || pathname.startsWith("/protector") ? "text-black" : "text-gray-500"}`}
-          >
-            Link Protector
-          </Link>
-          <Link
-            href="/usage"
-            className={`text-sm font-medium ${pathname === "/usage" ? "text-black" : "text-gray-500"}`}
-          >
-            API Usage
+          <Link href="/" className={`text-sm font-medium ${pathname === "/" ? "text-black" : "text-gray-500"}`}>
+            Dashboard
           </Link>
           <Link
             href="/settings"

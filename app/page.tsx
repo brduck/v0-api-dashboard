@@ -285,14 +285,6 @@ export default function Dashboard() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Public Proxy</span>
-                      <span className="text-sm font-medium">18,542</span>
-                    </div>
-                    <Progress value={14} className="h-2 bg-gray-100" indicatorClassName="bg-black" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
                       <span className="text-sm">High-Activity Device</span>
                       <span className="text-sm font-medium">15,327</span>
                     </div>

@@ -62,7 +62,6 @@ export default function CreateLinkProtector() {
     vpnDetection: true,
     torExitNodeDetection: true,
     deviceTamperingDetection: false,
-    publicProxyDetection: false,
     virtualMachineDetection: false,
     highActivityDeviceDetection: false,
     devToolsDetection: false,
@@ -849,22 +848,6 @@ export default function CreateLinkProtector() {
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                               >
                                 Tor Exit Node Detection
-                              </label>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="publicProxyDetection"
-                                checked={suspiciousSignals.publicProxyDetection}
-                                onCheckedChange={(checked) =>
-                                  setSuspiciousSignals((prev) => ({ ...prev, publicProxyDetection: checked === true }))
-                                }
-                              />
-                              <label
-                                htmlFor="publicProxyDetection"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Public Proxy Detection
                               </label>
                             </div>
 

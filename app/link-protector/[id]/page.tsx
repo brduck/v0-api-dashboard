@@ -37,6 +37,16 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Define all available security features and their display names
 const ALL_SECURITY_FEATURES = {
@@ -134,6 +144,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
   // Add these new state variables after the other state declarations
   const [customPausedLinkEnabled, setCustomPausedLinkEnabled] = useState(false)
   const [customPausedLinkUrl, setCustomPausedLinkUrl] = useState("")
+  const [disableTermination, setDisableTermination] = useState(false)
+  const [showDisableTerminationDialog, setShowDisableTerminationDialog] = useState(false)
 
   const [surveyLinkValue, setSurveyLinkValue] = useState("")
   const [terminationLinkValue, setTerminationLinkValue] = useState("")
@@ -212,9 +224,9 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           // Update to use the new variable names
           setEnableDtectRedirects(projectData.advancedOptions.enableDtectRedirects || false)
           setCompleteUrl(projectData.advancedOptions.completeUrl || "")
-
           setCustomPausedLinkEnabled(projectData.advancedOptions.customPausedLinkEnabled || false)
           setCustomPausedLinkUrl(projectData.advancedOptions.customPausedLinkUrl || "")
+          setDisableTermination(projectData.advancedOptions.disableTermination || false)
         }
       }
 
@@ -411,6 +423,46 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     })
   }
 
+  const handleDisableTerminationToggle = (checked: boolean) => {
+    if (checked) {
+      setShowDisableTerminationDialog(true)
+    } else {
+      setDisableTermination(false)
+      if (project) {
+        const updatedProject = {
+          ...project,
+          advancedOptions: {
+            ...(project.advancedOptions || {}),
+            disableTermination: false,
+          },
+        }
+        updateProject(updatedProject)
+        setProject(updatedProject)
+      }
+    }
+  }
+
+  const confirmDisableTermination = () => {
+    setDisableTermination(true)
+    setShowDisableTerminationDialog(false)
+    if (project) {
+      const updatedProject = {
+        ...project,
+        advancedOptions: {
+          ...(project.advancedOptions || {}),
+          disableTermination: true,
+        },
+      }
+      updateProject(updatedProject)
+      setProject(updatedProject)
+    }
+    toast({
+      title: "Termination Disabled",
+      description: "All participants will now be allowed through, regardless of security checks.",
+      variant: "destructive",
+    })
+  }
+
   // Calculate feature usage percentages for display
   const getFeatureUsagePercentage = (featureName: string) => {
     if (!project.featureUsage) return 0
@@ -525,7 +577,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
       {/* Main content */}
       <main className="flex-1 overflow-auto">
-        <div className="p-6 max-w-6xl mx-auto">
+        <div className="p-6 max-w-7xl mx-auto">
           {/* Overview Tab */}
           {activeTab === "overview" && (
             <div className="space-y-6">
@@ -1787,6 +1839,16 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                   <CardTitle>Danger Zone</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 border border-red-200 rounded-md bg-red-50 mb-4">
+                    <div>
+                      <h3 className="font-medium">Disable Termination</h3>
+                      <p className="text-sm text-gray-500">
+                        When enabled, all participants will be allowed through even if identified as fraudulent. This
+                        bypasses all security checks.
+                      </p>
+                    </div>
+                    <Switch checked={disableTermination} onCheckedChange={handleDisableTerminationToggle} />
+                  </div>
                   <div className="flex items-center justify-between p-4 border border-red-200 rounded-md bg-red-50">
                     <div>
                       <h3 className="font-medium">Delete Link Protector</h3>
@@ -1802,6 +1864,24 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           )}
         </div>
       </main>
+      <AlertDialog open={showDisableTerminationDialog} onOpenChange={setShowDisableTerminationDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will disable all termination checks for this link protector. All participants will be allowed
+              through to your survey, even if they are identified as fraudulent or suspicious. This could significantly
+              impact your data quality.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDisableTermination} className="bg-red-600 hover:bg-red-700">
+              Yes, disable termination
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

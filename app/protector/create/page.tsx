@@ -347,7 +347,7 @@ export default function CreateLinkProtector() {
                               <div>
                                 <h3 className="font-medium">Custom Link for Paused Traffic</h3>
                                 <p className="text-sm text-gray-500">
-                                When enabled, dtect uses this URL to redirect participants if traffic is paused or if they return from your survey as ‘Over Quota’ (requires <strong>Survey Redirect</strong> to dtect).
+                                When enabled, dtect uses this URL to redirect participants if traffic is paused or if they return from your survey as ‘Over Quota’ (requires <strong>Survey redirect to dtect</strong>).
                                 </p>
                               </div>
                               <Switch

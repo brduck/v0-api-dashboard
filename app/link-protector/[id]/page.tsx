@@ -607,7 +607,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center">
-                      <div className="text-sm text-gray-500 mb-1">Traffic Blocked</div>
+                      <div className="text-sm text-gray-500 mb-1">Participants Blocked</div>
                       <div className="text-3xl font-bold">{project.trafficBlocked.toLocaleString()}</div>
                     </div>
                   </CardContent>

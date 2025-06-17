@@ -204,7 +204,7 @@ export default function CreateLinkProtector() {
               <CardContent className="p-6">
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold">Link Protector Details</h2>
-                  <p className="text-gray-500 text-sm">Configure your link protector by adding the required data</p>
+                  <p className="text-gray-500 text-sm">Configure your Link Protector by selecting the features you need to secure your link.</p>
                 </div>
 
                 <div className="space-y-6">
@@ -257,7 +257,7 @@ export default function CreateLinkProtector() {
                           <Badge className="bg-black text-white">Recommended</Badge>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Our default link to communicate to participants that they failed security checks.
+                          Our default link that directs participants who fail security checks.
                         </p>
                       </div>
 
@@ -269,7 +269,7 @@ export default function CreateLinkProtector() {
                           <h3 className="font-medium text-base">Custom Termination Link</h3>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Add your custom link to communicate to participants that they failed security checks.
+                          Provide a custom link for participants who fail security checks
                         </p>
                         {formData.terminationType === "custom" && (
                           <Input
@@ -347,9 +347,7 @@ export default function CreateLinkProtector() {
                               <div>
                                 <h3 className="font-medium">Custom Link for Paused Traffic</h3>
                                 <p className="text-sm text-gray-500">
-                                  When enabled, dtect will use this URL to send participants when you pause traffic, or
-                                  who return from your survey as 'Over Quota' if{" "}
-                                  <strong>Survey redirect to dtect</strong> is enabled
+                                When enabled, dtect uses this URL to redirect participants if traffic is paused or if they return from your survey as ‘Over Quota’ (requires <strong>Survey Redirect</strong> to dtect).
                                 </p>
                               </div>
                               <Switch

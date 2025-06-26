@@ -402,8 +402,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     }
 
     toast({
-      title: "Survey Link updated",
-      description: "Your survey link has been updated successfully.",
+      title: "Protected Link updated",
+      description: "Your protected link has been updated successfully.",
     })
   }
 
@@ -814,7 +814,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           <div className="flex-col">
                             <div className="flex items-center gap-2">
                               <UserCheck className="h-5 w-5 flex-shrink-0 text-green-500" />
-                              <span className="font-medium">Survey Link</span>
+                              <span className="font-medium">Protected Link</span>
                             </div>
 
                             <p className="text-gray-500 text-sm"> Where participants are redirected if they qualify.</p>
@@ -1682,7 +1682,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                   <div className="space-y-2"></div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Survey Link</label>
+                    <label className="text-sm font-medium">Protected Link</label>
                     <Input
                       ref={surveyLinkRef}
                       defaultValue={project.surveyLink}

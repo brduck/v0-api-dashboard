@@ -3,14 +3,14 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "@/app/globals.css"
 import { Providers } from "@/components/providers"
-import { Header } from "@/components/header"
+import { ConditionalHeader } from "@/components/conditional-header"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "dtect API Dashboard",
   description: "Security monitoring dashboard",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <div className="flex min-h-screen flex-col bg-white">
-            <Header />
+            <ConditionalHeader />
             <main className="flex-1">{children}</main>
           </div>
         </Providers>

@@ -144,8 +144,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
   // Add these new state variables after the other state declarations
   const [customPausedLinkEnabled, setCustomPausedLinkEnabled] = useState(false)
   const [customPausedLinkUrl, setCustomPausedLinkUrl] = useState("")
-  const [disableTermination, setDisableTermination] = useState(false)
-  const [showDisableTerminationDialog, setShowDisableTerminationDialog] = useState(false)
+  const [evaluationMode, setEvaluationMode] = useState(false)
+  const [showEvaluationModeDialog, setShowEvaluationModeDialog] = useState(false)
 
   const [surveyLinkValue, setSurveyLinkValue] = useState("")
   const [terminationLinkValue, setTerminationLinkValue] = useState("")
@@ -226,7 +226,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           setCompleteUrl(projectData.advancedOptions.completeUrl || "")
           setCustomPausedLinkEnabled(projectData.advancedOptions.customPausedLinkEnabled || false)
           setCustomPausedLinkUrl(projectData.advancedOptions.customPausedLinkUrl || "")
-          setDisableTermination(projectData.advancedOptions.disableTermination || false)
+          setEvaluationMode(projectData.advancedOptions.evaluationMode || false)
         }
       }
 
@@ -423,17 +423,17 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     })
   }
 
-  const handleDisableTerminationToggle = (checked: boolean) => {
+  const handleEvaluationModeToggle = (checked: boolean) => {
     if (checked) {
-      setShowDisableTerminationDialog(true)
+      setShowEvaluationModeDialog(true)
     } else {
-      setDisableTermination(false)
+      setEvaluationMode(false)
       if (project) {
         const updatedProject = {
           ...project,
           advancedOptions: {
             ...(project.advancedOptions || {}),
-            disableTermination: false,
+            evaluationMode: false,
           },
         }
         updateProject(updatedProject)
@@ -442,24 +442,24 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     }
   }
 
-  const confirmDisableTermination = () => {
-    setDisableTermination(true)
-    setShowDisableTerminationDialog(false)
+  const confirmEvaluationMode = () => {
+    setEvaluationMode(true)
+    setShowEvaluationModeDialog(false)
     if (project) {
       const updatedProject = {
         ...project,
         advancedOptions: {
           ...(project.advancedOptions || {}),
-          disableTermination: true,
+          evaluationMode: true,
         },
       }
       updateProject(updatedProject)
       setProject(updatedProject)
     }
     toast({
-      title: "Termination Disabled",
-      description: "All participants will now be allowed through, regardless of security checks.",
-      variant: "destructive",
+      title: "Evaluation Mode Enabled",
+      description: "All participants will be allowed through while we flag security issues for review.",
+      variant: "default",
     })
   }
 
@@ -584,7 +584,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">Overview</h2>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" className="flex items-center gap-2">
+                  <Button variant="outline" className="flex items-center gap-2 bg-transparent">
                     <Calendar className="h-4 w-4" />
                     <span>Mar 01, 2025 - Mar 31, 2025</span>
                   </Button>
@@ -672,7 +672,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 bg-transparent"
                       onClick={() => setActiveTab("security")}
                     >
                       <Settings className="h-3.5 w-3.5" />
@@ -762,7 +762,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 bg-transparent"
                       onClick={() => setActiveTab("settings")}
                     >
                       <Settings className="h-3.5 w-3.5" />
@@ -1330,7 +1330,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                               <Button
                                 variant="outline"
                                 role="combobox"
-                                className="w-full justify-between h-auto min-h-10"
+                                className="w-full justify-between h-auto min-h-10 bg-transparent"
                               >
                                 {selectedCountries.length > 0 ? (
                                   <div className="flex flex-wrap gap-1 py-1">
@@ -1836,27 +1836,18 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Danger Zone</CardTitle>
+                  <CardTitle>Evaluation Mode</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-red-200 rounded-md bg-red-50 mb-4">
-                    <div>
-                      <h3 className="font-medium">Disable Termination</h3>
-                      <p className="text-sm text-gray-500">
-                        When enabled, all participants will be allowed through even if identified as fraudulent. This
-                        bypasses all security checks.
-                      </p>
-                    </div>
-                    <Switch checked={disableTermination} onCheckedChange={handleDisableTerminationToggle} />
-                  </div>
                   <div className="flex items-center justify-between p-4 border border-red-200 rounded-md bg-red-50">
                     <div>
-                      <h3 className="font-medium">Delete Link Protector</h3>
+                      <h3 className="font-medium">Evaluation Mode</h3>
                       <p className="text-sm text-gray-500">
-                        Once you delete a link protector, there is no going back. Please be certain.
+                        Let all participants through, even if they fail security checks. We'll still flag issues so you
+                        can review dtect's impact before enabling blocking.
                       </p>
                     </div>
-                    <Button variant="destructive">Delete Link Protector</Button>
+                    <Switch checked={evaluationMode} onCheckedChange={handleEvaluationModeToggle} />
                   </div>
                 </CardContent>
               </Card>
@@ -1864,20 +1855,20 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           )}
         </div>
       </main>
-      <AlertDialog open={showDisableTerminationDialog} onOpenChange={setShowDisableTerminationDialog}>
+      <AlertDialog open={showEvaluationModeDialog} onOpenChange={setShowEvaluationModeDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Enable Evaluation Mode?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action will disable all termination checks for this link protector. All participants will be allowed
-              through to your survey, even if they are identified as fraudulent or suspicious. This could significantly
-              impact your data quality.
+              When Evaluation Mode is enabled, we will not block participants even if they fail security checks. All
+              participants will be allowed through to your protected link while we continue to flagging them for your
+              review.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDisableTermination} className="bg-red-600 hover:bg-red-700">
-              Yes, disable termination
+            <AlertDialogAction onClick={confirmEvaluationMode} className="bg-black hover:bg-gray-800">
+              Enable Evaluation Mode
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

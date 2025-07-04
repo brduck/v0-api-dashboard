@@ -5,7 +5,7 @@ import type { Project } from "@/lib/project-storage"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal } from "lucide-react"
+import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,13 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import { getProjects } from "@/lib/project-storage"
-
-// Add this after the imports
-const progressBarStyles = {
-  "& > div": {
-    backgroundColor: "#dc2626 !important",
-  },
-}
 
 export default function LinkProtectors() {
   const router = useRouter()
@@ -39,6 +32,9 @@ export default function LinkProtectors() {
     console.log("Loaded link protectors:", projects)
     setProjects(projects)
   }, [])
+
+  // Check if any projects have test mode enabled
+  const hasTestModeProjects = projects.some((project) => project.testMode === true)
 
   // Filter projects based on search query and status filter
   const filteredProjects = projects.filter((project) => {
@@ -90,6 +86,23 @@ export default function LinkProtectors() {
           <h1 className="text-2xl font-bold">Link Protectors</h1>
           <p className="text-gray-500">Create, manage, and monitor your link protectors</p>
         </div>
+
+        {/* Test Mode Warning Banner */}
+        {hasTestModeProjects && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-orange-800">Test Mode Active</h3>
+                <p className="text-sm text-orange-700 mt-1">
+                  One or more link protectors are running in test mode. Traffic is being analyzed but not blocked.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="relative w-full md:w-96">
@@ -198,7 +211,15 @@ export default function LinkProtectors() {
                         <div className="p-4 md:col-span-4 border-b md:border-b-0 md:border-r">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <h3 className="font-medium">{project.name}</h3>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-medium">{project.name}</h3>
+                              </div>
+                              <div>
+                              {project?.advancedOptions?.testMode && (
+                                  <Badge className="mr-2 bg-orange-100 text-orange-800 hover:bg-orange-200 text-xs">
+                                    Test Mode
+                                  </Badge>
+                                )}
                               <Badge
                                 className={
                                   project.status === "active"
@@ -208,11 +229,12 @@ export default function LinkProtectors() {
                               >
                                 {project.status === "active" ? "Active" : "Paused"}
                               </Badge>
+                              </div>
                             </div>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-xs flex items-center gap-1.5 h-7"
+                              className="text-xs flex items-center gap-1.5 h-7 bg-transparent"
                               onClick={(e) => handleCopyLink(project.securityLink || "", e)}
                             >
                               <Shield className="h-3.5 w-3.5 text-blue-500" />
@@ -245,7 +267,7 @@ export default function LinkProtectors() {
                                   </div>
                                 </div>
                               </div>
-                              <Button variant="outline" size="sm" className="shrink-0">
+                              <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
                                 View Details
                               </Button>
                             </div>
@@ -327,7 +349,14 @@ export default function LinkProtectors() {
                     sortedProjects.map((project) => (
                       <TableRow key={project.id}>
                         <TableCell>
-                          <div className="font-medium">{project.name}</div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div className="font-medium">{project.name}</div>
+                            {project.testMode && (
+                              <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200 text-xs">
+                                Test Mode
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -357,7 +386,7 @@ export default function LinkProtectors() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-xs flex items-center gap-1.5 h-7"
+                            className="text-xs flex items-center gap-1.5 h-7 bg-transparent"
                             onClick={(e) => handleCopyLink(project.securityLink || "", e)}
                           >
                             <Shield className="h-3.5 w-3.5 text-blue-500" />

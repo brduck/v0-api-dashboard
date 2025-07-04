@@ -144,8 +144,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
   // Add these new state variables after the other state declarations
   const [customPausedLinkEnabled, setCustomPausedLinkEnabled] = useState(false)
   const [customPausedLinkUrl, setCustomPausedLinkUrl] = useState("")
-  const [evaluationMode, setEvaluationMode] = useState(false)
-  const [showEvaluationModeDialog, setShowEvaluationModeDialog] = useState(false)
+  const [testMode, setTestMode] = useState(false)
+  const [showTestModeDialog, setShowTestModeDialog] = useState(false)
 
   const [surveyLinkValue, setSurveyLinkValue] = useState("")
   const [terminationLinkValue, setTerminationLinkValue] = useState("")
@@ -226,7 +226,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           setCompleteUrl(projectData.advancedOptions.completeUrl || "")
           setCustomPausedLinkEnabled(projectData.advancedOptions.customPausedLinkEnabled || false)
           setCustomPausedLinkUrl(projectData.advancedOptions.customPausedLinkUrl || "")
-          setEvaluationMode(projectData.advancedOptions.evaluationMode || false)
+          setTestMode(projectData.advancedOptions.testMode || false)
         }
       }
 
@@ -423,17 +423,17 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     })
   }
 
-  const handleEvaluationModeToggle = (checked: boolean) => {
+  const handleTestModeToggle = (checked: boolean) => {
     if (checked) {
-      setShowEvaluationModeDialog(true)
+      setShowTestModeDialog(true)
     } else {
-      setEvaluationMode(false)
+      setTestMode(false)
       if (project) {
         const updatedProject = {
           ...project,
           advancedOptions: {
             ...(project.advancedOptions || {}),
-            evaluationMode: false,
+            testMode: false,
           },
         }
         updateProject(updatedProject)
@@ -442,23 +442,24 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     }
   }
 
-  const confirmEvaluationMode = () => {
-    setEvaluationMode(true)
-    setShowEvaluationModeDialog(false)
+  const confirmTestMode = () => {
+    setTestMode(true)
+    setShowTestModeDialog(false)
     if (project) {
       const updatedProject = {
         ...project,
         advancedOptions: {
           ...(project.advancedOptions || {}),
-          evaluationMode: true,
+          testMode: true,
         },
       }
       updateProject(updatedProject)
       setProject(updatedProject)
     }
     toast({
-      title: "Evaluation Mode Enabled",
-      description: "All participants will be allowed through while we flag security issues for review.",
+      title: "Test Mode Enabled",
+      description:
+        "All participants will be allowed through to your protected link, but those who fail security checks will be flagged for review.",
       variant: "default",
     })
   }
@@ -577,6 +578,33 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
       {/* Main content */}
       <main className="flex-1 overflow-auto">
+        {testMode && (
+          <div className="bg-orange-100 border-l-4 border-orange-500 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-orange-700">
+                  <strong>Test Mode is enabled.</strong> All participants will be allowed through to your protected
+                  link, but those who fail security checks will be flagged for review.{" "}
+                  <button
+                    onClick={() => setShowTestModeDialog(true)}
+                    className="underline hover:no-underline font-medium"
+                  >
+                    Click here to disable.
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="p-6 max-w-7xl mx-auto">
           {/* Overview Tab */}
           {activeTab === "overview" && (
@@ -1836,18 +1864,18 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Evaluation Mode</CardTitle>
+                  <CardTitle>Test Mode</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between p-4 border border-red-200 rounded-md bg-red-50">
                     <div>
-                      <h3 className="font-medium">Evaluation Mode</h3>
+                      <h3 className="font-medium">Test Mode</h3>
                       <p className="text-sm text-gray-500">
-                        Let all participants through, even if they fail security checks. We'll still flag issues so you
-                        can review dtect's impact before enabling blocking.
+                        All participants will be allowed through to your protected link, but those who fail security
+                        checks will be flagged for review.
                       </p>
                     </div>
-                    <Switch checked={evaluationMode} onCheckedChange={handleEvaluationModeToggle} />
+                    <Switch checked={testMode} onCheckedChange={handleTestModeToggle} />
                   </div>
                 </CardContent>
               </Card>
@@ -1855,20 +1883,20 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           )}
         </div>
       </main>
-      <AlertDialog open={showEvaluationModeDialog} onOpenChange={setShowEvaluationModeDialog}>
+      <AlertDialog open={showTestModeDialog} onOpenChange={setShowTestModeDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Enable Evaluation Mode?</AlertDialogTitle>
+            <AlertDialogTitle>Enable Test Mode?</AlertDialogTitle>
             <AlertDialogDescription>
-              When Evaluation Mode is enabled, we will not block participants even if they fail security checks. All
+              When Test Mode is enabled, we will not block participants even if they fail security checks. All
               participants will be allowed through to your protected link while we continue to flagging them for your
               review.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmEvaluationMode} className="bg-black hover:bg-gray-800">
-              Enable Evaluation Mode
+            <AlertDialogAction onClick={confirmTestMode} className="bg-black hover:bg-gray-800">
+              Enable Test Mode
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

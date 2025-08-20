@@ -100,6 +100,11 @@ const ALL_SECURITY_FEATURES = {
     description: "Blocks multiple attempts from the same supplier participant ID",
     color: "bg-emerald-500",
   },
+  trafficPaused: {
+    name: "Traffic Paused",
+    description: "Participants blocked when traffic collection is paused",
+    color: "bg-gray-500",
+  },
 }
 
 export default function LinkProtectorDetails({ params }: { params: { id: string } }) {
@@ -146,6 +151,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
   const [customPausedLinkUrl, setCustomPausedLinkUrl] = useState("")
   const [testMode, setTestMode] = useState(false)
   const [showTestModeDialog, setShowTestModeDialog] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const [surveyLinkValue, setSurveyLinkValue] = useState("")
   const [terminationLinkValue, setTerminationLinkValue] = useState("")
@@ -657,32 +663,67 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-medium">Traffic Overview</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg font-medium">Traffic Overview</CardTitle>
+                      <button
+                        className="text-gray-400 hover:text-gray-600 relative"
+                        onClick={() => setShowTooltip(!showTooltip)}
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {showTooltip && (
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-800 rounded-md whitespace-nowrap z-10 w-64">
+                            Stats who dropped or are still in progress will not be categorized as blocked or allowed
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>
-                      {project.totalParticipants > 0
-                        ? ((project.trafficBlocked / project.totalParticipants) * 100).toFixed(1)
-                        : "0.0"}
-                      % blocked
-                    </span>
-                    <span>{project.totalParticipants.toLocaleString()} participants</span>
+                  <div className="w-full">
+                    <div className="relative h-1 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-red-500 transition-all duration-300"
+                        style={{
+                          width: `${
+                            project.totalParticipants > 0
+                              ? (project.trafficBlocked / project.totalParticipants) * 100
+                              : 0
+                          }%`,
+                        }}
+                      />
+                      <div
+                        className="absolute top-0 right-0 h-full bg-green-500 transition-all duration-300"
+                        style={{
+                          width: `${
+                            project.totalParticipants > 0
+                              ? ((project.totalParticipants - project.trafficBlocked) / project.totalParticipants) * 100
+                              : 0
+                          }%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                  {/* Custom progress bar implementation */}
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-red-600"
-                      style={{
-                        width: `${
-                          project.totalParticipants > 0 ? (project.trafficBlocked / project.totalParticipants) * 100 : 0
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>Blocked: {project.trafficBlocked.toLocaleString()}</span>
-                    <span>Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}</span>
+                  <div className="flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                      <span className="text-sm">Blocked: {project.trafficBlocked.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                      <span className="text-sm">
+                        Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -691,10 +732,9 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg font-medium">Security Features</CardTitle>
+                      <CardTitle className="text-lg font-medium">Block Reasons</CardTitle>
                       <p className="text-sm text-gray-500 mt-1 mb-2">
-                        Participants flagged by each security feature. One participant can be flagged on multiple
-                        security features
+                        Participants blocked by each reason. One participant can be blocked for multiple reasons
                       </p>
                     </div>
                     <Button
@@ -704,7 +744,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                       onClick={() => setActiveTab("security")}
                     >
                       <Settings className="h-3.5 w-3.5" />
-                      Update Security
+                      Update Settings
                     </Button>
                   </div>
                 </CardHeader>
@@ -1728,7 +1768,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     />
                   </div>
 
-{/*
+                  {/*
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Advanced Options</label>
                     <div className="p-4 border border-gray-200 rounded-md bg-gray-50">

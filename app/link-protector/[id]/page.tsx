@@ -679,8 +679,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           />
                         </svg>
                         {showTooltip && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-800 rounded-md whitespace-nowrap z-10 w-64">
-                            Stats who dropped or are still in progress will not be categorized as blocked or allowed
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-800 rounded-md z-10 w-64">
+                            Participants who dropped or are still in progress will not be categorized as blocked or allowed
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                           </div>
                         )}

@@ -285,7 +285,7 @@ export default function CreateLinkProtector() {
                     </div>
                   </div>
 
-                  {/* Advanced Options Section */}
+                  {/* Advanced Options Section 
                   <div className="pt-2">
                     <button
                       type="button"
@@ -323,6 +323,7 @@ export default function CreateLinkProtector() {
                       </div>
                     )}
                   </div>
+                  */}
                 </div>
               </CardContent>
             </Card>

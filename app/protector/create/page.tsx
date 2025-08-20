@@ -285,7 +285,7 @@ export default function CreateLinkProtector() {
                     </div>
                   </div>
 
-                  {/* Advanced Options Section */}
+                  {/* Advanced Options Section 
                   <div className="pt-2">
                     <button
                       type="button"
@@ -303,7 +303,6 @@ export default function CreateLinkProtector() {
                     {showAdvancedOptions && (
                       <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
                         <div className="space-y-4">
-                          {/* Updated feature name and description */}
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="font-medium">Survey redirect to dtect</h3>
@@ -320,7 +319,6 @@ export default function CreateLinkProtector() {
                             />
                           </div>
 
-                          {/* Show Complete URL input when the feature is enabled */}
                           {enableDtectRedirects && (
                             <div className="mt-4 pl-4 border-l-2 border-gray-200">
                               <div className="space-y-2">
@@ -341,7 +339,6 @@ export default function CreateLinkProtector() {
                             </div>
                           )}
 
-                          {/* Custom Paused Link URL option */}
                           <div className="pt-4 border-t border-gray-200">
                             <div className="flex items-center justify-between">
                               <div>
@@ -379,6 +376,7 @@ export default function CreateLinkProtector() {
                       </div>
                     )}
                   </div>
+                  */}
                 </div>
               </CardContent>
             </Card>

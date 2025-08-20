@@ -1728,10 +1728,10 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     />
                   </div>
 
+{/*
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Advanced Options</label>
                     <div className="p-4 border border-gray-200 rounded-md bg-gray-50">
-                      {/* Updated feature name and description */}
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="font-medium">Survey redirect to dtect</h3>
@@ -1759,7 +1759,6 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         />
                       </div>
 
-                      {/* Show Complete URL input when the feature is enabled */}
                       {enableDtectRedirects && (
                         <div className="mt-4 pl-4 border-l-2 border-gray-200">
                           <div className="space-y-2">
@@ -1789,8 +1788,6 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           </div>
                         </div>
                       )}
-
-                      {/* Custom Paused Link URL option */}
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex items-center justify-between">
                           <div>
@@ -1853,7 +1850,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                       </div>
                     </div>
                   </div>
-
+*/}
                   <div className="flex justify-end">
                     <Button className="bg-black text-white hover:bg-gray-800" onClick={handleUpdateSurveyLink}>
                       Save Changes

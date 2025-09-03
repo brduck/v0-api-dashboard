@@ -680,7 +680,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         </svg>
                         {showTooltip && (
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-800 rounded-md z-10 w-64">
-                            Participants who dropped or are still in progress will not be categorized as blocked or allowed
+                            Participants who dropped or are still in progress will not be categorized as blocked or
+                            allowed
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                           </div>
                         )}
@@ -1762,10 +1763,75 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Termination Link</label>
-                    <Input
-                      defaultValue={project.terminationLink}
-                      onChange={(e) => setTerminationLinkValue(e.target.value)}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                      <div
+                        className={`border rounded-md p-4 cursor-pointer transition-colors ${
+                          project.terminationType === "default" || !project.terminationType
+                            ? "border-black bg-gray-50"
+                            : "border-gray-200 hover:bg-gray-50"
+                        }`}
+                        onClick={() => {
+                          const updatedProject = {
+                            ...project,
+                            terminationType: "default",
+                            terminationLink: `https://participation.dtect.io/test-supplier?status=security_terminate&id=${project.id}`,
+                          }
+                          updateProject(updatedProject)
+                          setProject(updatedProject)
+                          setTerminationLinkValue(updatedProject.terminationLink)
+                        }}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-medium text-base">Default Termination Link</h3>
+                          </div>
+                          <Badge className="bg-black text-white">Recommended</Badge>
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          Our default link that directs participants who fail security checks.
+                        </p>
+                      </div>
+
+                      <div
+                        className={`border rounded-md p-4 cursor-pointer transition-colors ${
+                          project.terminationType === "custom"
+                            ? "border-black bg-gray-50"
+                            : "border-gray-200 hover:bg-gray-50"
+                        }`}
+                        onClick={() => {
+                          const updatedProject = {
+                            ...project,
+                            terminationType: "custom",
+                          }
+                          updateProject(updatedProject)
+                          setProject(updatedProject)
+                        }}
+                      >
+                        <div className="mb-2">
+                          <h3 className="font-medium text-base">Custom Termination Link</h3>
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          Provide a custom link for participants who fail security checks
+                        </p>
+                        {project.terminationType === "custom" && (
+                          <Input
+                            placeholder="https://your-custom-termination-link.com"
+                            value={terminationLinkValue}
+                            onChange={(e) => {
+                              setTerminationLinkValue(e.target.value)
+                              const updatedProject = {
+                                ...project,
+                                terminationLink: e.target.value,
+                              }
+                              updateProject(updatedProject)
+                              setProject(updatedProject)
+                            }}
+                            className="mt-2"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/*

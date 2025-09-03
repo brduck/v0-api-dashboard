@@ -215,20 +215,20 @@ export default function LinkProtectors() {
                                 <h3 className="font-medium">{project.name}</h3>
                               </div>
                               <div>
-                              {project?.advancedOptions?.testMode && (
+                                {project?.advancedOptions?.testMode && (
                                   <Badge className="mr-2 bg-orange-100 text-orange-800 hover:bg-orange-200 text-xs">
                                     Test Mode
                                   </Badge>
                                 )}
-                              <Badge
-                                className={
-                                  project.status === "active"
-                                    ? "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 transition-colors"
-                                    : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
-                                }
-                              >
-                                {project.status === "active" ? "Active" : "Paused"}
-                              </Badge>
+                                <Badge
+                                  className={
+                                    project.status === "active"
+                                      ? "bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900 transition-colors"
+                                      : "bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 transition-colors"
+                                  }
+                                >
+                                  {project.status === "active" ? "Active" : "Paused"}
+                                </Badge>
                               </div>
                             </div>
                             <Button
@@ -272,24 +272,38 @@ export default function LinkProtectors() {
                               </Button>
                             </div>
                             <div className="space-y-1">
+                              <div className="w-full">
+                                <div className="relative h-1 bg-gray-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-red-500 transition-all duration-300"
+                                    style={{
+                                      width: `${
+                                        project.totalParticipants > 0
+                                          ? (project.trafficBlocked / project.totalParticipants) * 100
+                                          : 0
+                                      }%`,
+                                    }}
+                                  />
+                                  <div
+                                    className="absolute top-0 right-0 h-full bg-green-500 transition-all duration-300"
+                                    style={{
+                                      width: `${
+                                        project.totalParticipants > 0
+                                          ? (
+                                              (project.totalParticipants - project.trafficBlocked) /
+                                                project.totalParticipants
+                                            ) * 100
+                                          : 0
+                                      }%`,
+                                    }}
+                                  />
+                                </div>
+                              </div>
                               <div className="flex items-center justify-between text-xs">
                                 <span>Blocked: {project.trafficBlocked.toLocaleString()}</span>
                                 <span>
                                   Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}
                                 </span>
-                              </div>
-                              {/* Custom progress bar implementation */}
-                              <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-red-600"
-                                  style={{
-                                    width: `${
-                                      project.totalParticipants > 0
-                                        ? (project.trafficBlocked / project.totalParticipants) * 100
-                                        : 0
-                                    }%`,
-                                  }}
-                                ></div>
                               </div>
                             </div>
                           </div>

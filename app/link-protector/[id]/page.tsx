@@ -818,7 +818,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           {activeTab === "links" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Link Protector Links</h2>
+                <h2 className="text-2xl font-bold">Links</h2>
               </div>
 
               <Card>
@@ -1735,7 +1735,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           {activeTab === "settings" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Link Protector Settings</h2>
+                <h2 className="text-2xl font-bold">Settings</h2>
               </div>
 
               <Card>

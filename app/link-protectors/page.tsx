@@ -208,7 +208,7 @@ export default function LinkProtectors() {
                   <Card className="overflow-hidden transition-all hover:shadow-md cursor-pointer mb-2">
                     <CardContent className="p-0">
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <div className="p-4 md:col-span-4 border-b md:border-b-0 md:border-r">
+                        <div className="p-4 md:col-span-4 border-b md:border-b-0 md:border-r flex flex-col justify-between">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 flex-wrap">
@@ -231,19 +231,16 @@ export default function LinkProtectors() {
                                 </Badge>
                               </div>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-xs flex items-center gap-1.5 h-7 bg-transparent"
-                              onClick={(e) => handleCopyLink(project.securityLink || "", e)}
-                            >
-                              <Shield className="h-3.5 w-3.5 text-blue-500" />
-                              Copy Entry Link
-                            </Button>
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <span>Last Participant: {project.lastActive}</span>
-                            </div>
                           </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs flex items-center gap-1.5 h-7 bg-transparent mt-2"
+                            onClick={(e) => handleCopyLink(project.securityLink || "", e)}
+                          >
+                            <Shield className="h-3.5 w-3.5 text-blue-500" />
+                            Copy Entry Link
+                          </Button>
                         </div>
                         <div className="p-4 md:col-span-8">
                           <div className="space-y-3">
@@ -347,7 +344,6 @@ export default function LinkProtectors() {
                     <TableHead className="text-right">Participants</TableHead>
                     <TableHead className="text-right">Blocked</TableHead>
                     <TableHead className="text-right">Block Rate</TableHead>
-                    <TableHead>Last Participant</TableHead>
                     <TableHead>Entry Link</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -355,7 +351,7 @@ export default function LinkProtectors() {
                 <TableBody>
                   {sortedProjects.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
+                      <TableCell colSpan={7} className="text-center py-8">
                         No link protectors found matching your criteria
                       </TableCell>
                     </TableRow>
@@ -395,7 +391,6 @@ export default function LinkProtectors() {
                             : "0.0"}
                           %
                         </TableCell>
-                        <TableCell>{project.lastActive}</TableCell>
                         <TableCell>
                           <Button
                             variant="outline"

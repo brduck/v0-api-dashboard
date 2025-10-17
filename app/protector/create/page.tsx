@@ -527,7 +527,7 @@ export default function CreateLinkProtector() {
                             </h3>
                             <p className="text-sm text-gray-500 mt-0.5">
                               {showSecurityFeatures
-                                ? "Collapse to hide all security features."
+                                ? "Hide all security features."
                                 : "See all available features. You can enable or disable any to adjust your goals."}
                             </p>
                           </div>

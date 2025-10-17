@@ -137,7 +137,7 @@ export default function CreateLinkProtector() {
         })
         break
       case "high-quality":
-        // High-Quality Participants: All from Human-Only + AI Detection + Quality Questions (Audience Validation) + Location Validation
+        // High-Quality Participants: All from Human-Only + AI Detection + Quality Questions (Audience Validation)
         setSecurityFeatures({
           deviceDeduplication: true,
           ipDeduplication: true,
@@ -150,6 +150,9 @@ export default function CreateLinkProtector() {
           suspiciousSignals: true,
           duplicateId: true,
         })
+        // Set respondent type to "General" for both features
+        setAudienceValidationCategory("General")
+        setAiDetectionCategory("General")
         // Keep the same suspicious signals as human-only
         setSuspiciousSignals({
           vpnDetection: false,
@@ -164,7 +167,7 @@ export default function CreateLinkProtector() {
         })
         break
       case "maximum":
-        // Maximum Protection: All from High-Quality + All Suspicious Signals
+        // Maximum Protection: All from High-Quality + All Suspicious Signals + Location Validation
         setSecurityFeatures({
           deviceDeduplication: true,
           ipDeduplication: true,
@@ -172,11 +175,14 @@ export default function CreateLinkProtector() {
           trustedBrowsers: true,
           audienceValidation: true,
           aiDetection: true,
-          locationLock: true,
+          locationLock: false,
           locationValidation: true,
           suspiciousSignals: true,
           duplicateId: true,
         })
+        // Set respondent type to "General" for both features
+        setAudienceValidationCategory("General")
+        setAiDetectionCategory("General")
         // Enable all suspicious signals for maximum protection
         setSuspiciousSignals({
           vpnDetection: true,

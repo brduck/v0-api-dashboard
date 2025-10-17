@@ -105,7 +105,7 @@ export default function CreateLinkProtector() {
 
   const handlePresetSelection = (preset: SecurityPreset) => {
     setSecurityPreset(preset)
-    setShowSecurityFeatures(false)
+    // </CHANGE> Removed setShowSecurityFeatures(false) to keep panel state when switching presets
 
     // Apply preset configurations
     switch (preset) {

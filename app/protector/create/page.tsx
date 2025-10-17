@@ -459,7 +459,7 @@ export default function CreateLinkProtector() {
                       </div>
                       <h3 className="font-semibold text-base mb-2">High-Quality Participants</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        Filter out automation and low-effort respondents. Detect AI generated answers and ensure only
+                        Filter out automation and low-effort participants. Detect AI generated answers and ensure only
                         real, attentive participants who provide trustworthy data.
                       </p>
                       <div className="mt-4 pt-3 border-t border-gray-200">

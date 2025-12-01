@@ -1,14 +1,49 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Check, CreditCard, ChevronDown } from "lucide-react"
+import { Slider } from "@/components/ui/slider"
+import { Input } from "@/components/ui/input"
 
 export default function ActivateTrialPage() {
   const [showPricing, setShowPricing] = useState(false)
+  const [sessionCount, setSessionCount] = useState(15000)
+
+  const pricingTiers = [
+    { min: 0, max: 2000, rate: 0.12, label: "0 – 2,000" },
+    { min: 2001, max: 10000, rate: 0.08, label: "2,001 – 10,000" },
+    { min: 10001, max: 25000, rate: 0.06, label: "10,001 – 25,000" },
+    { min: 25001, max: 50000, rate: 0.04, label: "25,001 – 50,000" },
+    { min: 50001, max: 100000, rate: 0.02, label: "50,001 – 100,000" },
+    { min: 100001, max: Number.POSITIVE_INFINITY, rate: 0.01, label: "100,001+" },
+  ]
+
+  const getCurrentTier = (sessions: number) => {
+    return pricingTiers.find((tier) => sessions >= tier.min && sessions <= tier.max) || pricingTiers[0]
+  }
+
+  const calculatePrice = (sessions: number) => {
+    const tier = getCurrentTier(sessions)
+    return sessions * tier.rate
+  }
+
+  const currentTier = getCurrentTier(sessionCount)
+  const monthlyTotal = calculatePrice(sessionCount)
 
   const handleActivateTrial = () => {
     console.log("Activating trial...")
+  }
+
+  const handleSliderChange = (value: number[]) => {
+    setSessionCount(Math.min(value[0], 150000))
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number.parseInt(e.target.value) || 0
+    setSessionCount(Math.max(0, Math.min(value, 150000)))
   }
 
   return (
@@ -90,37 +125,74 @@ export default function ActivateTrialPage() {
 
             {showPricing && (
               <div className="mt-6 space-y-6">
-                {/* Key pricing message */}
-                <div className="rounded-lg bg-primary/5 p-6">
-                  <p className="text-lg leading-relaxed">
-                    Start at <strong className="text-primary">$0.12</strong> per session, dropping to just{" "}
-                    <strong className="text-primary">$0.01</strong> at scale.
-                  </p>
+                {/* Input Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Estimate your monthly cost</h3>
+
+                  <div className="space-y-4">
+                    {/* Slider */}
+                    <div className="space-y-2">
+                      <Slider
+                        value={[sessionCount]}
+                        onValueChange={handleSliderChange}
+                        max={150000}
+                        step={1000}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Number Input */}
+                    <div className="flex items-center gap-3">
+                      <Input
+                        type="number"
+                        value={sessionCount}
+                        onChange={handleInputChange}
+                        className="text-lg"
+                        min={0}
+                        max={150000}
+                      />
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Pricing tiers */}
+                {/* Dynamic Output */}
+                <div className="rounded-lg bg-primary/5 p-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-primary">
+                      ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <span className="text-lg font-normal text-muted-foreground"> / month</span>
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
+                    </p>
+                  </div>
+                </div>
+
+                {/* Interactive Pricing Table */}
                 <div className="overflow-hidden rounded-lg border">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b bg-muted/50">
                         <th className="px-4 py-3 text-left text-sm font-semibold">Monthly Sessions</th>
-                        <th className="px-4 py-3 text-right text-sm font-semibold">Price</th>
+                        <th className="px-4 py-3 text-right text-sm font-semibold">Price Per Session</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {[
-                        { range: "0 – 2,000", price: "$0.12" },
-                        { range: "2,001 – 10,000", price: "$0.08" },
-                        { range: "10,001 – 25,000", price: "$0.06" },
-                        { range: "25,001 – 50,000", price: "$0.04" },
-                        { range: "50,001 – 100,000", price: "$0.02" },
-                        { range: "100,001+", price: "$0.01" },
-                      ].map((tier) => (
-                        <tr key={tier.range} className="hover:bg-muted/30">
-                          <td className="px-4 py-3 text-sm">{tier.range}</td>
-                          <td className="px-4 py-3 text-right text-sm font-medium">{tier.price}</td>
-                        </tr>
-                      ))}
+                      {pricingTiers.map((tier) => {
+                        const isActive = sessionCount >= tier.min && sessionCount <= tier.max
+                        return (
+                          <tr
+                            key={tier.label}
+                            className={`transition-colors ${
+                              isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
+                            }`}
+                          >
+                            <td className="px-4 py-3 text-sm">{tier.label}</td>
+                            <td className="px-4 py-3 text-right text-sm">${tier.rate.toFixed(2)}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>

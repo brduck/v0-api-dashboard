@@ -95,68 +95,76 @@ export default function ActivateTrialPage() {
 
                 <div className="rounded-lg border bg-card p-6">
                   <h3 className="mb-4 text-sm font-semibold">Price per session decreases with volume</h3>
-                  <div className="relative h-48">
-                    {/* Y-axis labels */}
-                    <div className="absolute left-0 top-0 flex h-full flex-col justify-between text-xs text-muted-foreground">
-                      <span>$0.12</span>
-                      <span>$0.08</span>
-                      <span>$0.04</span>
-                      <span>$0.01</span>
-                    </div>
-
-                    {/* Chart area */}
-                    <div className="ml-12 flex h-full items-end gap-2">
-                      {/* Bar 1: 0-2k */}
-                      <div className="flex flex-1 flex-col items-center gap-2">
+                  <div className="space-y-2">
+                    {/* Chart bars */}
+                    <div className="flex items-end gap-2" style={{ height: "160px" }}>
+                      {/* Bar 1: 0-2k - $0.12 */}
+                      <div className="flex-1">
                         <div
                           className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
                           style={{ height: "100%" }}
                         />
-                        <span className="text-xs text-muted-foreground">0-2K</span>
                       </div>
 
-                      {/* Bar 2: 2k-10k */}
-                      <div className="flex flex-1 flex-col items-center gap-2">
+                      {/* Bar 2: 2k-10k - $0.08 */}
+                      <div className="flex-1">
                         <div
                           className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
                           style={{ height: "67%" }}
                         />
-                        <span className="text-xs text-muted-foreground">2K-10K</span>
                       </div>
 
-                      {/* Bar 3: 10k-25k */}
-                      <div className="flex flex-1 flex-col items-center gap-2">
+                      {/* Bar 3: 10k-25k - $0.06 */}
+                      <div className="flex-1">
                         <div
                           className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
                           style={{ height: "50%" }}
                         />
-                        <span className="text-xs text-muted-foreground">10K-25K</span>
                       </div>
 
-                      {/* Bar 4: 25k-50k */}
-                      <div className="flex flex-1 flex-col items-center gap-2">
+                      {/* Bar 4: 25k-50k - $0.04 */}
+                      <div className="flex-1">
                         <div
                           className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
                           style={{ height: "33%" }}
                         />
-                        <span className="text-xs text-muted-foreground">25K-50K</span>
                       </div>
 
-                      {/* Bar 5: 50k-100k */}
-                      <div className="flex flex-1 flex-col items-center gap-2">
+                      {/* Bar 5: 50k-100k - $0.02 */}
+                      <div className="flex-1">
                         <div
                           className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
                           style={{ height: "17%" }}
                         />
-                        <span className="text-xs text-muted-foreground">50K-100K</span>
                       </div>
 
-                      {/* Bar 6: 100k+ */}
-                      <div className="flex flex-1 flex-col items-center gap-2">
+                      {/* Bar 6: 100k+ - $0.01 */}
+                      <div className="flex-1">
                         <div
                           className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
                           style={{ height: "8%" }}
                         />
+                      </div>
+                    </div>
+
+                    {/* X-axis labels */}
+                    <div className="flex gap-2">
+                      <div className="flex-1 text-center">
+                        <span className="text-xs text-muted-foreground">0-2K</span>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <span className="text-xs text-muted-foreground">2K-10K</span>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <span className="text-xs text-muted-foreground">10K-25K</span>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <span className="text-xs text-muted-foreground">25K-50K</span>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <span className="text-xs text-muted-foreground">50K-100K</span>
+                      </div>
+                      <div className="flex-1 text-center">
                         <span className="text-xs text-muted-foreground">100K+</span>
                       </div>
                     </div>

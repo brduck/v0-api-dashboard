@@ -54,7 +54,7 @@ export default function ActivateTrialPage() {
                 </div>
                 <div>
                   <p className="font-medium text-lg">No charges during trial</p>
-                  <p className="mt-1 text-muted-foreground">Your card is verified but never charged until day 15</p>
+                  <p className="mt-1 text-muted-foreground">A valid credit card is required to start the trial.</p>
                 </div>
               </div>
             </div>
@@ -91,6 +91,76 @@ export default function ActivateTrialPage() {
                     Start at <strong className="text-primary">$0.12</strong> per session, dropping to just{" "}
                     <strong className="text-primary">$0.01</strong> at scale.
                   </p>
+                </div>
+
+                <div className="rounded-lg border bg-card p-6">
+                  <h3 className="mb-4 text-sm font-semibold">Price per session decreases with volume</h3>
+                  <div className="relative h-48">
+                    {/* Y-axis labels */}
+                    <div className="absolute left-0 top-0 flex h-full flex-col justify-between text-xs text-muted-foreground">
+                      <span>$0.12</span>
+                      <span>$0.08</span>
+                      <span>$0.04</span>
+                      <span>$0.01</span>
+                    </div>
+
+                    {/* Chart area */}
+                    <div className="ml-12 flex h-full items-end gap-2">
+                      {/* Bar 1: 0-2k */}
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
+                          style={{ height: "100%" }}
+                        />
+                        <span className="text-xs text-muted-foreground">0-2K</span>
+                      </div>
+
+                      {/* Bar 2: 2k-10k */}
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
+                          style={{ height: "67%" }}
+                        />
+                        <span className="text-xs text-muted-foreground">2K-10K</span>
+                      </div>
+
+                      {/* Bar 3: 10k-25k */}
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
+                          style={{ height: "50%" }}
+                        />
+                        <span className="text-xs text-muted-foreground">10K-25K</span>
+                      </div>
+
+                      {/* Bar 4: 25k-50k */}
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
+                          style={{ height: "33%" }}
+                        />
+                        <span className="text-xs text-muted-foreground">25K-50K</span>
+                      </div>
+
+                      {/* Bar 5: 50k-100k */}
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
+                          style={{ height: "17%" }}
+                        />
+                        <span className="text-xs text-muted-foreground">50K-100K</span>
+                      </div>
+
+                      {/* Bar 6: 100k+ */}
+                      <div className="flex flex-1 flex-col items-center gap-2">
+                        <div
+                          className="w-full rounded-t-md bg-primary transition-all hover:opacity-80"
+                          style={{ height: "8%" }}
+                        />
+                        <span className="text-xs text-muted-foreground">100K+</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Pricing tiers */}

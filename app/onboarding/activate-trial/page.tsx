@@ -51,7 +51,9 @@ export default function ActivateTrialPage() {
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Hero */}
         <div className="mb-16 text-center">
-          <h1 className="text-balance text-5xl font-bold tracking-tight sm:text-6xl">Start Your Free Trial</h1>
+          <h1 className="text-balance text-5xl font-bold tracking-tight sm:text-6xl">
+            Start Your <span className="text-green-600">Free</span> Trial
+          </h1>
           <p className="mt-6 text-pretty text-xl leading-8 text-muted-foreground">
             14 days free. No charges. Experience Link Protector risk-free.
           </p>
@@ -159,7 +161,7 @@ export default function ActivateTrialPage() {
                 {/* Dynamic Output */}
                 <div className="rounded-lg bg-primary/5 p-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-primary">
+                    <div className="text-3xl font-bold text-[hsl(var(--brand))]">
                       ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       <span className="text-lg font-normal text-muted-foreground"> / month</span>
                     </div>
@@ -204,7 +206,11 @@ export default function ActivateTrialPage() {
 
           <div className="rounded-2xl border bg-card p-8 shadow-sm">
             <div className="space-y-6">
-              <Button onClick={handleActivateTrial} size="lg" className="h-14 w-full text-lg">
+              <Button
+                onClick={handleActivateTrial}
+                size="lg"
+                className="h-14 w-full text-lg bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white"
+              >
                 <CreditCard className="mr-2 h-5 w-5" />
                 Add Payment & Start Free Trial
               </Button>

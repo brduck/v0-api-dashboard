@@ -56,7 +56,10 @@ export default function ActivateTrialPage() {
                 </div>
                 <div>
                   <p className="font-medium text-lg">No charges during trial</p>
-                  <p className="mt-1 text-muted-foreground">A valid credit card is required to start the trial.</p>
+                  <p className="mt-1 text-muted-foreground">
+                    No charges today. A card is required to activate the trial. Your first bill will happen when the
+                    trial ends.
+                  </p>
                 </div>
               </div>
             </div>

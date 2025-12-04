@@ -105,43 +105,45 @@ export function TrialBadgeDialog() {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Days Left Card */}
-            <div className="border rounded-lg p-4 bg-gradient-to-br from-amber-50 to-orange-50">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-amber-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-amber-700" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Days Left Card */}
+              <div className="border rounded-lg p-4 bg-gradient-to-br from-amber-50 to-orange-50">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <Clock className="w-5 h-5 text-amber-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">{daysLeft} Days Left</h3>
+                    <p className="text-sm text-gray-600">Out of 14 days</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{daysLeft} Days Remaining</h3>
-                  <p className="text-sm text-gray-600">Out of 14-day free trial</p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                  <div
+                    className="bg-amber-500 h-2 rounded-full transition-all"
+                    style={{ width: `${((14 - daysLeft) / 14) * 100}%` }}
+                  />
                 </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                <div
-                  className="bg-amber-500 h-2 rounded-full transition-all"
-                  style={{ width: `${((14 - daysLeft) / 14) * 100}%` }}
-                />
-              </div>
-            </div>
 
-            {/* Sessions Card */}
-            <div className="border rounded-lg p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <StopCircle className="w-5 h-5 text-blue-700" />
+              {/* Sessions Card */}
+              <div className="border rounded-lg p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <StopCircle className="w-5 h-5 text-blue-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions</h3>
+                    <p className="text-sm text-gray-600">
+                      {sessionsUsed.toLocaleString()} of {totalSessions.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions Left</h3>
-                  <p className="text-sm text-gray-600">
-                    {sessionsUsed.toLocaleString()} of {totalSessions.toLocaleString()} used
-                  </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all"
+                    style={{ width: `${sessionsPercentage}%` }}
+                  />
                 </div>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                <div
-                  className="bg-blue-500 h-2 rounded-full transition-all"
-                  style={{ width: `${sessionsPercentage}%` }}
-                />
               </div>
             </div>
 

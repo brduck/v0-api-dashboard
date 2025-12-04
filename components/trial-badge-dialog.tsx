@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,20 +23,53 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Clock, AlertTriangle, CreditCard, StopCircle } from "lucide-react"
+import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Slider } from "@/components/ui/slider"
+import { Input } from "@/components/ui/input"
 
 export function TrialBadgeDialog() {
   const router = useRouter()
   const [showTrialDialog, setShowTrialDialog] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
+  const [sessionCount, setSessionCount] = useState(15000)
 
-  // Mock data - replace with actual data from your backend
   const daysLeft = 12
   const sessionsUsed = 3450
   const totalSessions = 25000
   const sessionsLeft = totalSessions - sessionsUsed
   const sessionsPercentage = (sessionsUsed / totalSessions) * 100
+
+  const pricingTiers = [
+    { min: 0, max: 2000, rate: 0.12, label: "0 – 2,000" },
+    { min: 2001, max: 10000, rate: 0.08, label: "2,001 – 10,000" },
+    { min: 10001, max: 25000, rate: 0.06, label: "10,001 – 25,000" },
+    { min: 25001, max: 50000, rate: 0.04, label: "25,001 – 50,000" },
+    { min: 50001, max: 100000, rate: 0.02, label: "50,001 – 100,000" },
+    { min: 100001, max: Number.POSITIVE_INFINITY, rate: 0.01, label: "100,001+" },
+  ]
+
+  const getCurrentTier = (sessions: number) => {
+    return pricingTiers.find((tier) => sessions >= tier.min && sessions <= tier.max) || pricingTiers[0]
+  }
+
+  const calculatePrice = (sessions: number) => {
+    const tier = getCurrentTier(sessions)
+    return sessions * tier.rate
+  }
+
+  const currentTier = getCurrentTier(sessionCount)
+  const monthlyTotal = calculatePrice(sessionCount)
+
+  const handleSliderChange = (value: number[]) => {
+    setSessionCount(Math.min(value[0], 150000))
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number.parseInt(e.target.value) || 0
+    setSessionCount(Math.max(0, Math.min(value, 150000)))
+  }
 
   const handleStopTrial = () => {
     setShowTrialDialog(false)
@@ -42,7 +77,6 @@ export function TrialBadgeDialog() {
   }
 
   const handleConfirmCancel = () => {
-    // Handle trial cancellation logic here
     console.log("Trial cancelled")
     setShowCancelDialog(false)
   }
@@ -64,7 +98,7 @@ export function TrialBadgeDialog() {
       </Badge>
 
       <Dialog open={showTrialDialog} onOpenChange={setShowTrialDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl">Free Trial Status</DialogTitle>
             <DialogDescription>Track your trial progress and manage your subscription</DialogDescription>
@@ -121,6 +155,108 @@ export function TrialBadgeDialog() {
                   paused until you add a payment method.
                 </p>
               </div>
+            </div>
+
+            {/* Pricing Calculator Section */}
+            <div className="border rounded-lg p-5 bg-card">
+              <button
+                onClick={() => setShowPricing(!showPricing)}
+                className="flex w-full items-center justify-between text-left"
+              >
+                <div>
+                  <h3 className="text-lg font-semibold">After Trial: Pricing Calculator</h3>
+                  <p className="text-sm text-muted-foreground mt-1">See what you'll pay based on your usage</p>
+                </div>
+                <ChevronDown
+                  className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
+                    showPricing ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {showPricing && (
+                <div className="mt-5 space-y-5 border-t pt-5">
+                  {/* Input Section */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium">Estimate your monthly cost</h4>
+
+                    <div className="space-y-3">
+                      {/* Slider */}
+                      <div className="space-y-2">
+                        <Slider
+                          value={[sessionCount]}
+                          onValueChange={handleSliderChange}
+                          max={150000}
+                          step={1000}
+                          className="w-full"
+                        />
+                      </div>
+
+                      {/* Number Input */}
+                      <div className="flex items-center gap-3">
+                        <Input
+                          type="number"
+                          value={sessionCount}
+                          onChange={handleInputChange}
+                          className="text-base"
+                          min={0}
+                          max={150000}
+                        />
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Output */}
+                  <div className="rounded-lg bg-primary/5 p-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-[hsl(var(--brand))]">
+                        $
+                        {monthlyTotal.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                        <span className="text-base font-normal text-muted-foreground"> / month</span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Interactive Pricing Table */}
+                  <div className="overflow-hidden rounded-lg border">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-muted/50">
+                          <th className="px-3 py-2 text-left text-xs font-semibold">Monthly Sessions</th>
+                          <th className="px-3 py-2 text-right text-xs font-semibold">Price Per Session</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {pricingTiers.map((tier) => {
+                          const isActive = sessionCount >= tier.min && sessionCount <= tier.max
+                          return (
+                            <tr
+                              key={tier.label}
+                              className={`transition-colors ${
+                                isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
+                              }`}
+                            >
+                              <td className="px-3 py-2 text-xs">{tier.label}</td>
+                              <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(2)}</td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground text-center">
+                    Billed monthly on the 1st. Cancel anytime.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

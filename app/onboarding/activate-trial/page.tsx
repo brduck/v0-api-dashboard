@@ -55,7 +55,7 @@ export default function ActivateTrialPage() {
             Start Your <span className="text-green-600">Free</span> Trial
           </h1>
           <p className="mt-6 text-pretty text-xl leading-8 text-muted-foreground">
-            14 days free. No charges. Experience Link Protector risk-free.
+            30 days free. No charges. Experience Link Protector risk-free.
           </p>
         </div>
 
@@ -70,7 +70,7 @@ export default function ActivateTrialPage() {
                   <Check className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-lg">14 days of full access</p>
+                  <p className="font-medium text-lg">30 days of full access</p>
                   <p className="mt-1 text-muted-foreground">Try all features with no restrictions</p>
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function ActivateTrialPage() {
               </Button>
 
               <p className="text-center text-sm text-muted-foreground leading-relaxed">
-                By adding my credit card, I understand the 14-day trial includes up to 10,000 sessions at no charge. I
+                By adding my credit card, I understand the 30-day trial includes up to 10,000 sessions at no charge. I
                 agree that any sessions exceeding 10,000 will be charged at the standard usage-based rate when the trial
                 ends, and I agree to ongoing usage-based billing after the trial ends.
               </p>

@@ -39,7 +39,19 @@ export function TrialBadgeDialog() {
   const { settings } = useTrialTest()
   const { daysLeft, sessionsUsed, totalSessions, isTrialActive } = settings
   const sessionsLeft = totalSessions - sessionsUsed
-  const sessionsPercentage = (sessionsUsed / totalSessions) * 100
+
+  const totalDays = 30
+  const daysUsedPercentage = ((totalDays - daysLeft) / totalDays) * 100
+  const sessionsUsedPercentage = (sessionsUsed / totalSessions) * 100
+
+  const maxUsagePercentage = Math.max(daysUsedPercentage, sessionsUsedPercentage)
+  const getBadgeColor = () => {
+    if (maxUsagePercentage < 30) return { border: "border-green-500", text: "text-green-700", bg: "bg-green-50" }
+    if (maxUsagePercentage < 80) return { border: "border-yellow-500", text: "text-yellow-700", bg: "bg-yellow-50" }
+    return { border: "border-red-500", text: "text-red-700", bg: "bg-red-50" }
+  }
+
+  const badgeColor = getBadgeColor()
 
   const pricingTiers = [
     { min: 0, max: 2000, rate: 0.12, label: "0 – 2,000" },
@@ -94,7 +106,7 @@ export function TrialBadgeDialog() {
     <>
       <Badge
         variant="outline"
-        className="cursor-pointer hover:bg-gray-100 transition-colors border-amber-500 text-amber-700 bg-amber-50"
+        className={`cursor-pointer hover:bg-gray-100 transition-colors ${badgeColor.border} ${badgeColor.text} ${badgeColor.bg}`}
         onClick={() => setShowTrialDialog(true)}
       >
         <Clock className="w-3 h-3 mr-1" />
@@ -118,13 +130,13 @@ export function TrialBadgeDialog() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{daysLeft} Days Left</h3>
-                    <p className="text-sm text-gray-600">Out of 14 days</p>
+                    <p className="text-sm text-gray-600">Out of 30 days</p>
                   </div>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
                   <div
                     className="bg-amber-500 h-2 rounded-full transition-all"
-                    style={{ width: `${((14 - daysLeft) / 14) * 100}%` }}
+                    style={{ width: `${daysUsedPercentage}%` }}
                   />
                 </div>
               </div>
@@ -145,7 +157,7 @@ export function TrialBadgeDialog() {
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
                   <div
                     className="bg-blue-500 h-2 rounded-full transition-all"
-                    style={{ width: `${sessionsPercentage}%` }}
+                    style={{ width: `${sessionsUsedPercentage}%` }}
                   />
                 </div>
               </div>

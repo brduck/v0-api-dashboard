@@ -18,7 +18,7 @@ const TrialTestContext = createContext<TrialTestContextType | undefined>(undefin
 
 export function TrialTestProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<TrialTestSettings>({
-    daysLeft: 12,
+    daysLeft: 28,
     sessionsUsed: 3450,
     totalSessions: 25000,
     isTrialActive: true,

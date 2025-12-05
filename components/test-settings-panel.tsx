@@ -43,10 +43,6 @@ export function TestSettingsPanel() {
     updateSettings({ hasApiAccess: checked })
   }
 
-  const handleShowLinkProtectorsChange = (checked: boolean) => {
-    updateSettings({ showLinkProtectors: checked })
-  }
-
   const handleGoToOnboarding = () => {
     router.push("/onboarding/activate-trial")
     setIsOpen(false)
@@ -137,18 +133,6 @@ export function TestSettingsPanel() {
                 API Access
               </Label>
               <Switch id="apiAccess" checked={settings.hasApiAccess} onCheckedChange={handleApiAccessChange} />
-            </div>
-
-            {/* Show Link Protectors Toggle */}
-            <div className="flex items-center justify-between">
-              <Label htmlFor="showLinkProtectors" className="cursor-pointer">
-                Show Link Protectors
-              </Label>
-              <Switch
-                id="showLinkProtectors"
-                checked={settings.showLinkProtectors}
-                onCheckedChange={handleShowLinkProtectorsChange}
-              />
             </div>
 
             {/* Button to redirect to onboarding */}

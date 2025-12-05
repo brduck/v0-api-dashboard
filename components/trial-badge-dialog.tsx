@@ -36,7 +36,7 @@ export function TrialBadgeDialog() {
   const [showPricing, setShowPricing] = useState(false)
   const [sessionCount, setSessionCount] = useState(15000)
 
-  const { settings } = useTrialTest()
+  const { settings, updateSettings } = useTrialTest()
   const { daysLeft, sessionsUsed, totalSessions, isTrialActive } = settings
   const sessionsLeft = totalSessions - sessionsUsed
 
@@ -117,7 +117,10 @@ export function TrialBadgeDialog() {
   }
 
   const handleConfirmCancel = () => {
-    console.log("Trial cancelled")
+    updateSettings({
+      isTrialActive: false,
+      isPaymentRequired: true,
+    })
     setShowCancelDialog(false)
   }
 
@@ -197,8 +200,9 @@ export function TrialBadgeDialog() {
               <div>
                 <h4 className="font-medium text-red-900 mb-1">Important Notice</h4>
                 <p className="text-sm text-red-700">
-                  When your trial days or session limit is reached, <strong> all Link Protector traffic will be automatically
-                  paused </strong> until you add a payment method.
+                  When your trial days or session limit is reached,{" "}
+                  <strong> all Link Protector traffic will be automatically paused </strong> until you add a payment
+                  method.
                 </p>
               </div>
             </div>

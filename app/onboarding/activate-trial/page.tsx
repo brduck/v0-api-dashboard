@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Check, CreditCard, ChevronDown } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
 
 export default function ActivateTrialPage() {
+  const router = useRouter()
   const [showPricing, setShowPricing] = useState(false)
   const [sessionCount, setSessionCount] = useState(15000)
 
@@ -34,7 +36,7 @@ export default function ActivateTrialPage() {
   const monthlyTotal = calculatePrice(sessionCount)
 
   const handleActivateTrial = () => {
-    console.log("Activating trial...")
+    router.push("/verifying-payment")
   }
 
   const handleSliderChange = (value: number[]) => {

@@ -10,6 +10,7 @@ interface TrialTestSettings {
   isPaymentRequired: boolean
   validPaymentMethod: boolean
   hasApiAccess: boolean
+  showLinkProtectors: boolean
 }
 
 interface TrialTestContextType {
@@ -28,6 +29,7 @@ export function TrialTestProvider({ children }: { children: ReactNode }) {
     isPaymentRequired: false,
     validPaymentMethod: true,
     hasApiAccess: true,
+    showLinkProtectors: true,
   })
 
   const updateSettings = (updates: Partial<TrialTestSettings>) => {

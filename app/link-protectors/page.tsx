@@ -17,9 +17,10 @@ import { useToast } from "@/components/ui/use-toast"
 import { getProjects } from "@/lib/project-storage"
 import { useTrialTest } from "@/components/trial-test-context"
 
-export default function LinkProtectors() {
+export default function LinkProtectorsPage() {
   const router = useRouter()
   const { settings } = useTrialTest()
+  const showProjects = settings.showLinkProtectors
 
   useEffect(() => {
     if (settings.isPaymentRequired) {
@@ -33,7 +34,6 @@ export default function LinkProtectors() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("lastActive")
   const { toast } = useToast()
-  const [showProjects, setShowProjects] = useState(true)
 
   // Load projects from localStorage
   useEffect(() => {
@@ -82,10 +82,6 @@ export default function LinkProtectors() {
       title: "Link copied to clipboard",
       description: "The link has been copied to your clipboard.",
     })
-  }
-
-  const toggleProjectsVisibility = () => {
-    setShowProjects(!showProjects)
   }
 
   return (
@@ -426,16 +422,6 @@ export default function LinkProtectors() {
             )}
           </div>
         )}
-        {/* Floating toggle button */}
-        <div className="fixed bottom-6 right-6 z-50">
-          <Button
-            variant="outline"
-            className="rounded-full shadow-md border-gray-300 bg-white px-4 py-2 hover:bg-gray-100"
-            onClick={toggleProjectsVisibility}
-          >
-            {showProjects ? "Hide Link Protectors" : "Show Link Protectors"}
-          </Button>
-        </div>
       </div>
     </div>
   )

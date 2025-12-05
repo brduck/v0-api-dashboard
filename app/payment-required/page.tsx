@@ -72,7 +72,7 @@ export default function PaymentRequiredPage() {
               <div className="flex-1">
                 <h2 className="text-lg font-semibold text-red-900">All Link Protectors Are Paused</h2>
                 <p className="mt-1 text-sm text-red-800 leading-relaxed">
-                  Your link protectors are <strong>currently paused and not processing any traffic </strong>. To resume
+                  Your link protectors are <strong>currently paused and not processing any traffic.</strong> To resume
                   service and continue protecting your links, please add a valid payment method below.
                 </p>
               </div>

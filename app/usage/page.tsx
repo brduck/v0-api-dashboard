@@ -1,32 +1,31 @@
 "use client"
 
-import { Calendar, Download, ExternalLink, RefreshCw, Lock, BarChart3, Code, Mail, X } from "lucide-react"
+import {
+  Calendar,
+  Download,
+  ExternalLink,
+  RefreshCw,
+  Lock,
+  BarChart3,
+  Code,
+  KeyRound,
+  CheckCircle2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Pie, PieChart, Cell } from "recharts"
 import React from "react"
 import { useTrialTest } from "@/components/trial-test-context"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
-export default function Dashboard() {
-  const { settings } = useTrialTest()
-  const { hasApiAccess } = settings
-
-  const [activeTab, setActiveTab] = React.useState("bad")
-  const [showContactModal, setShowContactModal] = React.useState(false)
+export default function UsagePage() {
+  const { hasApiAccess } = useTrialTest()
   const [showSuccessMessage, setShowSuccessMessage] = React.useState(false)
-  const [expectedTraffic, setExpectedTraffic] = React.useState("")
-  const [useCase, setUseCase] = React.useState("")
+  const [activeTab, setActiveTab] = React.useState("bad") // Declare activeTab and setActiveTab
 
-  const handleSubmitContact = () => {
-    setShowContactModal(false)
+  const handleRequestAccess = () => {
     setShowSuccessMessage(true)
-    setExpectedTraffic("")
-    setUseCase("")
   }
 
   if (!hasApiAccess) {
@@ -34,32 +33,14 @@ export default function Dashboard() {
       <div className="p-4 md:p-6">
         <div className="flex flex-col gap-6 max-w-4xl mx-auto">
           {showSuccessMessage && (
-            <Card className="border-green-200 bg-green-50">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="h-2 w-2 rounded-full bg-white"></div>
-                    </div>
-                    <div>
-                      <p className="font-medium text-green-900">Request Submitted Successfully</p>
-                      <p className="text-sm text-green-800 mt-1">
-                        Thank you for your interest! Our sales team will get in touch with you soon to enable API
-                        access.
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-green-700 hover:bg-green-100"
-                    onClick={() => setShowSuccessMessage(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <Alert className="border-green-200 bg-green-50">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-900">Request Submitted Successfully</AlertTitle>
+              <AlertDescription className="text-green-800">
+                Thank you for your interest! Our sales team will review your request and get in touch with you soon to
+                enable API access on your account.
+              </AlertDescription>
+            </Alert>
           )}
 
           <div className="text-center space-y-3">
@@ -113,68 +94,24 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex-1 space-y-2">
-                  <h3 className="text-xl font-semibold">Ready to get started?</h3>
+                  <h3 className="text-xl font-semibold">Ready to automate?</h3>
                   <p className="text-sm text-muted-foreground">
-                    Contact our sales team to discuss API access. We offer flexible, custom pricing tailored to your
-                    volume and use case—whether you're processing thousands or millions of requests.
+                    Streamline your workflow with direct API integration. Request access today to unlock volume
+                    discounts and enable API keys on your account.
                   </p>
                 </div>
                 <Button
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-white gap-2"
-                  onClick={() => setShowContactModal(true)}
+                  onClick={handleRequestAccess}
                 >
-                  <Mail className="h-4 w-4" />
-                  Contact Sales
+                  <KeyRound className="h-4 w-4" />
+                  Request Access
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Request API Access</DialogTitle>
-              <DialogDescription>
-                Help us understand your needs so we can provide the best solution for your use case.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="traffic">Expected API Traffic</Label>
-                <Input
-                  id="traffic"
-                  placeholder="e.g., 100,000 requests per month"
-                  value={expectedTraffic}
-                  onChange={(e) => setExpectedTraffic(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="usecase">Where would you like to add the dtect API?</Label>
-                <Textarea
-                  id="usecase"
-                  placeholder="Describe your use case and where you plan to integrate the API..."
-                  value={useCase}
-                  onChange={(e) => setUseCase(e.target.value)}
-                  rows={4}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowContactModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmitContact}
-                disabled={!expectedTraffic || !useCase}
-                className="bg-primary hover:bg-primary/90 text-white"
-              >
-                Submit Request
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     )
   }
@@ -240,7 +177,7 @@ export default function Dashboard() {
                   <div className="h-12 w-px bg-gray-200"></div>
 
                   <div className="flex flex-col items-start">
-                    <div className="flex items-start gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <div className="h-4 w-4 rounded-full bg-teal-100 flex items-center justify-center">
                         <div className="h-1.5 w-1.5 rounded-full bg-teal-500"></div>
                       </div>

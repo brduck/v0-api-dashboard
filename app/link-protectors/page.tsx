@@ -15,9 +15,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
 import { getProjects } from "@/lib/project-storage"
+import { useTrialTest } from "@/components/trial-test-context"
 
 export default function LinkProtectors() {
   const router = useRouter()
+  const { settings } = useTrialTest()
+
+  useEffect(() => {
+    if (settings.isPaymentRequired) {
+      router.push("/payment-required")
+    }
+  }, [settings.isPaymentRequired, router])
+
   const [projects, setProjects] = useState<Project[]>([])
   const [viewMode, setViewMode] = useState<"list" | "table">("list")
   const [searchQuery, setSearchQuery] = useState("")

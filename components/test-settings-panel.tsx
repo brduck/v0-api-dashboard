@@ -17,7 +17,7 @@ export function TestSettingsPanel() {
 
   const handleDaysLeftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value) || 0
-    updateSettings({ daysLeft: Math.max(0, Math.min(value, 14)) })
+    updateSettings({ daysLeft: Math.max(0, Math.min(value, 30)) })
   }
 
   const handleSessionsUsedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +27,10 @@ export function TestSettingsPanel() {
 
   const handleTrialActiveChange = (checked: boolean) => {
     updateSettings({ isTrialActive: checked })
+  }
+
+  const handlePaymentRequiredChange = (checked: boolean) => {
+    updateSettings({ isPaymentRequired: checked })
   }
 
   return (
@@ -58,7 +62,7 @@ export function TestSettingsPanel() {
                 id="daysLeft"
                 type="number"
                 min="0"
-                max="14"
+                max="30"
                 value={settings.daysLeft}
                 onChange={handleDaysLeftChange}
               />
@@ -76,9 +80,7 @@ export function TestSettingsPanel() {
                 value={settings.sessionsUsed}
                 onChange={handleSessionsUsedChange}
               />
-              <p className="text-xs text-muted-foreground">
-                Max: 25000
-              </p>
+              <p className="text-xs text-muted-foreground">Max: 25,000</p>
             </div>
 
             {/* Trial Active Toggle */}
@@ -87,6 +89,17 @@ export function TestSettingsPanel() {
                 Free Trial Active
               </Label>
               <Switch id="trialActive" checked={settings.isTrialActive} onCheckedChange={handleTrialActiveChange} />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="paymentRequired" className="cursor-pointer">
+                Payment Required
+              </Label>
+              <Switch
+                id="paymentRequired"
+                checked={settings.isPaymentRequired}
+                onCheckedChange={handlePaymentRequiredChange}
+              />
             </div>
           </div>
 

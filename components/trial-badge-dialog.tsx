@@ -125,7 +125,7 @@ export function TrialBadgeDialog() {
   }
 
   const handleAddCreditCard = () => {
-    router.push("/onboarding/activate-trial")
+    router.push("/verifying-payment")
     setShowTrialDialog(false)
   }
 

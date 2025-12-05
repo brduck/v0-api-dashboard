@@ -62,7 +62,7 @@ export function TestSettingsPanel() {
                 value={settings.daysLeft}
                 onChange={handleDaysLeftChange}
               />
-              <p className="text-xs text-muted-foreground">Max: 14 days</p>
+              <p className="text-xs text-muted-foreground">Max: 30 days</p>
             </div>
 
             {/* Sessions Used */}

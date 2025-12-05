@@ -77,8 +77,7 @@ export function TestSettingsPanel() {
                 onChange={handleSessionsUsedChange}
               />
               <p className="text-xs text-muted-foreground">
-                Remaining: {(settings.totalSessions - settings.sessionsUsed).toLocaleString()} /{" "}
-                {settings.totalSessions.toLocaleString()}
+                Max: 25000
               </p>
             </div>
 

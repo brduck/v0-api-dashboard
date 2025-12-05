@@ -58,8 +58,7 @@ export default function PaymentRequiredPage() {
           </div>
           <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">Payment Method Required</h1>
           <p className="mt-4 text-pretty text-lg leading-8 text-muted-foreground">
-            Your trial has ended or payment has failed
-          </p>
+Add a valid payment method to keep using Link Protector</p>
         </div>
 
         <div className="mx-auto max-w-2xl space-y-8">
@@ -72,7 +71,7 @@ export default function PaymentRequiredPage() {
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-red-900">All Link Protectors Are Paused</h2>
                 <p className="mt-2 text-red-800 leading-relaxed">
-                  Your link protectors are currently inactive and not processing any traffic. To resume service and
+                  Your link protectors are <strong>currently paused and not processing any traffic </strong>. To resume service and
                   continue protecting your links, please add a valid payment method below.
                 </p>
               </div>

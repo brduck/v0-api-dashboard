@@ -10,10 +10,12 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card } from "@/components/ui/card"
 import { useTrialTest } from "@/components/trial-test-context"
+import { useRouter } from "next/navigation"
 
 export function TestSettingsPanel() {
   const [isOpen, setIsOpen] = useState(false)
   const { settings, updateSettings } = useTrialTest()
+  const router = useRouter()
 
   const handleDaysLeftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value) || 0
@@ -39,6 +41,11 @@ export function TestSettingsPanel() {
 
   const handleApiAccessChange = (checked: boolean) => {
     updateSettings({ hasApiAccess: checked })
+  }
+
+  const handleGoToOnboarding = () => {
+    router.push("/onboarding/activate-trial")
+    setIsOpen(false)
   }
 
   return (
@@ -126,6 +133,13 @@ export function TestSettingsPanel() {
                 API Access
               </Label>
               <Switch id="apiAccess" checked={settings.hasApiAccess} onCheckedChange={handleApiAccessChange} />
+            </div>
+
+            {/* Button to redirect to onboarding */}
+            <div className="pt-2">
+              <Button onClick={handleGoToOnboarding} variant="outline" className="w-full bg-transparent">
+                Go to Onboarding
+              </Button>
             </div>
           </div>
 

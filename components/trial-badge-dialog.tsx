@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown } from "lucide-react"
+import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown, Activity } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
@@ -173,7 +173,7 @@ export function TrialBadgeDialog() {
               <div className={`border rounded-lg p-4 bg-gradient-to-br ${sessionsColor.gradient}`}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className={`p-2 ${sessionsColor.iconBg} rounded-lg`}>
-                    <StopCircle className={`w-5 h-5 ${sessionsColor.iconColor}`} />
+                    <Activity className={`w-5 h-5 ${sessionsColor.iconColor}`} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions</h3>

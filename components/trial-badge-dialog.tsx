@@ -197,8 +197,8 @@ export function TrialBadgeDialog() {
               <div>
                 <h4 className="font-medium text-red-900 mb-1">Important Notice</h4>
                 <p className="text-sm text-red-700">
-                  When your trial days or session limit is reached, all Link Protector traffic will be automatically
-                  paused until you add a payment method.
+                  When your trial days or session limit is reached, <strong> all Link Protector traffic will be automatically
+                  paused </strong> until you add a payment method.
                 </p>
               </div>
             </div>

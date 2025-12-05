@@ -27,6 +27,7 @@ import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown } from "lucid
 import { useRouter } from "next/navigation"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
+import { useTrialTest } from "@/components/trial-test-context"
 
 export function TrialBadgeDialog() {
   const router = useRouter()
@@ -35,9 +36,8 @@ export function TrialBadgeDialog() {
   const [showPricing, setShowPricing] = useState(false)
   const [sessionCount, setSessionCount] = useState(15000)
 
-  const daysLeft = 12
-  const sessionsUsed = 3450
-  const totalSessions = 25000
+  const { settings } = useTrialTest()
+  const { daysLeft, sessionsUsed, totalSessions, isTrialActive } = settings
   const sessionsLeft = totalSessions - sessionsUsed
   const sessionsPercentage = (sessionsUsed / totalSessions) * 100
 
@@ -84,6 +84,10 @@ export function TrialBadgeDialog() {
   const handleAddCreditCard = () => {
     router.push("/onboarding/activate-trial")
     setShowTrialDialog(false)
+  }
+
+  if (!isTrialActive) {
+    return null
   }
 
   return (

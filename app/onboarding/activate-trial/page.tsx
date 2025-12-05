@@ -4,14 +4,13 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, ChevronDown } from "lucide-react"
+import { Check } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 
 export default function ActivateTrialPage() {
   const router = useRouter()
-  const [showPricing, setShowPricing] = useState(false)
   const [sessionCount, setSessionCount] = useState(15000)
 
   const pricingTiers = [
@@ -61,10 +60,10 @@ export default function ActivateTrialPage() {
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
           {/* Left Column - What's Included */}
-          <div className="space-y-6">
-            <div className="rounded-2xl border bg-card p-6 shadow-sm">
+          <div className="flex flex-col space-y-6">
+            <div className="flex-1 rounded-2xl border bg-card p-6 shadow-sm">
               <h2 className="mb-4 text-xl font-semibold">What's included in your trial</h2>
 
               <div className="space-y-3">
@@ -136,101 +135,87 @@ export default function ActivateTrialPage() {
           </div>
 
           {/* Right Column - Pricing Calculator */}
-          <div className="rounded-2xl border bg-card p-6 shadow-sm">
-            <button
-              onClick={() => setShowPricing(!showPricing)}
-              className="flex w-full items-center justify-between text-left"
-            >
-              <div>
-                <h2 className="text-xl font-semibold">After your trial: Simple pricing</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Only pay for what you use. Prices drop as you scale.
-                </p>
-              </div>
-              <ChevronDown
-                className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
-                  showPricing ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+          <div className="flex flex-col rounded-2xl border bg-card p-6 shadow-sm">
+            <div>
+              <h2 className="text-xl font-semibold">After your trial: Simple pricing</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Only pay for what you use. Prices drop as you scale.</p>
+            </div>
 
-            {showPricing && (
-              <div className="mt-4 space-y-4">
-                {/* Input Section */}
+            <div className="mt-6 flex-1 space-y-4">
+              {/* Input Section */}
+              <div className="space-y-3">
+                <h3 className="text-base font-medium">Estimate your monthly cost</h3>
+
                 <div className="space-y-3">
-                  <h3 className="text-base font-medium">Estimate your monthly cost</h3>
+                  {/* Slider */}
+                  <div className="space-y-2">
+                    <Slider
+                      value={[sessionCount]}
+                      onValueChange={handleSliderChange}
+                      max={150000}
+                      step={1000}
+                      className="w-full"
+                    />
+                  </div>
 
-                  <div className="space-y-3">
-                    {/* Slider */}
-                    <div className="space-y-2">
-                      <Slider
-                        value={[sessionCount]}
-                        onValueChange={handleSliderChange}
-                        max={150000}
-                        step={1000}
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Number Input */}
-                    <div className="flex items-center gap-3">
-                      <Input
-                        type="number"
-                        value={sessionCount}
-                        onChange={handleInputChange}
-                        className="text-base"
-                        min={0}
-                        max={150000}
-                      />
-                      <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
-                    </div>
+                  {/* Number Input */}
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      value={sessionCount}
+                      onChange={handleInputChange}
+                      className="text-base"
+                      min={0}
+                      max={150000}
+                    />
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
                   </div>
                 </div>
-
-                {/* Dynamic Output */}
-                <div className="rounded-lg bg-primary/5 p-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-[hsl(var(--brand))]">
-                      ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      <span className="text-base font-normal text-muted-foreground"> / month</span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
-                    </p>
-                  </div>
-                </div>
-
-                {/* Interactive Pricing Table */}
-                <div className="overflow-hidden rounded-lg border">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b bg-muted/50">
-                        <th className="px-3 py-2 text-left text-xs font-semibold">Monthly Sessions</th>
-                        <th className="px-3 py-2 text-right text-xs font-semibold">Price Per Session</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {pricingTiers.map((tier) => {
-                        const isActive = sessionCount >= tier.min && sessionCount <= tier.max
-                        return (
-                          <tr
-                            key={tier.label}
-                            className={`transition-colors ${
-                              isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
-                            }`}
-                          >
-                            <td className="px-3 py-2 text-xs">{tier.label}</td>
-                            <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(2)}</td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <p className="text-xs text-muted-foreground">Billed monthly on the 1st. Cancel anytime.</p>
               </div>
-            )}
+
+              {/* Dynamic Output */}
+              <div className="rounded-lg bg-primary/5 p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[hsl(var(--brand))]">
+                    ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="text-base font-normal text-muted-foreground"> / month</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
+                  </p>
+                </div>
+              </div>
+
+              {/* Interactive Pricing Table */}
+              <div className="overflow-hidden rounded-lg border">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="px-3 py-2 text-left text-xs font-semibold">Monthly Sessions</th>
+                      <th className="px-3 py-2 text-right text-xs font-semibold">Price Per Session</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {pricingTiers.map((tier) => {
+                      const isActive = sessionCount >= tier.min && sessionCount <= tier.max
+                      return (
+                        <tr
+                          key={tier.label}
+                          className={`transition-colors ${
+                            isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
+                          }`}
+                        >
+                          <td className="px-3 py-2 text-xs">{tier.label}</td>
+                          <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(2)}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="text-xs text-muted-foreground">Billed monthly on the 1st. Cancel anytime.</p>
+            </div>
           </div>
         </div>
       </div>

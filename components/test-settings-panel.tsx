@@ -37,6 +37,10 @@ export function TestSettingsPanel() {
     updateSettings({ validPaymentMethod: checked })
   }
 
+  const handleApiAccessChange = (checked: boolean) => {
+    updateSettings({ hasApiAccess: checked })
+  }
+
   return (
     <>
       {/* Floating Button */}
@@ -115,6 +119,13 @@ export function TestSettingsPanel() {
                 checked={settings.validPaymentMethod}
                 onCheckedChange={handleValidPaymentMethodChange}
               />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="apiAccess" className="cursor-pointer">
+                API Access
+              </Label>
+              <Switch id="apiAccess" checked={settings.hasApiAccess} onCheckedChange={handleApiAccessChange} />
             </div>
           </div>
 

@@ -176,7 +176,7 @@ export function TrialBadgeDialog() {
                     <Activity className={`w-5 h-5 ${sessionsColor.iconColor}`} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions</h3>
+                    <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions Left</h3>
                     <p className="text-sm text-gray-600">
                       {sessionsUsed.toLocaleString()} of {totalSessions.toLocaleString()}
                     </p>

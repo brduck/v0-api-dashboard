@@ -50,43 +50,71 @@ export default function PaymentRequiredPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero */}
-        <div className="mb-12 text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-10 w-10 text-red-600" />
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <AlertTriangle className="h-8 w-8 text-red-600" />
           </div>
-          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">Payment Method Required</h1>
-          <p className="mt-4 text-pretty text-lg leading-8 text-muted-foreground">
-Add a valid payment method to keep using Link Protector</p>
+          <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">Payment Method Required</h1>
+          <p className="mt-2 text-pretty text-base leading-7 text-muted-foreground">
+            Add a valid payment method to keep using Link Protector
+          </p>
         </div>
 
-        <div className="mx-auto max-w-2xl space-y-8">
+        <div className="mx-auto max-w-2xl space-y-5">
           {/* Alert Notice */}
-          <div className="rounded-2xl border-2 border-red-200 bg-red-50/50 p-8">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
+          <div className="rounded-xl border-2 border-red-200 bg-red-50/50 p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-red-900">All Link Protectors Are Paused</h2>
-                <p className="mt-2 text-red-800 leading-relaxed">
-                  Your link protectors are <strong>currently paused and not processing any traffic </strong>. To resume service and
-                  continue protecting your links, please add a valid payment method below.
+                <h2 className="text-lg font-semibold text-red-900">All Link Protectors Are Paused</h2>
+                <p className="mt-1 text-sm text-red-800 leading-relaxed">
+                  Your link protectors are <strong>currently paused and not processing any traffic </strong>. To resume
+                  service and continue protecting your links, please add a valid payment method below.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="rounded-xl border bg-card p-6 shadow-sm">
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold">Resume Your Service</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Add a payment method to reactivate all your link protectors
+                </p>
+              </div>
+
+              <Button
+                onClick={handleAddPayment}
+                size="lg"
+                className="h-12 w-full text-base bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white"
+              >
+                <CreditCard className="mr-2 h-5 w-5" />
+                Add Payment Method
+              </Button>
+
+              <div className="rounded-lg border bg-muted/50 p-3">
+                <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                  Once your payment is processed, all link protectors will be automatically reactivated within minutes.
                 </p>
               </div>
             </div>
           </div>
 
           {/* Pricing Calculator */}
-          <div className="rounded-2xl border bg-card p-8 shadow-sm">
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
             <button
               onClick={() => setShowPricing(!showPricing)}
               className="flex w-full items-center justify-between text-left"
             >
               <div>
-                <h2 className="text-2xl font-semibold">Usage-Based Pricing</h2>
-                <p className="mt-2 text-muted-foreground">Calculate your expected monthly cost</p>
+                <h2 className="text-lg font-semibold">Usage-Based Pricing</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Calculate your expected monthly cost</p>
               </div>
               <ChevronDown
                 className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
@@ -96,12 +124,12 @@ Add a valid payment method to keep using Link Protector</p>
             </button>
 
             {showPricing && (
-              <div className="mt-6 space-y-6">
+              <div className="mt-4 space-y-4">
                 {/* Input Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Estimate your monthly cost</h3>
+                <div className="space-y-3">
+                  <h3 className="text-base font-medium">Estimate your monthly cost</h3>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {/* Slider */}
                     <div className="space-y-2">
                       <Slider
@@ -119,7 +147,7 @@ Add a valid payment method to keep using Link Protector</p>
                         type="number"
                         value={sessionCount}
                         onChange={handleInputChange}
-                        className="text-lg"
+                        className="text-base"
                         min={0}
                         max={150000}
                       />
@@ -129,13 +157,13 @@ Add a valid payment method to keep using Link Protector</p>
                 </div>
 
                 {/* Dynamic Output */}
-                <div className="rounded-lg bg-primary/5 p-6">
+                <div className="rounded-lg bg-primary/5 p-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-[hsl(var(--brand))]">
+                    <div className="text-2xl font-bold text-[hsl(var(--brand))]">
                       ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      <span className="text-lg font-normal text-muted-foreground"> / month</span>
+                      <span className="text-base font-normal text-muted-foreground"> / month</span>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
                     </p>
                   </div>
@@ -146,8 +174,8 @@ Add a valid payment method to keep using Link Protector</p>
                   <table className="w-full">
                     <thead>
                       <tr className="border-b bg-muted/50">
-                        <th className="px-4 py-3 text-left text-sm font-semibold">Monthly Sessions</th>
-                        <th className="px-4 py-3 text-right text-sm font-semibold">Price Per Session</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold">Monthly Sessions</th>
+                        <th className="px-3 py-2 text-right text-xs font-semibold">Price Per Session</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -160,8 +188,8 @@ Add a valid payment method to keep using Link Protector</p>
                               isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
                             }`}
                           >
-                            <td className="px-4 py-3 text-sm">{tier.label}</td>
-                            <td className="px-4 py-3 text-right text-sm">${tier.rate.toFixed(2)}</td>
+                            <td className="px-3 py-2 text-xs">{tier.label}</td>
+                            <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(2)}</td>
                           </tr>
                         )
                       })}
@@ -169,38 +197,11 @@ Add a valid payment method to keep using Link Protector</p>
                   </table>
                 </div>
 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Billed monthly on the 1st. Only pay for what you use. Cancel anytime.
                 </p>
               </div>
             )}
-          </div>
-
-          {/* CTA Section */}
-          <div className="rounded-2xl border bg-card p-8 shadow-sm">
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold">Resume Your Service</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Add a payment method to reactivate all your link protectors
-                </p>
-              </div>
-
-              <Button
-                onClick={handleAddPayment}
-                size="lg"
-                className="h-14 w-full text-lg bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white"
-              >
-                <CreditCard className="mr-2 h-5 w-5" />
-                Add Payment Method
-              </Button>
-
-              <div className="rounded-lg border bg-muted/50 p-4">
-                <p className="text-sm text-muted-foreground text-center">
-                  Once your payment is processed, all link protectors will be automatically reactivated within minutes.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Support Link */}

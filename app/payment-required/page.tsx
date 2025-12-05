@@ -7,8 +7,10 @@ import { CreditCard, AlertTriangle, ChevronDown } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function PaymentRequiredPage() {
+  const router = useRouter()
   const [showPricing, setShowPricing] = useState(false)
   const [sessionCount, setSessionCount] = useState(15000)
 
@@ -34,7 +36,7 @@ export default function PaymentRequiredPage() {
   const monthlyTotal = calculatePrice(sessionCount)
 
   const handleAddPayment = () => {
-    console.log("Redirecting to payment...")
+    router.push("/verifying-payment")
   }
 
   const handleSliderChange = (value: number[]) => {

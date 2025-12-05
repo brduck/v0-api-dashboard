@@ -8,6 +8,7 @@ interface TrialTestSettings {
   totalSessions: number
   isTrialActive: boolean
   isPaymentRequired: boolean
+  validPaymentMethod: boolean
 }
 
 interface TrialTestContextType {
@@ -24,6 +25,7 @@ export function TrialTestProvider({ children }: { children: ReactNode }) {
     totalSessions: 25000,
     isTrialActive: true,
     isPaymentRequired: false,
+    validPaymentMethod: true,
   })
 
   const updateSettings = (updates: Partial<TrialTestSettings>) => {

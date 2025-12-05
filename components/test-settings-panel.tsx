@@ -33,6 +33,10 @@ export function TestSettingsPanel() {
     updateSettings({ isPaymentRequired: checked })
   }
 
+  const handleValidPaymentMethodChange = (checked: boolean) => {
+    updateSettings({ validPaymentMethod: checked })
+  }
+
   return (
     <>
       {/* Floating Button */}
@@ -99,6 +103,17 @@ export function TestSettingsPanel() {
                 id="paymentRequired"
                 checked={settings.isPaymentRequired}
                 onCheckedChange={handlePaymentRequiredChange}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="validPaymentMethod" className="cursor-pointer">
+                Valid Payment Method
+              </Label>
+              <Switch
+                id="validPaymentMethod"
+                checked={settings.validPaymentMethod}
+                onCheckedChange={handleValidPaymentMethodChange}
               />
             </div>
           </div>

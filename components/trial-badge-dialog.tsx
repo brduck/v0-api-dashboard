@@ -51,6 +51,34 @@ export function TrialBadgeDialog() {
     return { border: "border-red-500", text: "text-red-700", bg: "bg-red-50" }
   }
 
+  const getSectionColor = (usedPercentage: number) => {
+    if (usedPercentage < 30) {
+      return {
+        gradient: "from-green-50 to-green-100",
+        iconBg: "bg-green-100",
+        iconColor: "text-green-700",
+        barColor: "bg-green-500",
+      }
+    }
+    if (usedPercentage < 80) {
+      return {
+        gradient: "from-yellow-50 to-yellow-100",
+        iconBg: "bg-yellow-100",
+        iconColor: "text-yellow-700",
+        barColor: "bg-yellow-500",
+      }
+    }
+    return {
+      gradient: "from-red-50 to-red-100",
+      iconBg: "bg-red-100",
+      iconColor: "text-red-700",
+      barColor: "bg-red-500",
+    }
+  }
+
+  const daysColor = getSectionColor(daysUsedPercentage)
+  const sessionsColor = getSectionColor(sessionsUsedPercentage)
+
   const badgeColor = getBadgeColor()
 
   const pricingTiers = [
@@ -122,11 +150,11 @@ export function TrialBadgeDialog() {
 
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Days Left Card */}
-              <div className="border rounded-lg p-4 bg-gradient-to-br from-amber-50 to-orange-50">
+              {/* Days Left Card - Apply dynamic colors based on days usage */}
+              <div className={`border rounded-lg p-4 bg-gradient-to-br ${daysColor.gradient}`}>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-amber-100 rounded-lg">
-                    <Clock className="w-5 h-5 text-amber-700" />
+                  <div className={`p-2 ${daysColor.iconBg} rounded-lg`}>
+                    <Clock className={`w-5 h-5 ${daysColor.iconColor}`} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{daysLeft} Days Left</h3>
@@ -135,17 +163,17 @@ export function TrialBadgeDialog() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
                   <div
-                    className="bg-amber-500 h-2 rounded-full transition-all"
+                    className={`${daysColor.barColor} h-2 rounded-full transition-all`}
                     style={{ width: `${daysUsedPercentage}%` }}
                   />
                 </div>
               </div>
 
-              {/* Sessions Card */}
-              <div className="border rounded-lg p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+              {/* Sessions Card - Apply dynamic colors based on sessions usage */}
+              <div className={`border rounded-lg p-4 bg-gradient-to-br ${sessionsColor.gradient}`}>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <StopCircle className="w-5 h-5 text-blue-700" />
+                  <div className={`p-2 ${sessionsColor.iconBg} rounded-lg`}>
+                    <StopCircle className={`w-5 h-5 ${sessionsColor.iconColor}`} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions</h3>
@@ -156,7 +184,7 @@ export function TrialBadgeDialog() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
                   <div
-                    className="bg-blue-500 h-2 rounded-full transition-all"
+                    className={`${sessionsColor.barColor} h-2 rounded-full transition-all`}
                     style={{ width: `${sessionsUsedPercentage}%` }}
                   />
                 </div>

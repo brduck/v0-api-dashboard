@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, CreditCard, ChevronDown } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
@@ -36,7 +36,7 @@ export default function ActivateTrialPage() {
   const monthlyTotal = calculatePrice(sessionCount)
 
   const handleActivateTrial = () => {
-    router.push("/verifying-payment")
+    router.push("/link-protectors")
   }
 
   const handleSliderChange = (value: number[]) => {
@@ -50,75 +50,102 @@ export default function ActivateTrialPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero */}
-        <div className="mb-16 text-center">
-          <h1 className="text-balance text-5xl font-bold tracking-tight sm:text-6xl">
+        <div className="mb-8 text-center">
+          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">
             Start Your <span className="text-green-600">Free</span> Trial
           </h1>
-          <p className="mt-6 text-pretty text-xl leading-8 text-muted-foreground">
-            30 days free. No charges. Experience Link Protector risk-free.
+          <p className="mt-4 text-pretty text-lg leading-8 text-muted-foreground">
+            30 days free. No credit card required. Experience Link Protector risk-free.
           </p>
         </div>
 
-        <div className="mx-auto max-w-2xl space-y-8">
-          {/* What's Included */}
-          <div className="rounded-2xl border bg-card p-8 shadow-sm">
-            <h2 className="mb-6 text-2xl font-semibold">What's included in your trial</h2>
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Left Column - What's Included */}
+          <div className="space-y-6">
+            <div className="rounded-2xl border bg-card p-6 shadow-sm">
+              <h2 className="mb-4 text-xl font-semibold">What's included in your trial</h2>
 
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Check className="h-5 w-5 text-primary" />
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">30 days of full access</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">Try all features with no restrictions</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-lg">30 days of full access</p>
-                  <p className="mt-1 text-muted-foreground">Try all features with no restrictions</p>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Up to 25,000 sessions</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      Generous limits to test at scale. Sessions exceeding 25,000 during the trial are billable
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Check className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">No Credit Card required</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      Start your trial immediately. Add payment details later when you're ready.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Check className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-lg">Up to 10,000 sessions</p>
-                  <p className="mt-1 text-muted-foreground">
-                    Generous limits to test at scale. Sessions exceeding 10,000 during the trial are billable
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Check className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-lg">No charges during trial</p>
-                  <p className="mt-1 text-muted-foreground">
-                    No charges today. A card is required to activate the trial. Your first bill will happen when the
-                    trial ends.
-                  </p>
-                </div>
+              <div className="mt-4 rounded-lg border bg-muted/50 p-3">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Easy cancellation:</strong> Email reminders at 7 days and 1 day
+                  before trial ends. Cancel anytime with one click.
+                </p>
               </div>
             </div>
 
-            <div className="mt-6 rounded-lg border bg-muted/50 p-4">
-              <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Easy cancellation:</strong> Email reminders at 7 days and 1 day
-                before trial ends. Cancel anytime with one click.
-              </p>
+            <div className="rounded-2xl border bg-card p-6 shadow-sm">
+              <div className="space-y-4">
+                <Button
+                  onClick={handleActivateTrial}
+                  size="lg"
+                  className="h-12 w-full text-base bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white"
+                >
+                  Start Free Trial
+                </Button>
+
+                <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4" />
+                    <span>No credit card</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4" />
+                    <span>Cancel anytime</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-8 shadow-sm">
+          {/* Right Column - Pricing Calculator */}
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <button
               onClick={() => setShowPricing(!showPricing)}
               className="flex w-full items-center justify-between text-left"
             >
               <div>
-                <h2 className="text-2xl font-semibold">After your trial: Simple pricing</h2>
-                <p className="mt-2 text-muted-foreground">Only pay for what you use. Prices drop as you scale.</p>
+                <h2 className="text-xl font-semibold">After your trial: Simple pricing</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Only pay for what you use. Prices drop as you scale.
+                </p>
               </div>
               <ChevronDown
                 className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
@@ -128,12 +155,12 @@ export default function ActivateTrialPage() {
             </button>
 
             {showPricing && (
-              <div className="mt-6 space-y-6">
+              <div className="mt-4 space-y-4">
                 {/* Input Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Estimate your monthly cost</h3>
+                <div className="space-y-3">
+                  <h3 className="text-base font-medium">Estimate your monthly cost</h3>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {/* Slider */}
                     <div className="space-y-2">
                       <Slider
@@ -151,7 +178,7 @@ export default function ActivateTrialPage() {
                         type="number"
                         value={sessionCount}
                         onChange={handleInputChange}
-                        className="text-lg"
+                        className="text-base"
                         min={0}
                         max={150000}
                       />
@@ -161,13 +188,13 @@ export default function ActivateTrialPage() {
                 </div>
 
                 {/* Dynamic Output */}
-                <div className="rounded-lg bg-primary/5 p-6">
+                <div className="rounded-lg bg-primary/5 p-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-[hsl(var(--brand))]">
+                    <div className="text-2xl font-bold text-[hsl(var(--brand))]">
                       ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      <span className="text-lg font-normal text-muted-foreground"> / month</span>
+                      <span className="text-base font-normal text-muted-foreground"> / month</span>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
                     </p>
                   </div>
@@ -178,8 +205,8 @@ export default function ActivateTrialPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b bg-muted/50">
-                        <th className="px-4 py-3 text-left text-sm font-semibold">Monthly Sessions</th>
-                        <th className="px-4 py-3 text-right text-sm font-semibold">Price Per Session</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold">Monthly Sessions</th>
+                        <th className="px-3 py-2 text-right text-xs font-semibold">Price Per Session</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -192,8 +219,8 @@ export default function ActivateTrialPage() {
                               isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
                             }`}
                           >
-                            <td className="px-4 py-3 text-sm">{tier.label}</td>
-                            <td className="px-4 py-3 text-right text-sm">${tier.rate.toFixed(2)}</td>
+                            <td className="px-3 py-2 text-xs">{tier.label}</td>
+                            <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(2)}</td>
                           </tr>
                         )
                       })}
@@ -201,39 +228,9 @@ export default function ActivateTrialPage() {
                   </table>
                 </div>
 
-                <p className="text-sm text-muted-foreground">Billed monthly on the 1st. Cancel anytime.</p>
+                <p className="text-xs text-muted-foreground">Billed monthly on the 1st. Cancel anytime.</p>
               </div>
             )}
-          </div>
-
-          <div className="rounded-2xl border bg-card p-8 shadow-sm">
-            <div className="space-y-6">
-              <Button
-                onClick={handleActivateTrial}
-                size="lg"
-                className="h-14 w-full text-lg bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white"
-              >
-                <CreditCard className="mr-2 h-5 w-5" />
-                Add Payment & Start Free Trial
-              </Button>
-
-              <p className="text-center text-sm text-muted-foreground leading-relaxed">
-                By adding my credit card, I understand the 30-day trial includes up to 10,000 sessions at no charge. I
-                agree that any sessions exceeding 10,000 will be charged at the standard usage-based rate when the trial
-                ends, and I agree to ongoing usage-based billing after the trial ends.
-              </p>
-
-              <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Check className="h-4 w-4" />
-                  <span>Secure checkout</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Check className="h-4 w-4" />
-                  <span>Cancel anytime</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

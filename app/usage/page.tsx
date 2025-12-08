@@ -67,7 +67,7 @@ export default function UsagePage() {
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   Access detailed usage metrics, security check breakdowns, and comprehensive reporting through
-                  programmatic endpoints.
+                  our dashboard.
                 </p>
               </CardContent>
             </Card>
@@ -83,8 +83,7 @@ export default function UsagePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Integrate dtect's security checks directly into your application flow. Configure rules, automate
-                  responses, and build tailored fraud prevention workflows.
+                  Integrate dtect's security checks directly into your application flow. Configure rules, and build tailored fraud prevention workflows.
                 </p>
               </CardContent>
             </Card>

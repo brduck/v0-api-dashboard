@@ -113,8 +113,8 @@ export default function PaymentRequiredPage() {
               className="flex w-full items-center justify-between text-left"
             >
               <div>
-                <h2 className="text-lg font-semibold">Volume Based Pricing</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Calculate your expected monthly cost</p>
+                <h2 className="text-lg font-semibold">Volume based pricing</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Only pay for what you use. Prices drop as you scale.</p>
               </div>
               <ChevronDown
                 className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${

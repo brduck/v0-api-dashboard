@@ -214,8 +214,8 @@ export function TrialBadgeDialog() {
                 className="flex w-full items-center justify-between text-left"
               >
                 <div>
-                  <h3 className="text-lg font-semibold">After Trial: Pricing Calculator</h3>
-                  <p className="text-sm text-muted-foreground mt-1">See what you'll pay based on your usage</p>
+                  <h3 className="text-lg font-semibold">When your trial ends: Volume based pricing</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Only pay for what you use. Prices drop as you scale.</p>
                 </div>
                 <ChevronDown
                   className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${

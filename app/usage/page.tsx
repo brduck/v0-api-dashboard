@@ -20,7 +20,7 @@ import { useTrialTest } from "@/components/trial-test-context"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
 export default function UsagePage() {
-  const { hasApiAccess } = useTrialTest()
+  const { settings } = useTrialTest()
   const [showSuccessMessage, setShowSuccessMessage] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("bad") // Declare activeTab and setActiveTab
 
@@ -28,7 +28,7 @@ export default function UsagePage() {
     setShowSuccessMessage(true)
   }
 
-  if (!hasApiAccess) {
+  if (!settings.hasApiAccess) {
     return (
       <div className="p-4 md:p-6">
         <div className="flex flex-col gap-6 max-w-4xl mx-auto">
@@ -66,8 +66,8 @@ export default function UsagePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Access detailed usage metrics, security check breakdowns, and comprehensive reporting through
-                  our dashboard.
+                  Access detailed usage metrics, security check breakdowns, and comprehensive reporting through our
+                  dashboard.
                 </p>
               </CardContent>
             </Card>
@@ -83,7 +83,8 @@ export default function UsagePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Integrate dtect's security checks directly into your application flow. Configure rules, and build tailored fraud prevention workflows.
+                  Integrate dtect's security checks directly into your application flow. Configure rules, and build
+                  tailored fraud prevention workflows.
                 </p>
               </CardContent>
             </Card>

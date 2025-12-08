@@ -64,7 +64,7 @@ export default function ActivateTrialPage() {
             {/* Left Column - Pricing Calculator */}
           <div className="flex flex-col rounded-2xl border bg-card p-6 shadow-sm">
             <div>
-              <h2 className="text-xl font-semibold">Simple pricing</h2>
+              <h2 className="text-xl font-semibold">When your trial ends: Volume based pricing</h2>
               <p className="mt-1 text-sm text-muted-foreground">Only pay for what you use. Prices drop as you scale.</p>
             </div>
 

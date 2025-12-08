@@ -100,7 +100,7 @@ export default function PaymentRequiredPage() {
 
               <div className="rounded-lg border bg-muted/50 p-3">
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Once your payment is processed, all link protectors will be automatically reactivated within minutes.
+                  Once your payment is processed, all link protectors will be automatically reactivated.
                 </p>
               </div>
             </div>

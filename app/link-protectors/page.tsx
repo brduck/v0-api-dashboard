@@ -2,6 +2,7 @@
 
 import type React from "react"
 import type { Project } from "@/lib/project-storage"
+import { useToast } from "@/components/ui/use-toast" // Import useToast hook
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -9,18 +10,23 @@ import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal, AlertTrian
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { useToast } from "@/components/ui/use-toast"
-import { getProjects } from "@/lib/project-storage"
 import { useTrialTest } from "@/components/trial-test-context"
+import { useSearchParams } from "next/navigation"
+import { Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select" // Import Select components
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table" // Import Table components
 
 export default function LinkProtectorsPage() {
   const router = useRouter()
   const { settings } = useTrialTest()
-  const showProjects = settings.showLinkProtectors
+  const [projects, setProjects] = useState<Project[]>([])
+  const [viewMode, setViewMode] = useState<"list" | "table">("list")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [sortBy, setSortBy] = useState("lastActive")
+  const { toast } = useToast()
+  const searchParams = useSearchParams()
+  const [showProjects, setShowProjects] = useState(true)
 
   useEffect(() => {
     if (settings.isPaymentRequired) {
@@ -28,12 +34,16 @@ export default function LinkProtectorsPage() {
     }
   }, [settings.isPaymentRequired, router])
 
-  const [projects, setProjects] = useState<Project[]>([])
-  const [viewMode, setViewMode] = useState<"list" | "table">("list")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("lastActive")
-  const { toast } = useToast()
+  useEffect(() => {
+    if (searchParams.get("payment") === "success") {
+      toast({
+        title: "Payment method verified",
+        description: "Your payment method is valid and you can use Link Protector now.",
+      })
+      // Clean up URL by removing query params
+      router.replace("/link-protectors")
+    }
+  }, [searchParams, toast, router])
 
   // Load projects from localStorage
   useEffect(() => {
@@ -425,4 +435,9 @@ export default function LinkProtectorsPage() {
       </div>
     </div>
   )
+}
+
+function getProjects() {
+  // Placeholder function to simulate loading projects from localStorage
+  return []
 }

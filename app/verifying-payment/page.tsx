@@ -12,7 +12,7 @@ export default function VerifyingPaymentPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (settings.validPaymentMethod) {
-        router.push("/link-protectors")
+        router.push("/link-protectors?payment=success")
       } else {
         router.push("/payment-required")
       }

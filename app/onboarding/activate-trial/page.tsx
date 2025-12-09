@@ -4,14 +4,16 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 export default function ActivateTrialPage() {
   const router = useRouter()
   const [sessionCount, setSessionCount] = useState(15000)
+  const [faqOpen, setFaqOpen] = useState<{ [key: string]: boolean }>({})
 
   const pricingTiers = [
     { min: 0, max: 2000, rate: 0.12, label: "0 – 2,000" },
@@ -61,7 +63,7 @@ export default function ActivateTrialPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-            {/* Left Column - Pricing Calculator */}
+          {/* Left Column - Pricing Calculator */}
           <div className="flex flex-col rounded-2xl border bg-card p-6 shadow-sm">
             <div>
               <h2 className="text-xl font-semibold">When your trial ends: Volume based pricing</h2>
@@ -145,7 +147,7 @@ export default function ActivateTrialPage() {
             </div>
           </div>
 
-          {/* Righ Column - What's Included */}
+          {/* Right Column - What's Included */}
           <div className="flex flex-col space-y-6">
             <div className="flex-1 rounded-2xl border bg-card p-6 shadow-sm">
               <h2 className="mb-4 text-xl font-semibold">What's included in your trial</h2>
@@ -192,6 +194,44 @@ export default function ActivateTrialPage() {
                   before trial ends. Cancel anytime with one click.
                 </p>
               </div>
+
+              {/* FAQ Section */}
+              <div className="mt-6 space-y-3">
+                <h3 className="text-base font-semibold">Frequently Asked Questions</h3>
+
+                <div className="space-y-2">
+                  <Collapsible open={faqOpen["limit"]} onOpenChange={(open) => setFaqOpen({ ...faqOpen, limit: open })}>
+                    <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-background px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted/50">
+                      <span>What happens if I hit my limit?</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${faqOpen["limit"] ? "rotate-180" : ""}`} />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-4 pt-2 pb-1">
+                      <p className="text-sm text-muted-foreground">
+                        We will notify you via email when you approach your limit. If you exceed 25,000 sessions,
+                        traffic is paused until you add a payment method to upgrade.
+                      </p>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Collapsible
+                    open={faqOpen["payment"]}
+                    onOpenChange={(open) => setFaqOpen({ ...faqOpen, payment: open })}
+                  >
+                    <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-background px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted/50">
+                      <span>When is my first payment?</span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${faqOpen["payment"] ? "rotate-180" : ""}`}
+                      />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-4 pt-2 pb-1">
+                      <p className="text-sm text-muted-foreground">
+                        You are only billed for usage after your trial ends. Your first invoice will arrive on the 1st
+                        of the following month.
+                      </p>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              </div>
             </div>
 
             <div className="rounded-2xl border bg-card p-6 shadow-sm">
@@ -217,8 +257,6 @@ export default function ActivateTrialPage() {
               </div>
             </div>
           </div>
-
-        
         </div>
       </div>
     </div>

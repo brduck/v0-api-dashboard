@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { CreditCard, AlertTriangle, ChevronDown } from "lucide-react"
+import { CreditCard, AlertTriangle, ChevronDown, Users } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -132,31 +132,35 @@ export default function PaymentRequiredPage() {
                   <h3 className="text-base font-medium">Estimate your monthly cost</h3>
                   <p className="text-sm text-muted-foreground">How many participant sessions do you expect to check?</p>
 
-                  <div className="space-y-3">
-                    {/* Slider */}
-                    <div className="space-y-2">
-                      <Slider
-                        value={[sessionCount]}
-                        onValueChange={handleSliderChange}
-                        max={150000}
-                        step={1000}
-                        className="w-full"
-                      />
-                    </div>
+                    <div className="space-y-3">
+                  {/* Slider */}
+                  <div className="space-y-2">
+                    <Slider
+                      value={[sessionCount]}
+                      onValueChange={handleSliderChange}
+                      max={150000}
+                      step={1000}
+                      className="w-full"
+                    />
+                  </div>
 
-                    {/* Number Input */}
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                      </div>
                       <Input
                         type="number"
                         value={sessionCount}
                         onChange={handleInputChange}
-                        className="text-base"
+                        className="pl-10 text-base"
                         min={0}
                         max={150000}
                       />
-                      <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
                     </div>
+                    <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
                   </div>
+                </div>
                 </div>
 
                 {/* Dynamic Output */}

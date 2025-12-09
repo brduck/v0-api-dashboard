@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown, Activity } from "lucide-react"
+import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown, Activity, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
@@ -235,31 +235,35 @@ export function TrialBadgeDialog() {
                       How many participant sessions do you expect to check?
                     </p>
 
-                    <div className="space-y-3">
-                      {/* Slider */}
-                      <div className="space-y-2">
-                        <Slider
-                          value={[sessionCount]}
-                          onValueChange={handleSliderChange}
-                          max={150000}
-                          step={1000}
-                          className="w-full"
-                        />
-                      </div>
+                     <div className="space-y-3">
+                  {/* Slider */}
+                  <div className="space-y-2">
+                    <Slider
+                      value={[sessionCount]}
+                      onValueChange={handleSliderChange}
+                      max={150000}
+                      step={1000}
+                      className="w-full"
+                    />
+                  </div>
 
-                      {/* Number Input */}
-                      <div className="flex items-center gap-3">
-                        <Input
-                          type="number"
-                          value={sessionCount}
-                          onChange={handleInputChange}
-                          className="text-base"
-                          min={0}
-                          max={150000}
-                        />
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Users className="h-4 w-4 text-muted-foreground" />
                       </div>
+                      <Input
+                        type="number"
+                        value={sessionCount}
+                        onChange={handleInputChange}
+                        className="pl-10 text-base"
+                        min={0}
+                        max={150000}
+                      />
                     </div>
+                    <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
+                  </div>
+                </div>
                   </div>
 
                   {/* Dynamic Output */}

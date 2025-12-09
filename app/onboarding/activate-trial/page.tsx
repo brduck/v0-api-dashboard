@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, ChevronDown } from "lucide-react"
+import { Check, ChevronDown, Users } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
@@ -73,7 +73,10 @@ export default function ActivateTrialPage() {
             <div className="mt-6 flex-1 space-y-4">
               {/* Input Section */}
               <div className="space-y-3">
-                <h3 className="text-base font-medium">Estimate your monthly cost</h3>
+                <div>
+                  <h3 className="text-base font-medium">Estimate your monthly cost</h3>
+                  <p className="mt-0.5 text-sm text-muted-foreground">How many participant sessions do you need?</p>
+                </div>
 
                 <div className="space-y-3">
                   {/* Slider */}
@@ -87,17 +90,21 @@ export default function ActivateTrialPage() {
                     />
                   </div>
 
-                  {/* Number Input */}
-                  <div className="flex items-center gap-3">
-                    <Input
-                      type="number"
-                      value={sessionCount}
-                      onChange={handleInputChange}
-                      className="text-base"
-                      min={0}
-                      max={150000}
-                    />
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">sessions/month</span>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <Input
+                        type="number"
+                        value={sessionCount}
+                        onChange={handleInputChange}
+                        className="pl-10 text-base"
+                        min={0}
+                        max={150000}
+                      />
+                    </div>
+                    <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
                   </div>
                 </div>
               </div>

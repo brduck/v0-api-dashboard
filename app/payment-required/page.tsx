@@ -70,7 +70,7 @@ export default function PaymentRequiredPage() {
                 <AlertTriangle className="h-5 w-5 text-red-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold text-red-900">All Link Protectors Are Paused</h2>
+                <h2 className="text-lg font-semibold">All Link Protectors Are Paused</h2>
                 <p className="mt-1 text-sm text-red-800 leading-relaxed">
                   Your link protectors are <strong>currently paused and not processing any traffic.</strong> To resume
                   service and continue protecting your links, please add a valid payment method below.
@@ -114,7 +114,9 @@ export default function PaymentRequiredPage() {
             >
               <div>
                 <h2 className="text-lg font-semibold">Volume based pricing</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Only pay for what you use. Prices drop as you scale.</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Only pay for what you use. Prices drop as you scale.
+                </p>
               </div>
               <ChevronDown
                 className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
@@ -128,6 +130,7 @@ export default function PaymentRequiredPage() {
                 {/* Input Section */}
                 <div className="space-y-3">
                   <h3 className="text-base font-medium">Estimate your monthly cost</h3>
+                  <p className="text-sm text-muted-foreground">How many participant sessions do you expect to check?</p>
 
                   <div className="space-y-3">
                     {/* Slider */}

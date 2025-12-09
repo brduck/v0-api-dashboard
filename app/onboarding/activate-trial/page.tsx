@@ -75,7 +75,9 @@ export default function ActivateTrialPage() {
               <div className="space-y-3">
                 <div>
                   <h3 className="text-base font-medium">Estimate your monthly cost</h3>
-                  <p className="mt-0.5 text-sm text-muted-foreground">How many participant sessions do you need?</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    How many participant sessions do you expect to check?
+                  </p>
                 </div>
 
                 <div className="space-y-3">

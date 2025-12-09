@@ -215,7 +215,9 @@ export function TrialBadgeDialog() {
               >
                 <div>
                   <h3 className="text-lg font-semibold">When your trial ends: Volume based pricing</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Only pay for what you use. Prices drop as you scale.</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Only pay for what you use. Prices drop as you scale.
+                  </p>
                 </div>
                 <ChevronDown
                   className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
@@ -229,6 +231,9 @@ export function TrialBadgeDialog() {
                   {/* Input Section */}
                   <div className="space-y-3">
                     <h4 className="text-sm font-medium">Estimate your monthly cost</h4>
+                    <p className="text-xs text-muted-foreground">
+                      How many participant sessions do you expect to check?
+                    </p>
 
                     <div className="space-y-3">
                       {/* Slider */}

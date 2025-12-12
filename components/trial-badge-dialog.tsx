@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown, Activity, Users } from "lucide-react"
+import { Clock, AlertTriangle, CreditCard, StopCircle, ChevronDown, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
@@ -235,35 +235,35 @@ export function TrialBadgeDialog() {
                       How many participant sessions do you expect to check?
                     </p>
 
-                     <div className="space-y-3">
-                  {/* Slider */}
-                  <div className="space-y-2">
-                    <Slider
-                      value={[sessionCount]}
-                      onValueChange={handleSliderChange}
-                      max={150000}
-                      step={1000}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-3">
+                      {/* Slider */}
+                      <div className="space-y-2">
+                        <Slider
+                          value={[sessionCount]}
+                          onValueChange={handleSliderChange}
+                          max={150000}
+                          step={1000}
+                          className="w-full"
+                        />
                       </div>
-                      <Input
-                        type="number"
-                        value={sessionCount}
-                        onChange={handleInputChange}
-                        className="pl-10 text-base"
-                        min={0}
-                        max={150000}
-                      />
+
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <Input
+                            type="number"
+                            value={sessionCount}
+                            onChange={handleInputChange}
+                            className="pl-10 text-base"
+                            min={0}
+                            max={150000}
+                          />
+                        </div>
+                        <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
+                      </div>
                     </div>
-                    <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
-                  </div>
-                </div>
                   </div>
 
                   {/* Dynamic Output */}
@@ -329,6 +329,15 @@ export function TrialBadgeDialog() {
               Add Credit Card
             </Button>
           </DialogFooter>
+
+          <div className="mt-3 text-center border-t pt-3">
+            <p className="text-xs text-muted-foreground">
+              Have questions about your trial?{" "}
+              <a href="mailto:support@dtect.com" className="text-primary hover:underline font-medium">
+                Contact us
+              </a>
+            </p>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -340,7 +349,8 @@ export function TrialBadgeDialog() {
               Confirm Trial Cancellation
             </AlertDialogTitle>
             <AlertDialogDescription className="pt-2">
-              Are you sure you want to stop your free trial? All your Link Protectors will be immediately paused, and incoming traffic will be blocked until you add a valid payment method.
+              Are you sure you want to stop your free trial? All your Link Protectors will be immediately paused, and
+              incoming traffic will be blocked until you add a valid payment method.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

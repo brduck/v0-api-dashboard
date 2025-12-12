@@ -4,11 +4,10 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, ChevronDown, Users } from "lucide-react"
+import { Check, Users } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 export default function ActivateTrialPage() {
   const router = useRouter()
@@ -208,9 +207,11 @@ export default function ActivateTrialPage() {
                 <h3 className="text-base font-semibold">What happens when my trial ends?</h3>
 
                 <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                       When your trial ends, you will be prompted to add a valid payment method. Your account will then transition to our volume usage-based pricing. You can use the calculator on the left to estimate your expected costs.
-                      </p>
+                  <p className="text-sm text-muted-foreground">
+                    When your trial ends, you will be prompted to add a valid payment method. Your account will then
+                    transition to our volume usage-based pricing. You can use the calculator on the left to estimate
+                    your expected costs.
+                  </p>
                 </div>
               </div>
             </div>
@@ -224,6 +225,15 @@ export default function ActivateTrialPage() {
                 >
                   Start Free Trial
                 </Button>
+
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground">
+                    Need help getting started?{" "}
+                    <a href="mailto:support@dtect.com" className="text-primary hover:underline font-medium">
+                      Contact us
+                    </a>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

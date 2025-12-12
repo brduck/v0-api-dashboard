@@ -210,13 +210,12 @@ export default function ActivateTrialPage() {
                 <div className="space-y-2">
                   <Collapsible open={faqOpen["limit"]} onOpenChange={(open) => setFaqOpen({ ...faqOpen, limit: open })}>
                     <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-background px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted/50">
-                      <span>What happens if I hit my limit?</span>
+                      <span>What happens when my trial ends?</span>
                       <ChevronDown className={`h-4 w-4 transition-transform ${faqOpen["limit"] ? "rotate-180" : ""}`} />
                     </CollapsibleTrigger>
                     <CollapsibleContent className="px-4 pt-2 pb-1">
                       <p className="text-sm text-muted-foreground">
-                        We will notify you via email when you approach your limit. If you exceed 25,000 sessions,
-                        traffic is paused until you add a payment method to upgrade.
+                       When your trial ends, you will be prompted to add a valid payment method. Your account will then transition to our volume usage-based pricing. You can use the calculator on the left to estimate your expected costs.
                       </p>
                     </CollapsibleContent>
                   </Collapsible>

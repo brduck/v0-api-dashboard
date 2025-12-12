@@ -333,7 +333,12 @@ export function TrialBadgeDialog() {
           <div className="mt-3 text-center border-t pt-3">
             <p className="text-xs text-muted-foreground">
               Have questions about your trial?{" "}
-              <a href="mailto:support@dtect.com" className="text-primary hover:underline font-medium">
+              <a
+                href="https://dtect.io/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
                 Contact us
               </a>
             </p>

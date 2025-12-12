@@ -229,7 +229,12 @@ export default function ActivateTrialPage() {
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">
                     Need help getting started?{" "}
-                    <a href="mailto:support@dtect.com" className="text-primary hover:underline font-medium">
+                    <a
+                      href="https://dtect.io/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-medium"
+                    >
                       Contact us
                     </a>
                   </p>

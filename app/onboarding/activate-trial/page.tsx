@@ -199,8 +199,7 @@ export default function ActivateTrialPage() {
 
               <div className="mt-4 rounded-lg border bg-muted/50 p-3">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Stop anytime:</strong> Email reminders at 7 days and 1 day
-                  before trial ends.
+                  Email reminders will be sent 7 days and 1 day before the trial ends.
                 </p>
               </div>
 

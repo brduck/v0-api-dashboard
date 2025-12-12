@@ -340,8 +340,7 @@ export function TrialBadgeDialog() {
               Confirm Trial Cancellation
             </AlertDialogTitle>
             <AlertDialogDescription className="pt-2">
-              Are you sure you want to stop your free trial? All your Link Protectors will be immediately paused, and
-              incoming traffic will be blocked until you add a valid payment method.
+              Are you sure you want to stop your free trial? All your Link Protectors will be immediately paused, and incoming traffic will be blocked until you add a valid payment method.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

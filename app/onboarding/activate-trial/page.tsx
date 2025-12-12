@@ -219,24 +219,6 @@ export default function ActivateTrialPage() {
                       </p>
                     </CollapsibleContent>
                   </Collapsible>
-
-                  <Collapsible
-                    open={faqOpen["payment"]}
-                    onOpenChange={(open) => setFaqOpen({ ...faqOpen, payment: open })}
-                  >
-                    <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border bg-background px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted/50">
-                      <span>When is my first payment?</span>
-                      <ChevronDown
-                        className={`h-4 w-4 transition-transform ${faqOpen["payment"] ? "rotate-180" : ""}`}
-                      />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-4 pt-2 pb-1">
-                      <p className="text-sm text-muted-foreground">
-                        You are only billed for usage after your trial ends. Your first invoice will arrive on the 1st
-                        of the following month.
-                      </p>
-                    </CollapsibleContent>
-                  </Collapsible>
                 </div>
               </div>
             </div>

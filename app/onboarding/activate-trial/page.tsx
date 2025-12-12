@@ -152,7 +152,7 @@ export default function ActivateTrialPage() {
                 </table>
               </div>
 
-              <p className="text-xs text-muted-foreground">Billed monthly on the 1st. Cancel anytime.</p>
+              <p className="text-xs text-muted-foreground">Billed monthly on the 1st.</p>
             </div>
           </div>
 
@@ -199,8 +199,8 @@ export default function ActivateTrialPage() {
 
               <div className="mt-4 rounded-lg border bg-muted/50 p-3">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Easy cancellation:</strong> Email reminders at 7 days and 1 day
-                  before trial ends. Cancel anytime with one click.
+                  <strong className="text-foreground">Stop anytime:</strong> Email reminders at 7 days and 1 day
+                  before trial ends.
                 </p>
               </div>
 
@@ -252,17 +252,6 @@ export default function ActivateTrialPage() {
                 >
                   Start Free Trial
                 </Button>
-
-                <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1.5">
-                    <Check className="h-4 w-4" />
-                    <span>No credit card</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="h-4 w-4" />
-                    <span>Cancel anytime</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

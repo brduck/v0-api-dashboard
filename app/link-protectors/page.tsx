@@ -100,7 +100,7 @@ export default function LinkProtectorsPage() {
   }
 
   return (
-    <>
+    <div className="relative min-h-screen">
       {settings.isPaymentRequired && <PaymentRequiredOverlay />}
 
       <div className="flex h-full flex-col">
@@ -444,6 +444,6 @@ export default function LinkProtectorsPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

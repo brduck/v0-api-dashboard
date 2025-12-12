@@ -31,7 +31,7 @@ export default function UsagePage() {
 
   if (!settings.hasApiAccess) {
     return (
-      <>
+      <div className="relative min-h-screen">
         {settings.isPaymentRequired && <PaymentRequiredOverlay />}
 
         <div className="p-4 md:p-6">
@@ -117,7 +117,7 @@ export default function UsagePage() {
             </Card>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
@@ -127,7 +127,7 @@ export default function UsagePage() {
   ]
 
   return (
-    <>
+    <div className="relative min-h-screen">
       {settings.isPaymentRequired && <PaymentRequiredOverlay />}
 
       <div className="p-4 md:p-6">
@@ -426,6 +426,6 @@ export default function UsagePage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   )
 }

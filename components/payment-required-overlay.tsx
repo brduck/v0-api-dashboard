@@ -49,7 +49,7 @@ export function PaymentRequiredOverlay() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="absolute inset-x-0 top-16 bottom-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
         <div className="bg-background rounded-xl shadow-2xl p-6 space-y-5">
           {/* Hero */}

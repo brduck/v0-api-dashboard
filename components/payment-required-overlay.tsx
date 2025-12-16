@@ -103,6 +103,20 @@ export function PaymentRequiredOverlay() {
                   Once your payment is processed, all link protectors will be automatically reactivated.
                 </p>
               </div>
+
+              <div className="pt-2 border-t text-center">
+                <p className="text-sm text-muted-foreground">
+                  Need help?{" "}
+                  <a
+                    href="https://dtect.io/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Contact us
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
 

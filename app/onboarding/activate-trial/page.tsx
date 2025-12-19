@@ -209,7 +209,7 @@ export default function ActivateTrialPage() {
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>Volume Pricing Schedule</DialogTitle>
+                      <DialogTitle>Volume Pricing Tiers</DialogTitle>
                       <DialogDescription>
                         Our pricing automatically adjusts based on your monthly session volume. The rate for your tier
                         applies to all sessions.

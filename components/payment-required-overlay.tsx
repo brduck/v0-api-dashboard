@@ -15,12 +15,20 @@ export function PaymentRequiredOverlay() {
   const [sessionCount, setSessionCount] = useState(15000)
 
   const pricingTiers = [
-    { min: 0, max: 2000, rate: 0.12, label: "0 – 2,000" },
-    { min: 2001, max: 10000, rate: 0.08, label: "2,001 – 10,000" },
-    { min: 10001, max: 25000, rate: 0.06, label: "10,001 – 25,000" },
-    { min: 25001, max: 50000, rate: 0.04, label: "25,001 – 50,000" },
-    { min: 50001, max: 100000, rate: 0.02, label: "50,001 – 100,000" },
-    { min: 100001, max: Number.POSITIVE_INFINITY, rate: 0.01, label: "100,001+" },
+    { min: 0, max: 2000, rate: 0.15, label: "0 – 2,000" },
+    { min: 2001, max: 5000, rate: 0.075, label: "2,001 – 5,000" },
+    { min: 5001, max: 10000, rate: 0.05, label: "5,001 – 10,000" },
+    { min: 10001, max: 25000, rate: 0.03, label: "10,001 – 25,000" },
+    { min: 25001, max: 50000, rate: 0.018, label: "25,001 – 50,000" },
+    { min: 50001, max: 75000, rate: 0.018, label: "50,001 – 75,000" },
+    { min: 75001, max: 100000, rate: 0.012, label: "75,001 – 100,000" },
+    { min: 100001, max: 150000, rate: 0.012, label: "100,001 – 150,000" },
+    { min: 150001, max: 200000, rate: 0.0108, label: "150,001 – 200,000" },
+    { min: 200001, max: 250000, rate: 0.0096, label: "200,001 – 250,000" },
+    { min: 250001, max: 500000, rate: 0.0084, label: "250,001 – 500,000" },
+    { min: 500001, max: 750000, rate: 0.006, label: "500,001 – 750,000" },
+    { min: 750001, max: 1000000, rate: 0.0048, label: "750,001 – 1,000,000" },
+    { min: 1000001, max: Number.POSITIVE_INFINITY, rate: 0, label: "1,000,001+", contactSales: true },
   ]
 
   const getCurrentTier = (sessions: number) => {
@@ -29,6 +37,7 @@ export function PaymentRequiredOverlay() {
 
   const calculatePrice = (sessions: number) => {
     const tier = getCurrentTier(sessions)
+    if (tier.contactSales) return null
     return sessions * tier.rate
   }
 
@@ -40,12 +49,12 @@ export function PaymentRequiredOverlay() {
   }
 
   const handleSliderChange = (value: number[]) => {
-    setSessionCount(Math.min(value[0], 150000))
+    setSessionCount(Math.min(value[0], 1100000))
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value) || 0
-    setSessionCount(Math.max(0, Math.min(value, 150000)))
+    setSessionCount(Math.max(0, Math.min(value, 1100000)))
   }
 
   return (
@@ -152,7 +161,7 @@ export function PaymentRequiredOverlay() {
                       <Slider
                         value={[sessionCount]}
                         onValueChange={handleSliderChange}
-                        max={150000}
+                        max={1100000}
                         step={1000}
                         className="w-full"
                       />
@@ -169,7 +178,7 @@ export function PaymentRequiredOverlay() {
                           onChange={handleInputChange}
                           className="pl-10 text-base"
                           min={0}
-                          max={150000}
+                          max={1100000}
                         />
                       </div>
                       <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
@@ -180,13 +189,37 @@ export function PaymentRequiredOverlay() {
                 {/* Dynamic Output */}
                 <div className="rounded-lg bg-primary/5 p-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-[hsl(var(--brand))]">
-                      ${monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      <span className="text-base font-normal text-muted-foreground"> / month</span>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(2)} per session
-                    </p>
+                    {currentTier.contactSales ? (
+                      <>
+                        <div className="text-xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          For volumes over 1,000,000 sessions,{" "}
+                          <a
+                            href="https://dtect.io/contact"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline font-medium"
+                          >
+                            contact sales
+                          </a>{" "}
+                          for special enterprise pricing.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-2xl font-bold text-[hsl(var(--brand))]">
+                          $
+                          {monthlyTotal?.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                          <span className="text-base font-normal text-muted-foreground"> / month</span>
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(4)} per session
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -210,7 +243,13 @@ export function PaymentRequiredOverlay() {
                             }`}
                           >
                             <td className="px-3 py-2 text-xs">{tier.label}</td>
-                            <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(2)}</td>
+                            <td className="px-3 py-2 text-right text-xs">
+                              {tier.contactSales ? (
+                                <span className="text-primary font-medium">Contact Sales</span>
+                              ) : (
+                                `$${tier.rate.toFixed(4)}`
+                              )}
+                            </td>
                           </tr>
                         )
                       })}

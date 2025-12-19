@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import Image from "next/image"
-import { Mail } from "lucide-react"
+import { MailCheck } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -39,7 +39,7 @@ export default function SignUpPage() {
             {/* Mail Icon - Green Circle */}
             <div className="flex justify-center">
               <div className="rounded-full bg-green-100 p-5">
-                <Mail className="h-5 w-5 text-green-700" />
+                <MailCheck className="h-5 w-5 text-green-700" />
               </div>
             </div>
 

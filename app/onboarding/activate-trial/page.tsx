@@ -204,7 +204,7 @@ export default function ActivateTrialPage() {
                 <Dialog open={pricingModalOpen} onOpenChange={setPricingModalOpen}>
                   <DialogTrigger asChild>
                     <button className="text-sm text-primary hover:underline font-medium">
-                      View full volume pricing schedule →
+                      View all pricing tiers →
                     </button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

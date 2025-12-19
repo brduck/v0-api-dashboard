@@ -176,12 +176,19 @@ export default function ActivateTrialPage() {
                 <div className="rounded-lg border bg-card p-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Current Tier:</span>
-                      <span className="text-muted-foreground">
-                        {currentTier.label} sessions @ $
-                        {currentTier.contactSales ? "Contact Sales" : currentTier.rate.toFixed(4)}
-                        /session
-                      </span>
+                      {currentTier.contactSales ? (
+                        <span className="text-muted-foreground">
+                          {currentTier.label} sessions - Contact Sales for custom pricing
+                        </span>
+                      ) : (
+                        <>
+                          <span className="font-semibold">Current Tier:</span>
+                          <span className="text-muted-foreground">
+                            {currentTier.label} sessions @ ${currentTier.rate.toFixed(4)}
+                            /session
+                          </span>
+                        </>
+                      )}
                     </div>
                     {nextTier && !nextTier.contactSales && (
                       <div className="flex items-center justify-between text-sm">

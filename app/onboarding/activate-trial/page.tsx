@@ -8,11 +8,20 @@ import { Check, Users } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function ActivateTrialPage() {
   const router = useRouter()
   const [sessionCount, setSessionCount] = useState(15000)
   const [faqOpen, setFaqOpen] = useState<{ [key: string]: boolean }>({})
+  const [pricingModalOpen, setPricingModalOpen] = useState(false)
 
   const pricingTiers = [
     { min: 0, max: 2000, rate: 0.15, label: "0 – 2,000" },
@@ -35,6 +44,12 @@ export default function ActivateTrialPage() {
     return pricingTiers.find((tier) => sessions >= tier.min && sessions <= tier.max) || pricingTiers[0]
   }
 
+  const getNextTier = (sessions: number) => {
+    const currentIndex = pricingTiers.findIndex((tier) => sessions >= tier.min && sessions <= tier.max)
+    if (currentIndex === -1 || currentIndex === pricingTiers.length - 1) return null
+    return pricingTiers[currentIndex + 1]
+  }
+
   const calculatePrice = (sessions: number) => {
     const tier = getCurrentTier(sessions)
     if (tier.contactSales) return null
@@ -42,6 +57,7 @@ export default function ActivateTrialPage() {
   }
 
   const currentTier = getCurrentTier(sessionCount)
+  const nextTier = getNextTier(sessionCount)
   const monthlyTotal = calculatePrice(sessionCount)
 
   const handleActivateTrial = () => {
@@ -156,38 +172,76 @@ export default function ActivateTrialPage() {
                 </div>
               </div>
 
-              {/* Interactive Pricing Table */}
-              <div className="overflow-hidden rounded-lg border">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="px-3 py-2 text-left text-xs font-semibold">Monthly Sessions</th>
-                      <th className="px-3 py-2 text-right text-xs font-semibold">Price Per Session</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {pricingTiers.map((tier) => {
-                      const isActive = sessionCount >= tier.min && sessionCount <= tier.max
-                      return (
-                        <tr
-                          key={tier.label}
-                          className={`transition-colors ${
-                            isActive ? "bg-primary/10 font-medium" : "opacity-50 hover:opacity-75"
-                          }`}
-                        >
-                          <td className="px-3 py-2 text-xs">{tier.label}</td>
-                          <td className="px-3 py-2 text-right text-xs">
-                            {tier.contactSales ? (
-                              <span className="text-primary font-medium">Contact Sales</span>
-                            ) : (
-                              `$${tier.rate.toFixed(4)}`
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+              <div className="space-y-3">
+                <div className="rounded-lg border bg-card p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">Current Tier:</span>
+                      <span className="text-muted-foreground">
+                        {currentTier.label} sessions @ $
+                        {currentTier.contactSales ? "Contact Sales" : currentTier.rate.toFixed(4)}
+                        /session
+                      </span>
+                    </div>
+                    {nextTier && !nextTier.contactSales && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-muted-foreground">Next Tier:</span>
+                        <span className="text-muted-foreground">
+                          {nextTier.label} sessions @ ${nextTier.rate.toFixed(4)}/session
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Dialog open={pricingModalOpen} onOpenChange={setPricingModalOpen}>
+                  <DialogTrigger asChild>
+                    <button className="text-sm text-primary hover:underline font-medium">
+                      View full volume pricing schedule →
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Volume Pricing Schedule</DialogTitle>
+                      <DialogDescription>
+                        Our pricing automatically adjusts based on your monthly session volume. The rate for your tier
+                        applies to all sessions.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="overflow-hidden rounded-lg border">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b bg-muted/50">
+                            <th className="px-4 py-3 text-left text-sm font-semibold">Monthly Sessions</th>
+                            <th className="px-4 py-3 text-right text-sm font-semibold">Price Per Session</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {pricingTiers.map((tier) => {
+                            const isActive = sessionCount >= tier.min && sessionCount <= tier.max
+                            return (
+                              <tr
+                                key={tier.label}
+                                className={`transition-colors ${
+                                  isActive ? "bg-primary/10 font-medium" : "hover:bg-muted/50"
+                                }`}
+                              >
+                                <td className="px-4 py-3 text-sm">{tier.label}</td>
+                                <td className="px-4 py-3 text-right text-sm">
+                                  {tier.contactSales ? (
+                                    <span className="text-primary font-medium">Contact Sales</span>
+                                  ) : (
+                                    `$${tier.rate.toFixed(4)}`
+                                  )}
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
 
               <p className="text-xs text-muted-foreground">Billed monthly on the 1st.</p>

@@ -54,7 +54,7 @@ export default function ActivateTrialPage() {
         {/* Hero */}
         <div className="mb-8 text-center">
           <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">
-            Start Your <span className="text-green-600">Free</span> Trial
+            Start Your <span className="text-[hsl(var(--brand))]">Free Trial</span>
           </h1>
           <p className="mt-4 text-pretty text-lg leading-8 text-muted-foreground">
             30 days free. No credit card required. Experience Link Protector risk-free.

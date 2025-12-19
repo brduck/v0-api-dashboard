@@ -95,6 +95,13 @@ export default function SignInPage() {
               Sign In
             </Button>
           </form>
+
+          <div className="mt-6 text-center text-sm">
+            <span className="text-muted-foreground">Don't have an account? </span>
+            <a href="/sign-up" className="font-medium text-foreground hover:underline transition-colors">
+              Create an account
+            </a>
+          </div>
         </div>
       </div>
     </div>

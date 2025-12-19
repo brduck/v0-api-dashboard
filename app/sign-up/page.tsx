@@ -38,8 +38,8 @@ export default function SignUpPage() {
           <div className="space-y-6 text-center">
             {/* Mail Icon - Green Circle */}
             <div className="flex justify-center">
-              <div className="rounded-full bg-green-100 p-2">
-                <MailCheck className="h-5 w-5 text-green-700" />
+              <div className="rounded-full bg-green-100 p-4">
+                <MailCheck className="h-7 w-7 text-green-700" />
               </div>
             </div>
 

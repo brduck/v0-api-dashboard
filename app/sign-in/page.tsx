@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Eye, EyeOff } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -22,13 +23,17 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 p-4">
       {/* dtect Logo */}
-      <div className="absolute top-12 flex items-center gap-2">
-        <div className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full bg-foreground" />
-        </div>
-        <span className="text-2xl font-semibold">dtect</span>
+      <div className="mb-8">
+        <Image
+          src="/images/design-mode/dtect_blaco.svg"
+          alt="dtect logo"
+          width={182}
+          height={40}
+          className="mx-auto"
+          priority
+        />
       </div>
 
       {/* Sign In Card */}

@@ -39,7 +39,7 @@ export default function SignUpPage() {
             {/* Mail Icon - Green Circle */}
             <div className="flex justify-center">
               <div className="rounded-full bg-green-100 p-5">
-                <Mail className="h-8 w-8 text-green-700" />
+                <Mail className="h-5 w-5 text-green-700" />
               </div>
             </div>
 

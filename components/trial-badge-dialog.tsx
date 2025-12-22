@@ -353,7 +353,7 @@ export function TrialBadgeDialog() {
             </Button>
             <Button onClick={handleAddCreditCard} className="w-full sm:w-auto bg-primary hover:bg-primary/90">
               <CreditCard className="w-4 h-4 mr-2" />
-              Add Credit Card
+              Add Payment Method
             </Button>
           </DialogFooter>
 

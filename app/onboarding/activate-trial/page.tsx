@@ -296,12 +296,6 @@ export default function ActivateTrialPage() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-lg border bg-muted/50 p-3">
-                <p className="text-sm text-muted-foreground">
-                  Email reminders will be sent 7 days and 1 day before the trial ends.
-                </p>
-              </div>
-
               {/* FAQ Section */}
               <div className="mt-6 space-y-3">
                 <h3 className="text-base font-semibold">What happens when my trial ends?</h3>

@@ -18,8 +18,7 @@ export default function SignInPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Prototype behavior: always redirect to /link-protectors
-    router.push("/link-protectors")
+    router.push("/onboarding/activate-trial")
   }
 
   return (

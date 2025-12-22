@@ -188,7 +188,7 @@ export function TrialBadgeDialog() {
                   <div>
                     <h3 className="font-semibold text-lg">{sessionsLeft.toLocaleString()} Sessions Left</h3>
                     <p className="text-sm text-gray-600">
-                      {sessionsUsed.toLocaleString()} of {totalSessions.toLocaleString()}
+                      Out of {totalSessions.toLocaleString()}
                     </p>
                   </div>
                 </div>

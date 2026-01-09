@@ -36,7 +36,11 @@ export default function ActivateTrialPage() {
   ]
 
   const getCurrentTier = (sessions: number) => {
-    return pricingTiers.find((tier) => sessions >= tier.min && sessions <= tier.max) || pricingTiers[0]
+    const tier = pricingTiers.find((tier) => sessions >= tier.min && sessions <= tier.max)
+    if (!tier && sessions > 499999) {
+      return { min: 500000, max: Number.POSITIVE_INFINITY, rate: 0, label: "500,000+", contactSales: true }
+    }
+    return tier || pricingTiers[0]
   }
 
   const getNextTier = (sessions: number) => {
@@ -46,6 +50,7 @@ export default function ActivateTrialPage() {
   }
 
   const calculatePrice = (sessions: number) => {
+    if (sessions > 499999) return null
     const tier = getCurrentTier(sessions)
     return sessions * tier.rate
   }
@@ -132,7 +137,7 @@ export default function ActivateTrialPage() {
               {/* Dynamic Output */}
               <div className="rounded-lg bg-primary/5 p-4">
                 <div className="text-center">
-                  {currentTier.contactSales ? (
+                  {monthlyTotal === null ? (
                     <>
                       <div className="text-2xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
                       <p className="mt-2 text-sm text-muted-foreground">
@@ -152,7 +157,7 @@ export default function ActivateTrialPage() {
                     <>
                       <div className="text-2xl font-bold text-[hsl(var(--brand))]">
                         $
-                        {monthlyTotal?.toLocaleString(undefined, {
+                        {monthlyTotal.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}

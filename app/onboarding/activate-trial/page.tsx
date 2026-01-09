@@ -24,20 +24,17 @@ export default function ActivateTrialPage() {
   const [pricingModalOpen, setPricingModalOpen] = useState(false)
 
   const pricingTiers = [
-    { min: 0, max: 2000, rate: 0.15, label: "0 – 2,000" },
-    { min: 2001, max: 5000, rate: 0.075, label: "2,001 – 5,000" },
-    { min: 5001, max: 10000, rate: 0.05, label: "5,001 – 10,000" },
-    { min: 10001, max: 25000, rate: 0.03, label: "10,001 – 25,000" },
-    { min: 25001, max: 50000, rate: 0.018, label: "25,001 – 50,000" },
-    { min: 50001, max: 75000, rate: 0.018, label: "50,001 – 75,000" },
-    { min: 75001, max: 100000, rate: 0.012, label: "75,001 – 100,000" },
-    { min: 100001, max: 150000, rate: 0.012, label: "100,001 – 150,000" },
-    { min: 150001, max: 200000, rate: 0.0108, label: "150,001 – 200,000" },
-    { min: 200001, max: 250000, rate: 0.0096, label: "200,001 – 250,000" },
-    { min: 250001, max: 500000, rate: 0.0084, label: "250,001 – 500,000" },
-    { min: 500001, max: 750000, rate: 0.006, label: "500,001 – 750,000" },
-    { min: 750001, max: 1000000, rate: 0.0048, label: "750,001 – 1,000,000" },
-    { min: 1000001, max: Number.POSITIVE_INFINITY, rate: 0, label: "1,000,001+", contactSales: true },
+    { min: 1, max: 4999, rate: 0.15, label: "1 – 4,999" },
+    { min: 5000, max: 9999, rate: 0.075, label: "5,000 – 9,999" },
+    { min: 10000, max: 24999, rate: 0.05, label: "10,000 – 24,999" },
+    { min: 25000, max: 49999, rate: 0.03, label: "25,000 – 49,999" },
+    { min: 50000, max: 99999, rate: 0.018, label: "50,000 – 99,999" },
+    { min: 100000, max: 149999, rate: 0.012, label: "100,000 – 149,999" },
+    { min: 150000, max: 199999, rate: 0.0108, label: "150,000 – 199,999" },
+    { min: 200000, max: 249999, rate: 0.0096, label: "200,000 – 249,999" },
+    { min: 250000, max: 499999, rate: 0.0084, label: "250,000 – 499,999" },
+    { min: 500000, max: 749999, rate: 0.006, label: "500,000 – 749,999" },
+    { min: 750000, max: Number.POSITIVE_INFINITY, rate: 0, label: "750,000+", contactSales: true },
   ]
 
   const getCurrentTier = (sessions: number) => {
@@ -65,12 +62,12 @@ export default function ActivateTrialPage() {
   }
 
   const handleSliderChange = (value: number[]) => {
-    setSessionCount(Math.min(value[0], 1100000))
+    setSessionCount(Math.min(value[0], 749999))
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value) || 0
-    setSessionCount(Math.max(0, Math.min(value, 1100000)))
+    setSessionCount(Math.max(0, Math.min(value, 749999)))
   }
 
   return (
@@ -110,7 +107,7 @@ export default function ActivateTrialPage() {
                     <Slider
                       value={[sessionCount]}
                       onValueChange={handleSliderChange}
-                      max={1100000}
+                      max={749999}
                       step={1000}
                       className="w-full"
                     />
@@ -127,7 +124,7 @@ export default function ActivateTrialPage() {
                         onChange={handleInputChange}
                         className="pl-10 text-base"
                         min={0}
-                        max={1100000}
+                        max={749999}
                       />
                     </div>
                     <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
@@ -142,7 +139,7 @@ export default function ActivateTrialPage() {
                     <>
                       <div className="text-2xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        For volumes over 1,000,000 sessions,{" "}
+                        For volumes over 750,000 sessions,{" "}
                         <a
                           href="https://dtect.io/contact"
                           target="_blank"

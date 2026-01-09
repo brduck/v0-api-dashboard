@@ -141,7 +141,7 @@ export default function ActivateTrialPage() {
                     <>
                       <div className="text-2xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        For volumes over 499,999 sessions,{" "}
+                        For volumes over 499,999 sessions monthly,{" "}
                         <a
                           href="https://dtect.io/contact"
                           target="_blank"
@@ -150,7 +150,7 @@ export default function ActivateTrialPage() {
                         >
                           contact sales
                         </a>{" "}
-                        for volume discounts.
+                        custom pricing.
                       </p>
                     </>
                   ) : (
@@ -177,7 +177,7 @@ export default function ActivateTrialPage() {
                     <div className="flex items-center justify-between text-sm">
                       {currentTier.contactSales ? (
                         <span className="text-muted-foreground">
-                          {currentTier.label} sessions - Contact Sales for custom pricing
+                          {currentTier.label} sessions - Contact Sales for custom pricing.
                         </span>
                       ) : (
                         <>

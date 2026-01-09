@@ -150,7 +150,7 @@ export default function ActivateTrialPage() {
                         >
                           contact sales
                         </a>{" "}
-                        custom pricing.
+                        for custom pricing.
                       </p>
                     </>
                   ) : (

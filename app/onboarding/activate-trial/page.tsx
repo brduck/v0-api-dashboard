@@ -139,18 +139,19 @@ export default function ActivateTrialPage() {
                 <div className="text-center">
                   {monthlyTotal === null ? (
                     <>
-                      <div className="text-2xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        For volumes over 499,999 sessions monthly,{" "}
-                        <a
-                          href="https://dtect.io/contact"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline font-medium"
-                        >
-                          contact sales
-                        </a>{" "}
-                        for custom pricing.
+                      <div className="text-3xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
+                      <p className="mt-3 text-base text-foreground">For volumes over 499,999 sessions monthly</p>
+                      <Button
+                        asChild
+                        size="lg"
+                        className="mt-4 bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white font-semibold"
+                      >
+                        <a href="https://dtect.io/contact" target="_blank" rel="noopener noreferrer">
+                          Contact Sales for Volume Discounts
+                        </a>
+                      </Button>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Get personalized pricing for high-volume usage
                       </p>
                     </>
                   ) : (
@@ -176,9 +177,10 @@ export default function ActivateTrialPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       {currentTier.contactSales ? (
-                        <span className="text-muted-foreground">
-                          {currentTier.label} sessions - Contact Sales for custom pricing.
-                        </span>
+                        <div className="w-full text-center">
+                          <p className="font-semibold text-[hsl(var(--brand))]">{currentTier.label} sessions</p>
+                          <p className="mt-1 text-xs text-muted-foreground">Custom enterprise pricing available</p>
+                        </div>
                       ) : (
                         <>
                           <span className="font-semibold">Current Tier:</span>

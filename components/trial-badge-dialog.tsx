@@ -91,8 +91,6 @@ export function TrialBadgeDialog() {
     { min: 150000, max: 199999, rate: 0.0108, label: "150,000 – 199,999" },
     { min: 200000, max: 249999, rate: 0.0096, label: "200,000 – 249,999" },
     { min: 250000, max: 499999, rate: 0.0084, label: "250,000 – 499,999" },
-    { min: 500000, max: 749999, rate: 0.006, label: "500,000 – 749,999" },
-    { min: 750000, max: Number.POSITIVE_INFINITY, rate: 0, label: "750,000+", contactSales: true },
   ]
 
   const getCurrentTier = (sessions: number) => {
@@ -101,7 +99,6 @@ export function TrialBadgeDialog() {
 
   const calculatePrice = (sessions: number) => {
     const tier = getCurrentTier(sessions)
-    if (tier.contactSales) return null
     return sessions * tier.rate
   }
 
@@ -109,12 +106,12 @@ export function TrialBadgeDialog() {
   const monthlyTotal = calculatePrice(sessionCount)
 
   const handleSliderChange = (value: number[]) => {
-    setSessionCount(Math.min(value[0], 1100000))
+    setSessionCount(Math.min(value[0], 550000))
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value) || 0
-    setSessionCount(Math.max(0, Math.min(value, 1100000)))
+    setSessionCount(Math.max(0, Math.min(value, 550000)))
   }
 
   const handleStopTrial = () => {
@@ -239,7 +236,7 @@ export function TrialBadgeDialog() {
                         <Slider
                           value={[sessionCount]}
                           onValueChange={handleSliderChange}
-                          max={1100000}
+                          max={550000}
                           step={1000}
                           className="w-full"
                         />
@@ -256,7 +253,7 @@ export function TrialBadgeDialog() {
                             onChange={handleInputChange}
                             className="pl-10 text-base"
                             min={0}
-                            max={1100000}
+                            max={550000}
                           />
                         </div>
                         <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
@@ -270,7 +267,7 @@ export function TrialBadgeDialog() {
                         <>
                           <div className="text-xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
                           <p className="mt-2 text-xs text-muted-foreground">
-                            For volumes over 1,000,000 sessions,{" "}
+                            For volumes over 499,999 sessions,{" "}
                             <a
                               href="https://dtect.io/contact"
                               target="_blank"
@@ -279,7 +276,7 @@ export function TrialBadgeDialog() {
                             >
                               contact sales
                             </a>{" "}
-                            for special enterprise pricing.
+                            for volume discounts.
                           </p>
                         </>
                       ) : (

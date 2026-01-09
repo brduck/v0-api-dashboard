@@ -24,8 +24,6 @@ export function PaymentRequiredOverlay() {
     { min: 150000, max: 199999, rate: 0.0108, label: "150,000 – 199,999" },
     { min: 200000, max: 249999, rate: 0.0096, label: "200,000 – 249,999" },
     { min: 250000, max: 499999, rate: 0.0084, label: "250,000 – 499,999" },
-    { min: 500000, max: 749999, rate: 0.006, label: "500,000 – 749,999" },
-    { min: 750000, max: Number.POSITIVE_INFINITY, rate: 0, label: "750,000+", contactSales: true },
   ]
 
   const getCurrentTier = (sessions: number) => {
@@ -34,7 +32,6 @@ export function PaymentRequiredOverlay() {
 
   const calculatePrice = (sessions: number) => {
     const tier = getCurrentTier(sessions)
-    if (tier.contactSales) return null
     return sessions * tier.rate
   }
 
@@ -46,12 +43,12 @@ export function PaymentRequiredOverlay() {
   }
 
   const handleSliderChange = (value: number[]) => {
-    setSessionCount(Math.min(value[0], 1100000))
+    setSessionCount(Math.min(value[0], 550000))
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(e.target.value) || 0
-    setSessionCount(Math.max(0, Math.min(value, 1100000)))
+    setSessionCount(Math.max(0, Math.min(value, 550000)))
   }
 
   return (
@@ -158,7 +155,7 @@ export function PaymentRequiredOverlay() {
                       <Slider
                         value={[sessionCount]}
                         onValueChange={handleSliderChange}
-                        max={1100000}
+                        max={550000}
                         step={1000}
                         className="w-full"
                       />
@@ -175,7 +172,7 @@ export function PaymentRequiredOverlay() {
                           onChange={handleInputChange}
                           className="pl-10 text-base"
                           min={0}
-                          max={1100000}
+                          max={550000}
                         />
                       </div>
                       <span className="whitespace-nowrap text-sm text-muted-foreground">participant sessions</span>
@@ -186,37 +183,17 @@ export function PaymentRequiredOverlay() {
                 {/* Dynamic Output */}
                 <div className="rounded-lg bg-primary/5 p-4">
                   <div className="text-center">
-                    {currentTier.contactSales ? (
-                      <>
-                        <div className="text-xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          For volumes over 1,000,000 sessions,{" "}
-                          <a
-                            href="https://dtect.io/contact"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline font-medium"
-                          >
-                            contact sales
-                          </a>{" "}
-                          for special enterprise pricing.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-2xl font-bold text-[hsl(var(--brand))]">
-                          $
-                          {monthlyTotal?.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                          <span className="text-base font-normal text-muted-foreground"> / month</span>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(4)} per session
-                        </p>
-                      </>
-                    )}
+                    <div className="text-2xl font-bold text-[hsl(var(--brand))]">
+                      $
+                      {monthlyTotal?.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                      <span className="text-base font-normal text-muted-foreground"> / month</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {sessionCount.toLocaleString()} sessions × ${currentTier.rate.toFixed(4)} per session
+                    </p>
                   </div>
                 </div>
 
@@ -240,13 +217,7 @@ export function PaymentRequiredOverlay() {
                             }`}
                           >
                             <td className="px-3 py-2 text-xs">{tier.label}</td>
-                            <td className="px-3 py-2 text-right text-xs">
-                              {tier.contactSales ? (
-                                <span className="text-primary font-medium">Contact Sales</span>
-                              ) : (
-                                `$${tier.rate.toFixed(4)}`
-                              )}
-                            </td>
+                            <td className="px-3 py-2 text-right text-xs">`$${tier.rate.toFixed(4)}`</td>
                           </tr>
                         )
                       })}

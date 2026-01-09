@@ -140,19 +140,16 @@ export default function ActivateTrialPage() {
                   {monthlyTotal === null ? (
                     <>
                       <div className="text-3xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
-                      <p className="mt-3 text-base text-foreground">For volumes over 499,999 sessions monthly</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Contact us for volume discounts</p>
                       <Button
                         asChild
-                        size="lg"
-                        className="mt-4 bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white font-semibold"
+                        size="sm"
+                        className="mt-3 bg-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/90 text-white"
                       >
                         <a href="https://dtect.io/contact" target="_blank" rel="noopener noreferrer">
-                          Contact Sales for Volume Discounts
+                          Contact Sales
                         </a>
                       </Button>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Get personalized pricing for high-volume usage
-                      </p>
                     </>
                   ) : (
                     <>

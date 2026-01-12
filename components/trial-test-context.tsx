@@ -28,7 +28,7 @@ export function TrialTestProvider({ children }: { children: ReactNode }) {
     isTrialActive: true,
     isPaymentRequired: false,
     validPaymentMethod: true,
-    hasApiAccess: true,
+    hasApiAccess: false,
     showLinkProtectors: true,
   })
 

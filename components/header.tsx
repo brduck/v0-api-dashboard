@@ -5,6 +5,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { TrialBadgeDialog } from "@/components/trial-badge-dialog"
 
 export function Header() {
   const pathname = usePathname()
@@ -14,7 +15,7 @@ export function Header() {
       <div className="w-full max-w-7xl mx-auto flex items-center">
         <div className="flex items-center">
           <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/dtect_blaco-qnuSaSRbJcOWGRm5vHxK6gKBa17icv.svg"
+            src="/images/design-mode/dtect_blaco.svg"
             alt="dtect logo"
             width={100}
             height={40}
@@ -46,7 +47,8 @@ export function Header() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-4">
-          <Button variant="outline" className="hidden gap-2 md:flex">
+          <TrialBadgeDialog />
+          <Button variant="outline" className="hidden gap-2 md:flex bg-transparent">
             <LogOut className="w-4 h-4" />
             Sign Out
           </Button>

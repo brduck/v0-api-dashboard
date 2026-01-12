@@ -1,20 +1,125 @@
 "use client"
 
-import { Calendar, Download, ExternalLink, RefreshCw } from "lucide-react"
+import {
+  Calendar,
+  Download,
+  ExternalLink,
+  RefreshCw,
+  Lock,
+  BarChart3,
+  Code,
+  KeyRound,
+  CheckCircle2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Pie, PieChart, Cell } from "recharts"
 import React from "react"
+import { useTrialTest } from "@/components/trial-test-context"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
-export default function Dashboard() {
-  // Data for the pie chart
+export default function UsagePage() {
+  const { settings } = useTrialTest()
+  const [showSuccessMessage, setShowSuccessMessage] = React.useState(false)
+  const [activeTab, setActiveTab] = React.useState("bad")
+
+  const handleRequestAccess = () => {
+    setShowSuccessMessage(true)
+  }
+
+  if (!settings.hasApiAccess) {
+    return (
+      <div className="p-4 md:p-6">
+        <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+          {showSuccessMessage && (
+            <Alert className="border-green-200 bg-green-50">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-900">Request Submitted Successfully</AlertTitle>
+              <AlertDescription className="text-green-800">
+                Thank you for your interest! Our sales team will review your request and get in touch with you soon to
+                enable API access on your account.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-2">
+              <Code className="h-8 w-8 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold">Unlock API Access</h1>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Scale your fraud detection with direct API integration. Access real-time data, automate workflows, and
+              build custom solutions.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 mt-4">
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">Advanced Analytics</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Access detailed usage metrics, security check breakdowns, and comprehensive reporting through our
+                  dashboard.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Lock className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">Custom Workflows</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Integrate dtect's security checks directly into your application flow. Configure rules, and build
+                  tailored fraud prevention workflows.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="border-2 bg-gradient-to-br from-primary/5 to-primary/10">
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1 space-y-2">
+                  <h3 className="text-xl font-semibold">Ready to automate?</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Streamline your workflow with direct API integration. Request access today to unlock volume
+                    discounts and enable API keys on your account.
+                  </p>
+                </div>
+                <Button
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-white gap-2"
+                  onClick={handleRequestAccess}
+                >
+                  <KeyRound className="h-4 w-4" />
+                  Request Access
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
   const pieData = [
     { name: "Suspicious", value: 108427, color: "rgb(20, 184, 166)" },
     { name: "Bad", value: 230408, color: "rgb(239, 68, 68)" },
   ]
-
-  const [activeTab, setActiveTab] = React.useState("bad")
 
   return (
     <div className="p-4 md:p-6">
@@ -22,7 +127,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">API Usage</h1>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 bg-transparent">
               <Calendar className="h-4 w-4" />
               <span>Mar 01, 2025 - Mar 31, 2025</span>
             </Button>
@@ -72,7 +177,7 @@ export default function Dashboard() {
                   <div className="h-12 w-px bg-gray-200"></div>
 
                   <div className="flex flex-col items-start">
-                    <div className="flex items-start gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <div className="h-4 w-4 rounded-full bg-teal-100 flex items-center justify-center">
                         <div className="h-1.5 w-1.5 rounded-full bg-teal-500"></div>
                       </div>
@@ -84,7 +189,7 @@ export default function Dashboard() {
                   <div className="h-12 w-px bg-gray-200"></div>
 
                   <div className="flex flex-col items-start">
-                    <div className="flex items-start gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <div className="h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
                         <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
                       </div>

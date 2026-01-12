@@ -94,10 +94,16 @@ export function TrialBadgeDialog() {
   ]
 
   const getCurrentTier = (sessions: number) => {
+    if (sessions > 499999) {
+      return { min: 500000, max: Number.POSITIVE_INFINITY, rate: 0, label: "500,000+", contactSales: true }
+    }
     return pricingTiers.find((tier) => sessions >= tier.min && sessions <= tier.max) || pricingTiers[0]
   }
 
   const calculatePrice = (sessions: number) => {
+    if (sessions > 499999) {
+      return null
+    }
     const tier = getCurrentTier(sessions)
     return sessions * tier.rate
   }
@@ -266,7 +272,7 @@ export function TrialBadgeDialog() {
 
                     <div className="rounded-lg bg-primary/5 p-4">
                       <div className="text-center">
-                        {currentTier.contactSales ? (
+                        {monthlyTotal === null ? (
                           <>
                             <div className="text-xl font-bold text-[hsl(var(--brand))]">Custom Pricing</div>
                             <p className="mt-2 text-xs text-muted-foreground">
@@ -329,6 +335,12 @@ export function TrialBadgeDialog() {
                               </tr>
                             )
                           })}
+                          <tr className="transition-colors opacity-50 hover:opacity-75">
+                            <td className="px-3 py-2 text-xs">500,000+</td>
+                            <td className="px-3 py-2 text-right text-xs">
+                              <span className="text-primary font-medium">Contact Sales</span>
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>

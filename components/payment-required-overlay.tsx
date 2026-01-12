@@ -217,7 +217,7 @@ export function PaymentRequiredOverlay() {
                             }`}
                           >
                             <td className="px-3 py-2 text-xs">{tier.label}</td>
-                            <td className="px-3 py-2 text-right text-xs">`$${tier.rate.toFixed(4)}`</td>
+                            <td className="px-3 py-2 text-right text-xs">${tier.rate.toFixed(4)}</td>
                           </tr>
                         )
                       })}

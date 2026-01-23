@@ -81,7 +81,7 @@ export default function ActivateTrialPage() {
             Start Your <span className="text-[hsl(var(--brand))]">Free Trial</span>
           </h1>
           <p className="mt-4 text-pretty text-lg leading-8 text-muted-foreground">
-            30 days free. No credit card required. Experience Link Protector risk-free.
+            90 days free. No credit card required. Experience Link Protector risk-free.
           </p>
         </div>
 
@@ -264,7 +264,7 @@ export default function ActivateTrialPage() {
                     <Check className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium">30 days of full access</p>
+                    <p className="font-medium">90 days of full access</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">Try all features with no restrictions</p>
                   </div>
                 </div>
@@ -274,7 +274,7 @@ export default function ActivateTrialPage() {
                     <Check className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium">Up to 25,000 sessions</p>
+                    <p className="font-medium">Up to 150,000 sessions</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
                       Generous limits to test at scale. Sessions exceeding 25,000 during the trial are billable
                     </p>

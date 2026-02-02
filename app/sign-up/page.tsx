@@ -2,20 +2,30 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
-import { MailCheck } from "lucide-react"
+import { MailCheck, AlertCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function SignUpPage() {
+  const searchParams = useSearchParams()
+  const isDuplicateDomain = searchParams.get("duplicate-domain") === "true"
+  
   const [fullName, setFullName] = useState("")
   const [companyName, setCompanyName] = useState("")
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
+  const [showDuplicateError, setShowDuplicateError] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (isDuplicateDomain) {
+      setShowDuplicateError(true)
+      return
+    }
     setSubmitted(true)
   }
 
@@ -177,6 +187,25 @@ export default function SignUpPage() {
                 required
               />
             </div>
+
+            {/* Duplicate Domain Error */}
+            {showDuplicateError && (
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  Your company already has an account with dtect. If you believe this is an error,{" "}
+                  <a
+                    href="https://dtect.io/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium underline hover:no-underline"
+                  >
+                    contact us
+                  </a>
+                  .
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Submit Button */}
             <Button type="submit" className="w-full h-11 bg-foreground text-background hover:bg-foreground/90">

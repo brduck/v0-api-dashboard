@@ -193,10 +193,15 @@ export default function SignUpPage() {
               <Alert variant="destructive" className="border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-sm space-y-2">
-                  <p className="font-medium">An account for your company has already been created.</p>
-                  <p>Please ask your team administrator to invite you to the workspace.</p>
+
+                  
+
+
+
+                  <p className="font-medium">An account for {companyname} already exists.</p>
+                  <p>To join it, ask a workspace admin to send you an invite.</p>
                   <p className="pt-1">
-                    Believe this is an error?{" "}
+                    Think this is a mistake?
                     <a
                       href="https://dtect.io/contact"
                       target="_blank"

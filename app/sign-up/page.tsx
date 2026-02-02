@@ -198,10 +198,10 @@ export default function SignUpPage() {
 
 
 
-                  <p className="font-medium">An account for {companyname} already exists.</p>
+                  <p className="font-medium">An account for your company already exists.</p>
                   <p>To join it, ask a workspace admin to send you an invite.</p>
                   <p className="pt-1">
-                    Think this is a mistake?
+                    Think this is a mistake?{" "}
                     <a
                       href="https://dtect.io/contact"
                       target="_blank"

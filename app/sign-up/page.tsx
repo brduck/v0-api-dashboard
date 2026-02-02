@@ -192,17 +192,20 @@ export default function SignUpPage() {
             {showDuplicateError && (
               <Alert variant="destructive" className="border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  Your company already has an account with dtect. If you believe this is an error,{" "}
-                  <a
-                    href="https://dtect.io/contact"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium underline hover:no-underline"
-                  >
-                    contact us
-                  </a>
-                  .
+                <AlertDescription className="text-sm space-y-2">
+                  <p className="font-medium">An account for your company has already been created.</p>
+                  <p>Please ask your team administrator to invite you to the workspace.</p>
+                  <p className="pt-1">
+                    Believe this is an error?{" "}
+                    <a
+                      href="https://dtect.io/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium underline hover:no-underline"
+                    >
+                      Contact Us
+                    </a>
+                  </p>
                 </AlertDescription>
               </Alert>
             )}

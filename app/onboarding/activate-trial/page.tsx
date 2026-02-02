@@ -276,7 +276,7 @@ export default function ActivateTrialPage() {
                   <div>
                     <p className="font-medium">Up to 150,000 sessions</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      Generous limits to test at scale. Sessions exceeding 25,000 during the trial are billable
+                      Generous limits to test at scale. Sessions exceeding 150,000 during the trial are billable
                     </p>
                   </div>
                 </div>

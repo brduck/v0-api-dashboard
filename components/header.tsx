@@ -5,7 +5,6 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { TrialBadgeDialog } from "@/components/trial-badge-dialog"
 
 export function Header() {
   const pathname = usePathname()
@@ -37,6 +36,12 @@ export function Header() {
             API Usage
           </Link>
           <Link
+            href="/fraud-security"
+            className={`text-sm font-medium ${pathname === "/fraud-security" ? "text-black" : "text-gray-500"}`}
+          >
+            Fraud Security
+          </Link>
+          <Link
             href="/settings"
             className={`text-sm font-medium ${pathname.startsWith("/settings") ? "text-black" : "text-gray-500"}`}
           >
@@ -47,7 +52,6 @@ export function Header() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-4">
-          <TrialBadgeDialog />
           <Button variant="outline" className="hidden gap-2 md:flex bg-transparent">
             <LogOut className="w-4 h-4" />
             Sign Out

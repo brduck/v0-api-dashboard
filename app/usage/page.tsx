@@ -8,7 +8,6 @@ import {
   Check,
   ChevronsUpDown,
   ChevronRight,
-  ChevronLeft,
   Info,
   TrendingUp,
   TrendingDown,
@@ -21,8 +20,13 @@ import {
   MapPin,
   Eye,
   Layers,
+  Tag,
+  ShieldCheck,
+  ShieldOff,
+  HelpCircle,
+  Settings2,
 } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Pie, PieChart, Cell } from "recharts"
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -30,9 +34,10 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip as RechartsTooltip } from "recharts"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
-// ─── DATA ──────────────────────────────────────────────────────────────────────
+// ─── SHARED DATA ──────────────────────────────────────────────────────────────
 
 const CLIENTS = [
   {
@@ -76,7 +81,7 @@ const goodCount = 1016508
 const suspiciousCount = 108427
 const badCount = 230408
 
-// Fraud categories — NOT additive. A session can appear in multiple categories.
+// Shared fraud categories — same detection logic across both tabs
 const FRAUD_CATEGORIES = [
   {
     id: "identity-reuse",
@@ -186,6 +191,32 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Evasion Signals": "#94a3b8",
 }
 
+// ─── ENFORCEMENT DATA ─────────────────────────────────────────────────────────
+
+// Link Protector uses same categories but with Allowed / Challenged / Blocked outcomes
+const LP_TOTAL = 487320
+const LP_ALLOWED = 389856
+const LP_CHALLENGED = 53205
+const LP_BLOCKED = 44259
+
+const LP_ENFORCEMENT_CONFIG = [
+  { category: "Identity Reuse", status: "enforced" as const, blocked: 18420, challenged: 4210, description: "Actively blocking duplicate identities" },
+  { category: "Network Masking", status: "enforced" as const, blocked: 12890, challenged: 8340, description: "Blocking VPN/proxy/Tor traffic" },
+  { category: "Location Inconsistency", status: "enforced" as const, blocked: 7240, challenged: 15620, description: "Blocking location mismatches" },
+  { category: "Non-Human Behavior", status: "enforced" as const, blocked: 4120, challenged: 11890, description: "Blocking automated sessions" },
+  { category: "Environment Tampering", status: "observed" as const, blocked: 980, challenged: 8240, description: "Monitoring only, not blocking" },
+  { category: "Evasion Signals", status: "observed" as const, blocked: 609, challenged: 4905, description: "Monitoring only, not blocking" },
+]
+
+const API_LABEL_BREAKDOWN = [
+  { category: "Identity Reuse", badLabels: 112340, suspiciousLabels: 18420 },
+  { category: "Network Masking", badLabels: 89420, suspiciousLabels: 14230 },
+  { category: "Location Inconsistency", badLabels: 67150, suspiciousLabels: 28740 },
+  { category: "Non-Human Behavior", badLabels: 42860, suspiciousLabels: 21350 },
+  { category: "Environment Tampering", badLabels: 31200, suspiciousLabels: 16890 },
+  { category: "Evasion Signals", badLabels: 18900, suspiciousLabels: 8797 },
+]
+
 // ─── HELPERS ───────────────────────────────────────────────────────────────────
 
 const STRENGTH_DEFINITIONS: Record<string, string> = {
@@ -200,9 +231,24 @@ function strengthLabel(s: "strong" | "moderate" | "weak") {
   return { text: "Weak", color: "bg-gray-100 text-gray-600", definition: STRENGTH_DEFINITIONS.Weak }
 }
 
-// ─── COMPONENT ─────────────────────────────────────────────────────────────────
+function InfoTip({ text, side = "top" }: { text: string; side?: "top" | "right" | "bottom" | "left" }) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
+        </TooltipTrigger>
+        <TooltipContent side={side} className="max-w-[300px] text-xs">
+          <p>{text}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
 
-export default function APIUsagePage() {
+// ─── COMPONENT ────────────────────────────────────────────────────────────────
+
+export default function FraudDetectionPage() {
   const [selectedClient, setSelectedClient] = useState<string>("all")
   const [selectedProject, setSelectedProject] = useState<string>("all")
   const [clientOpen, setClientOpen] = useState(false)
@@ -211,6 +257,7 @@ export default function APIUsagePage() {
   const [projectSearch, setProjectSearch] = useState("")
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
   const [expandedSignal, setExpandedSignal] = useState<string | null>(null)
+  const [enforcementProduct, setEnforcementProduct] = useState<"api" | "link-protector">("api")
 
   const availableProjects = React.useMemo(() => {
     if (!selectedClient || selectedClient === "all") return []
@@ -222,18 +269,13 @@ export default function APIUsagePage() {
     setSelectedProject("all")
   }, [selectedClient])
 
-  // Determine primary driver sentence
   const sorted = [...FRAUD_CATEGORIES].sort((a, b) => b.badSessions - a.badSessions)
-  const primaryDrivers = sorted.slice(0, 2).map((c) => c.name.toLowerCase())
-  const driverSummary = `High-risk traffic was primarily driven by ${primaryDrivers[0]} and ${primaryDrivers[1]}.`
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-6 space-y-6">
       {/* ── Header + Filters ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <div>
- <h1 className="text-3xl font-bold tracking-tight text-foreground">Fraud Detection</h1>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Fraud Detection</h1>
 
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" className="gap-2 bg-transparent">
@@ -261,28 +303,13 @@ export default function APIUsagePage() {
                 <CommandList>
                   <CommandEmpty>No client found.</CommandEmpty>
                   <CommandGroup>
-                    <CommandItem
-                      value="all"
-                      onSelect={() => {
-                        setSelectedClient("all")
-                        setClientOpen(false)
-                      }}
-                    >
+                    <CommandItem value="all" onSelect={() => { setSelectedClient("all"); setClientOpen(false) }}>
                       <Check className={cn("mr-2 h-4 w-4", selectedClient === "all" ? "opacity-100" : "opacity-0")} />
                       All Clients
                     </CommandItem>
                     {CLIENTS.map((client) => (
-                      <CommandItem
-                        key={client.id}
-                        value={client.name}
-                        onSelect={() => {
-                          setSelectedClient(client.id)
-                          setClientOpen(false)
-                        }}
-                      >
-                        <Check
-                          className={cn("mr-2 h-4 w-4", selectedClient === client.id ? "opacity-100" : "opacity-0")}
-                        />
+                      <CommandItem key={client.id} value={client.name} onSelect={() => { setSelectedClient(client.id); setClientOpen(false) }}>
+                        <Check className={cn("mr-2 h-4 w-4", selectedClient === client.id ? "opacity-100" : "opacity-0")} />
                         {client.name}
                       </CommandItem>
                     ))}
@@ -313,30 +340,13 @@ export default function APIUsagePage() {
                 <CommandList>
                   <CommandEmpty>No project found.</CommandEmpty>
                   <CommandGroup>
-                    <CommandItem
-                      value="all"
-                      onSelect={() => {
-                        setSelectedProject("all")
-                        setProjectOpen(false)
-                      }}
-                    >
-                      <Check
-                        className={cn("mr-2 h-4 w-4", selectedProject === "all" ? "opacity-100" : "opacity-0")}
-                      />
+                    <CommandItem value="all" onSelect={() => { setSelectedProject("all"); setProjectOpen(false) }}>
+                      <Check className={cn("mr-2 h-4 w-4", selectedProject === "all" ? "opacity-100" : "opacity-0")} />
                       All Projects
                     </CommandItem>
                     {availableProjects.map((project) => (
-                      <CommandItem
-                        key={project.id}
-                        value={project.id}
-                        onSelect={(v) => {
-                          setSelectedProject(v === selectedProject ? "all" : v)
-                          setProjectOpen(false)
-                        }}
-                      >
-                        <Check
-                          className={cn("mr-2 h-4 w-4", selectedProject === project.id ? "opacity-100" : "opacity-0")}
-                        />
+                      <CommandItem key={project.id} value={project.id} onSelect={(v) => { setSelectedProject(v === selectedProject ? "all" : v); setProjectOpen(false) }}>
+                        <Check className={cn("mr-2 h-4 w-4", selectedProject === project.id ? "opacity-100" : "opacity-0")} />
                         {project.name}
                       </CommandItem>
                     ))}
@@ -353,416 +363,583 @@ export default function APIUsagePage() {
         </div>
       </div>
 
-      {/* ── 1. Decision Overview ─────────────────────────────────────── */}
-      <Card className="border border-border shadow-sm">
-        <CardContent className="pt-6 pb-5">
-          <div className="flex items-center gap-2 mb-5">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Decision Overview</span>
-          </div>
+      {/* ── Tabs: Overview | Enforcement ─────────────────────────────── */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="bg-muted">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="enforcement">Enforcement</TabsTrigger>
+        </TabsList>
 
-          {/* KPI strip */}
-          <div className="grid grid-cols-4 gap-6 mb-6">
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">Sessions Evaluated</div>
-              <div className="text-4xl font-bold text-foreground">{totalSessions.toLocaleString()}</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                <span className="text-sm text-muted-foreground">Good</span>
+        {/* ════════════════════════════════════════════════════════════════
+            TAB 1: OVERVIEW — Decision Transparency
+            ════════════════════════════════════════════════════════════════ */}
+        <TabsContent value="overview" className="space-y-6">
+
+          {/* 1. Decision Summary */}
+          <Card className="border border-border shadow-sm">
+            <CardContent className="pt-6 pb-5">
+              <div className="flex items-center gap-2 mb-5">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Decision Summary</span>
               </div>
-              <div className="text-3xl font-bold text-foreground">{goodCount.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((goodCount / totalSessions) * 100).toFixed(0)}% of total</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-                <span className="text-sm text-muted-foreground">Suspicious</span>
+
+              <div className="grid grid-cols-4 gap-6 mb-6">
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Sessions Evaluated</div>
+                  <div className="text-4xl font-bold text-foreground">{totalSessions.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                    <span className="text-sm text-muted-foreground">Good</span>
+                  </div>
+                  <div className="text-3xl font-bold text-foreground">{goodCount.toLocaleString()}</div>
+                  <div className="text-sm text-muted-foreground">{((goodCount / totalSessions) * 100).toFixed(0)}% of total</div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                    <span className="text-sm text-muted-foreground">Suspicious</span>
+                  </div>
+                  <div className="text-3xl font-bold text-foreground">{suspiciousCount.toLocaleString()}</div>
+                  <div className="text-sm text-muted-foreground">{((suspiciousCount / totalSessions) * 100).toFixed(0)}% of total</div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                    <span className="text-sm text-muted-foreground">Bad</span>
+                  </div>
+                  <div className="text-3xl font-bold text-foreground">{badCount.toLocaleString()}</div>
+                  <div className="text-sm text-muted-foreground">{((badCount / totalSessions) * 100).toFixed(0)}% of total</div>
+                </div>
               </div>
-              <div className="text-3xl font-bold text-foreground">{suspiciousCount.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((suspiciousCount / totalSessions) * 100).toFixed(0)}% of total</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                <span className="text-sm text-muted-foreground">Bad</span>
+
+              <div className="w-full h-3 rounded-full overflow-hidden flex mb-3">
+                <div className="bg-emerald-500 transition-all" style={{ width: `${(goodCount / totalSessions) * 100}%` }} />
+                <div className="bg-amber-500 transition-all" style={{ width: `${(suspiciousCount / totalSessions) * 100}%` }} />
+                <div className="bg-red-500 transition-all" style={{ width: `${(badCount / totalSessions) * 100}%` }} />
               </div>
-              <div className="text-3xl font-bold text-foreground">{badCount.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((badCount / totalSessions) * 100).toFixed(0)}% of total</div>
+
+              <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
+                <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Primary drivers of high-risk traffic:{" "}
+                    {sorted.slice(0, 2).map((c, i) => (
+                      <span key={c.id}>
+                        {c.name} ({strengthLabel(c.strength).text})
+                        {i === 0 ? ", " : ""}
+                      </span>
+                    ))}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Categories explain why sessions were flagged. A single session may appear in multiple categories, so category counts do not sum to the total.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 2. Sessions Flagged — Category Breakdown */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-semibold text-foreground">Sessions Flagged</h2>
+              <InfoTip text="Each category groups related signals that explain a decision. Percentages are relative to sessions labeled Bad, not total traffic. Categories are not additive." side="right" />
             </div>
-          </div>
 
-          {/* Distribution bar */}
-          <div className="w-full h-3 rounded-full overflow-hidden flex mb-3">
-            <div
-              className="bg-emerald-500 transition-all"
-              style={{ width: `${(goodCount / totalSessions) * 100}%` }}
-            />
-            <div
-              className="bg-amber-500 transition-all"
-              style={{ width: `${(suspiciousCount / totalSessions) * 100}%` }}
-            />
-            <div
-              className="bg-red-500 transition-all"
-              style={{ width: `${(badCount / totalSessions) * 100}%` }}
-            />
-          </div>
+            <div className="grid gap-3">
+              {FRAUD_CATEGORIES.map((category) => {
+                const isExpanded = expandedCategory === category.id
+                const pctOfBad = ((category.badSessions / badCount) * 100).toFixed(0)
+                const sl = strengthLabel(category.strength)
+                const Icon = category.icon
 
-          {/* Primary driver summary */}
-          <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
-            <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground mb-1">
-                Primary drivers of high-risk traffic: {sorted.slice(0, 2).map((c, i) => (
-                  <span key={c.id}>
-                    {c.name} ({strengthLabel(c.strength).text})
-                    {i === 0 ? ", " : ""}
-                  </span>
-                ))}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Categories explain why sessions were flagged. A single session may appear in multiple categories, so category counts do not sum to the total.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                return (
+                  <Card
+                    key={category.id}
+                    className={cn(
+                      "border transition-all cursor-pointer",
+                      isExpanded ? "border-border shadow-md" : "border-border hover:border-gray-300"
+                    )}
+                  >
+                    <div className="p-5" onClick={() => setExpandedCategory(isExpanded ? null : category.id)}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className="h-10 w-10 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: `${CATEGORY_COLORS[category.name]}15` }}
+                          >
+                            <Icon className="h-5 w-5" style={{ color: CATEGORY_COLORS[category.name] }} />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-foreground">{category.name}</div>
+                            <div className="text-sm text-muted-foreground mt-0.5">
+                              {category.badSessions.toLocaleString()} sessions affected
+                            </div>
+                          </div>
+                        </div>
 
-      {/* ── 2. Category Breakdown (Primary Interaction) ──────────────── */}
-      <div>
-  <div className="flex items-center gap-2 mb-4">
-  <h2 className="text-lg font-semibold text-foreground">Sessions Flagged</h2>
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-      </TooltipTrigger>
-      <TooltipContent side="right" className="max-w-[300px] text-xs">
-        <p>Each category groups related signals that explain a decision. Percentages are relative to sessions labeled Bad, not total traffic. Categories are not additive.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-  </div>
-
-        <div className="grid gap-3">
-          {FRAUD_CATEGORIES.map((category) => {
-            const isExpanded = expandedCategory === category.id
-            const pctOfBad = ((category.badSessions / badCount) * 100).toFixed(0)
-            const sl = strengthLabel(category.strength)
-            const Icon = category.icon
-
-            return (
-              <Card
-                key={category.id}
-                className={cn(
-                  "border transition-all cursor-pointer",
-                  isExpanded ? "border-border shadow-md" : "border-border hover:border-gray-300"
-                )}
-              >
-                <div
-                  className="p-5"
-                  onClick={() => setExpandedCategory(isExpanded ? null : category.id)}
-                >
-                  {/* Category header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="h-10 w-10 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${CATEGORY_COLORS[category.name]}15` }}
-                      >
-                        <Icon className="h-5 w-5" style={{ color: CATEGORY_COLORS[category.name] }} />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-foreground">{category.name}</div>
-                        <div className="text-sm text-muted-foreground mt-0.5">
-                          {category.badSessions.toLocaleString()} sessions affected
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-foreground">{pctOfBad}%</div>
+                            <div className="text-xs text-muted-foreground">of {badCount.toLocaleString()} bad sessions</div>
+                          </div>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium cursor-help", sl.color)}>
+                                  {sl.text}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px] text-xs">
+                                <p>{sl.definition}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <ChevronRight className={cn("h-5 w-5 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-foreground">{pctOfBad}%</div>
-                        <div className="text-xs text-muted-foreground">of {badCount.toLocaleString()} bad sessions</div>
+                      <div className="mt-4 w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${Number(pctOfBad)}%`, backgroundColor: CATEGORY_COLORS[category.name] }}
+                        />
                       </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium cursor-help", sl.color)}>
-                              {sl.text}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[240px] text-xs">
-                            <p>{sl.definition}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <ChevronRight
-                        className={cn("h-5 w-5 text-muted-foreground transition-transform", isExpanded && "rotate-90")}
-                      />
                     </div>
-                  </div>
 
-                  {/* Bar indicator */}
-                  <div className="mt-4 w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${Number(pctOfBad)}%`,
-                        backgroundColor: CATEGORY_COLORS[category.name],
-                      }}
-                    />
+                    {/* 3. Category Drill-In */}
+                    {isExpanded && (
+                      <div className="px-5 pb-5 border-t border-border">
+                        <p className="text-sm text-muted-foreground mt-4 mb-5 leading-relaxed">{category.description}</p>
+
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Supporting Evidence</div>
+                          <InfoTip text="Signal detections may exceed session counts when signals trigger across repeated attempts from the same participant." />
+                        </div>
+                        <div className="space-y-2 pl-3 border-l-2 border-muted">
+                          {category.signals.map((signal) => {
+                            const isSignalExpanded = expandedSignal === `${category.id}-${signal.name}`
+                            return (
+                              <div key={signal.name} className={cn("border rounded-lg transition-all", isSignalExpanded ? "border-border bg-muted/30" : "border-border")}>
+                                <div
+                                  className="flex items-center justify-between p-3 cursor-pointer"
+                                  onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSignalExpanded ? null : `${category.id}-${signal.name}`) }}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[category.name] }} />
+                                    <span className="text-sm text-muted-foreground">{signal.name}</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-xs text-muted-foreground">{signal.fired.toLocaleString()} signal detections</span>
+                                    <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isSignalExpanded && "rotate-90")} />
+                                  </div>
+                                </div>
+                                {isSignalExpanded && (
+                                  <div className="px-3 pb-3 pt-1 border-t border-border">
+                                    <p className="text-xs text-muted-foreground">{signal.description}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
+                          <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                          <p className="text-xs text-muted-foreground">
+                            <span className="font-semibold text-foreground">Signal co-occurrence:</span>{" "}
+                            {category.coOccurrence}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* 4. Category Trends */}
+          <Card className="border border-border shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold">Category Trends</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Are these issues increasing or decreasing over time?</p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                  <RechartsTooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                      color: "hsl(var(--popover-foreground))",
+                      fontSize: "13px",
+                      padding: "8px 12px",
+                    }}
+                    cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
+                  />
+                  {FRAUD_CATEGORIES.map((cat) => (
+                    <Bar key={cat.name} dataKey={cat.name} fill={CATEGORY_COLORS[cat.name]} radius={[4, 4, 0, 0]} stackId="a" />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
+                {FRAUD_CATEGORIES.map((cat) => (
+                  <div key={cat.name} className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: CATEGORY_COLORS[cat.name] }} />
+                    <span className="text-xs text-muted-foreground">{cat.name}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-border">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-amber-500" />
+                    <span className="text-sm text-muted-foreground">Identity Reuse — Trending up</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TrendingDown className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm text-muted-foreground">Location Inconsistency — Trending down</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Minus className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Non-Human Behavior — Stable</span>
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                {/* ── 3. Category Drill-In ──────────────────────────────── */}
-                {isExpanded && (
-                  <div className="px-5 pb-5 border-t border-border">
-                    {/* Plain-English explanation */}
-                    <p className="text-sm text-muted-foreground mt-4 mb-5 leading-relaxed">
-                      {category.description}
-                    </p>
-
-                    {/* Supporting evidence */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        Supporting Evidence
+          {/* 5. Geographic Context */}
+          <Card className="border border-border shadow-sm">
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold">Geographic Context</CardTitle>
+                <InfoTip text="Where flagged sessions originated, grouped by category. Location alone does not determine a session's decision. Percentages are relative to the category, not total traffic." side="right" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <div className="text-sm font-medium text-foreground mb-1">Identity Reuse by Region</div>
+                  <div className="text-xs text-muted-foreground mb-3">% of 112,340 identity reuse sessions</div>
+                  <div className="space-y-3">
+                    {[
+                      { region: "North America", pct: 34, sessions: 38196 },
+                      { region: "Southeast Asia", pct: 28, sessions: 31455 },
+                      { region: "South America", pct: 18, sessions: 20221 },
+                      { region: "Europe", pct: 12, sessions: 13481 },
+                      { region: "Other", pct: 8, sessions: 8987 },
+                    ].map((item) => (
+                      <div key={item.region}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-foreground">{item.region}</span>
+                          <span className="text-xs text-muted-foreground">{item.pct}% · {item.sessions.toLocaleString()} sessions</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS["Identity Reuse"] }} />
+                        </div>
                       </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[280px] text-xs">
-                            <p>Signal detections may exceed session counts when signals trigger across repeated attempts from the same participant.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-foreground mb-1">Network Masking by Region</div>
+                  <div className="text-xs text-muted-foreground mb-3">% of 89,420 network masking sessions</div>
+                  <div className="space-y-3">
+                    {[
+                      { region: "Europe", pct: 31, sessions: 27720 },
+                      { region: "North America", pct: 25, sessions: 22355 },
+                      { region: "East Asia", pct: 22, sessions: 19672 },
+                      { region: "South America", pct: 14, sessions: 12519 },
+                      { region: "Other", pct: 8, sessions: 7154 },
+                    ].map((item) => (
+                      <div key={item.region}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-foreground">{item.region}</span>
+                          <span className="text-xs text-muted-foreground">{item.pct}% · {item.sessions.toLocaleString()} sessions</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS["Network Masking"] }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ════════════════════════════════════════════════════════════════
+            TAB 2: ENFORCEMENT — Product-Specific Outcomes
+            ════════════════════════════════════════════════════════════════ */}
+        <TabsContent value="enforcement" className="space-y-6">
+
+          {/* Product toggle */}
+          <div className="flex items-center gap-3">
+            <div className="inline-flex rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setEnforcementProduct("api")}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors",
+                  enforcementProduct === "api"
+                    ? "bg-foreground text-background"
+                    : "bg-background text-muted-foreground hover:text-foreground"
+                )}
+              >
+                API
+              </button>
+              <button
+                onClick={() => setEnforcementProduct("link-protector")}
+                className={cn(
+                  "px-4 py-2 text-sm font-medium transition-colors border-l border-border",
+                  enforcementProduct === "link-protector"
+                    ? "bg-foreground text-background"
+                    : "bg-background text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Link Protector
+              </button>
+            </div>
+            <InfoTip
+              text={
+                enforcementProduct === "api"
+                  ? "API results are advisory labels. Enforcement decisions are made by the customer."
+                  : "Link Protector actively blocks or challenges traffic based on your configuration."
+              }
+              side="right"
+            />
+          </div>
+
+          {/* ── API Enforcement View ──────────────────────────────────── */}
+          {enforcementProduct === "api" && (
+            <>
+              {/* Advisory notice */}
+              <Card className="border border-border shadow-sm">
+                <CardContent className="pt-6 pb-5">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <Tag className="h-5 w-5 text-blue-600" />
                     </div>
-                    <div className="space-y-2 pl-3 border-l-2 border-muted">
-                      {category.signals.map((signal) => {
-                        const isSignalExpanded = expandedSignal === `${category.id}-${signal.name}`
-                        return (
-                          <div
-                            key={signal.name}
-                            className={cn(
-                              "border rounded-lg transition-all",
-                              isSignalExpanded ? "border-border bg-muted/30" : "border-border"
-                            )}
-                          >
-                            <div
-                              className="flex items-center justify-between p-3 cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setExpandedSignal(
-                                  isSignalExpanded ? null : `${category.id}-${signal.name}`
-                                )
-                              }}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="h-2 w-2 rounded-full"
-                                  style={{ backgroundColor: CATEGORY_COLORS[category.name] }}
-                                />
-                                <span className="text-sm text-muted-foreground">{signal.name}</span>
+                    <div>
+                      <div className="font-semibold text-foreground">Advisory Labels</div>
+                      <div className="text-sm text-muted-foreground">API results are advisory. Enforcement decisions are made by the customer.</div>
+                    </div>
+                  </div>
+
+                  {/* Label distribution */}
+                  <div className="grid grid-cols-3 gap-6 mb-5">
+                    <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-100">
+                      <div className="text-sm text-emerald-700 mb-1">Good Labels</div>
+                      <div className="text-3xl font-bold text-emerald-900">{goodCount.toLocaleString()}</div>
+                      <div className="text-sm text-emerald-600">{((goodCount / totalSessions) * 100).toFixed(0)}% of sessions</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-amber-50 border border-amber-100">
+                      <div className="text-sm text-amber-700 mb-1">Suspicious Labels</div>
+                      <div className="text-3xl font-bold text-amber-900">{suspiciousCount.toLocaleString()}</div>
+                      <div className="text-sm text-amber-600">{((suspiciousCount / totalSessions) * 100).toFixed(0)}% of sessions</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-red-50 border border-red-100">
+                      <div className="text-sm text-red-700 mb-1">Bad Labels</div>
+                      <div className="text-3xl font-bold text-red-900">{badCount.toLocaleString()}</div>
+                      <div className="text-sm text-red-600">{((badCount / totalSessions) * 100).toFixed(0)}% of sessions</div>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-2 rounded-full overflow-hidden flex">
+                    <div className="bg-emerald-500" style={{ width: `${(goodCount / totalSessions) * 100}%` }} />
+                    <div className="bg-amber-500" style={{ width: `${(suspiciousCount / totalSessions) * 100}%` }} />
+                    <div className="bg-red-500" style={{ width: `${(badCount / totalSessions) * 100}%` }} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Categories leading to Bad labels */}
+              <Card className="border border-border shadow-sm">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base font-semibold">Categories Leading to Labels</CardTitle>
+                    <InfoTip text="Shows which categories most frequently contributed to Bad and Suspicious labels. The same detection logic from the Overview tab applies here." side="right" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {API_LABEL_BREAKDOWN.map((item) => {
+                      const totalLabeled = item.badLabels + item.suspiciousLabels
+                      const badPct = ((item.badLabels / totalLabeled) * 100).toFixed(0)
+                      const suspPct = ((item.suspiciousLabels / totalLabeled) * 100).toFixed(0)
+                      return (
+                        <div key={item.category} className="flex items-center gap-4">
+                          <div className="w-48 shrink-0">
+                            <div className="flex items-center gap-2">
+                              <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[item.category] }} />
+                              <span className="text-sm font-medium text-foreground">{item.category}</span>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="w-full h-6 rounded-md overflow-hidden flex bg-muted">
+                              <div
+                                className="h-full bg-red-400 flex items-center justify-center"
+                                style={{ width: `${badPct}%` }}
+                              >
+                                {Number(badPct) > 15 && <span className="text-[10px] font-medium text-white">{badPct}%</span>}
                               </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-muted-foreground">
-                                  {signal.fired.toLocaleString()} signal detections
-                                </span>
-                                <ChevronRight
-                                  className={cn(
-                                    "h-4 w-4 text-muted-foreground transition-transform",
-                                    isSignalExpanded && "rotate-90"
-                                  )}
-                                />
+                              <div
+                                className="h-full bg-amber-400 flex items-center justify-center"
+                                style={{ width: `${suspPct}%` }}
+                              >
+                                {Number(suspPct) > 10 && <span className="text-[10px] font-medium text-white">{suspPct}%</span>}
                               </div>
                             </div>
-                            {isSignalExpanded && (
-                              <div className="px-3 pb-3 pt-1 border-t border-border">
-                                <p className="text-xs text-muted-foreground">{signal.description}</p>
-                              </div>
-                            )}
                           </div>
-                        )
-                      })}
+                          <div className="w-40 shrink-0 text-right">
+                            <span className="text-xs text-muted-foreground">
+                              {item.badLabels.toLocaleString()} bad · {item.suspiciousLabels.toLocaleString()} susp.
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-sm bg-red-400" />
+                      <span className="text-xs text-muted-foreground">Bad</span>
                     </div>
-
-                    {/* Co-occurrence insight */}
-                    <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
-                      <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground">Signal co-occurrence:</span>{" "}
-                        {category.coOccurrence}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-sm bg-amber-400" />
+                      <span className="text-xs text-muted-foreground">Suspicious</span>
                     </div>
                   </div>
-                )}
+                </CardContent>
               </Card>
-            )
-          })}
-        </div>
-      </div>
+            </>
+          )}
 
-      {/* ── 5. Category Trends ───────────────────────────────────────── */}
-      <Card className="border border-border shadow-sm">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base font-semibold">Category Trends</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Are these issues increasing or decreasing over time?
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-              <RechartsTooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--popover))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                  color: "hsl(var(--popover-foreground))",
-                  fontSize: "13px",
-                  padding: "8px 12px",
-                }}
-                cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
-              />
-              {FRAUD_CATEGORIES.map((cat) => (
-                <Bar
-                  key={cat.name}
-                  dataKey={cat.name}
-                  fill={CATEGORY_COLORS[cat.name]}
-                  radius={[4, 4, 0, 0]}
-                  stackId="a"
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-
-          {/* Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
-            {FRAUD_CATEGORIES.map((cat) => (
-              <div key={cat.name} className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: CATEGORY_COLORS[cat.name] }} />
-                <span className="text-xs text-muted-foreground">{cat.name}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Trend indicators */}
-          <div className="mt-6 pt-4 border-t border-border">
-            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg mb-4">
-              <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <p className="text-xs text-muted-foreground">
-                Trends reflect category volume over time. An upward trend indicates more sessions flagged in this category, not necessarily increased severity.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-amber-500" />
-                <span className="text-sm text-muted-foreground">Identity Reuse &mdash; Trending up</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <TrendingDown className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm text-muted-foreground">Location Inconsistency &mdash; Trending down</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Minus className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Non-Human Behavior &mdash; Stable</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── 6. Geography (De-emphasized, contextual) ─────────────────── */}
-      <Card className="border border-border shadow-sm">
-        <CardHeader className="pb-2">
-  <div className="flex items-center gap-2">
-  <CardTitle className="text-base font-semibold">Geographic Context</CardTitle>
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-      </TooltipTrigger>
-      <TooltipContent side="right" className="max-w-[300px] text-xs">
-        <p>Where flagged sessions originated, grouped by category. Location alone does not determine a session's decision. Percentages are relative to the category, not total traffic.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-  </div>
-        </CardHeader>
-  <CardContent>
-  <div className="grid md:grid-cols-2 gap-6">
-            {/* Identity Reuse by region */}
-            <div>
-              <div className="text-sm font-medium text-foreground mb-1">Identity Reuse by Region</div>
-              <div className="text-xs text-muted-foreground mb-3">% of 112,340 identity reuse sessions</div>
-              <div className="space-y-3">
-                {[
-                  { region: "North America", pct: 34, sessions: 38196 },
-                  { region: "Southeast Asia", pct: 28, sessions: 31455 },
-                  { region: "South America", pct: 18, sessions: 20221 },
-                  { region: "Europe", pct: 12, sessions: 13481 },
-                  { region: "Other", pct: 8, sessions: 8987 },
-                ].map((item) => (
-                  <div key={item.region}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-foreground">{item.region}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.pct}% &middot; {item.sessions.toLocaleString()} sessions
-                      </span>
+          {/* ── Link Protector Enforcement View ───────────────────────── */}
+          {enforcementProduct === "link-protector" && (
+            <>
+              {/* Outcome summary */}
+              <Card className="border border-border shadow-sm">
+                <CardContent className="pt-6 pb-5">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-10 w-10 rounded-lg bg-violet-50 flex items-center justify-center">
+                      <ShieldCheck className="h-5 w-5 text-violet-600" />
                     </div>
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS["Identity Reuse"] }}
-                      />
+                    <div>
+                      <div className="font-semibold text-foreground">Active Enforcement</div>
+                      <div className="text-sm text-muted-foreground">Link Protector automatically blocks or challenges traffic based on your configuration.</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Network Masking by region */}
-            <div>
-              <div className="text-sm font-medium text-foreground mb-1">Network Masking by Region</div>
-              <div className="text-xs text-muted-foreground mb-3">% of 89,420 network masking sessions</div>
-              <div className="space-y-3">
-                {[
-                  { region: "Europe", pct: 31, sessions: 27720 },
-                  { region: "North America", pct: 25, sessions: 22355 },
-                  { region: "East Asia", pct: 22, sessions: 19672 },
-                  { region: "South America", pct: 14, sessions: 12519 },
-                  { region: "Other", pct: 8, sessions: 7154 },
-                ].map((item) => (
-                  <div key={item.region}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-foreground">{item.region}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.pct}% &middot; {item.sessions.toLocaleString()} sessions
-                      </span>
+                  <div className="grid grid-cols-3 gap-6 mb-5">
+                    <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-100">
+                      <div className="text-sm text-emerald-700 mb-1">Allowed</div>
+                      <div className="text-3xl font-bold text-emerald-900">{LP_ALLOWED.toLocaleString()}</div>
+                      <div className="text-sm text-emerald-600">{((LP_ALLOWED / LP_TOTAL) * 100).toFixed(0)}% of sessions</div>
                     </div>
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS["Network Masking"] }}
-                      />
+                    <div className="p-4 rounded-lg bg-amber-50 border border-amber-100">
+                      <div className="text-sm text-amber-700 mb-1">Challenged</div>
+                      <div className="text-3xl font-bold text-amber-900">{LP_CHALLENGED.toLocaleString()}</div>
+                      <div className="text-sm text-amber-600">{((LP_CHALLENGED / LP_TOTAL) * 100).toFixed(0)}% of sessions</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-red-50 border border-red-100">
+                      <div className="text-sm text-red-700 mb-1">Blocked</div>
+                      <div className="text-3xl font-bold text-red-900">{LP_BLOCKED.toLocaleString()}</div>
+                      <div className="text-sm text-red-600">{((LP_BLOCKED / LP_TOTAL) * 100).toFixed(0)}% of sessions</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
+                  <div className="w-full h-2 rounded-full overflow-hidden flex">
+                    <div className="bg-emerald-500" style={{ width: `${(LP_ALLOWED / LP_TOTAL) * 100}%` }} />
+                    <div className="bg-amber-500" style={{ width: `${(LP_CHALLENGED / LP_TOTAL) * 100}%` }} />
+                    <div className="bg-red-500" style={{ width: `${(LP_BLOCKED / LP_TOTAL) * 100}%` }} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Enforcement configuration */}
+              <Card className="border border-border shadow-sm">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base font-semibold">Enforcement by Category</CardTitle>
+                    <InfoTip text="Shows which categories are actively enforced (blocking) versus observed (monitoring only). Detection logic is identical to the Overview tab." side="right" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {LP_ENFORCEMENT_CONFIG.map((item) => {
+                      const total = item.blocked + item.challenged
+                      const blockedPct = total > 0 ? ((item.blocked / total) * 100).toFixed(0) : "0"
+                      const challengedPct = total > 0 ? ((item.challenged / total) * 100).toFixed(0) : "0"
+
+                      return (
+                        <div key={item.category} className="p-4 rounded-lg border border-border">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[item.category] }} />
+                              <span className="text-sm font-medium text-foreground">{item.category}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {item.status === "enforced" ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                  <ShieldOff className="h-3 w-3" />
+                                  Enforced
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                  <Eye className="h-3 w-3" />
+                                  Observed
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">{item.description}</p>
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <div className="w-full h-5 rounded-md overflow-hidden flex bg-muted">
+                                <div className="h-full bg-red-400 flex items-center justify-center" style={{ width: `${blockedPct}%` }}>
+                                  {Number(blockedPct) > 15 && <span className="text-[10px] font-medium text-white">{blockedPct}%</span>}
+                                </div>
+                                <div className="h-full bg-amber-400 flex items-center justify-center" style={{ width: `${challengedPct}%` }}>
+                                  {Number(challengedPct) > 15 && <span className="text-[10px] font-medium text-white">{challengedPct}%</span>}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="shrink-0 text-right">
+                              <span className="text-xs text-muted-foreground">
+                                {item.blocked.toLocaleString()} blocked · {item.challenged.toLocaleString()} challenged
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-sm bg-red-400" />
+                      <span className="text-xs text-muted-foreground">Blocked</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-sm bg-amber-400" />
+                      <span className="text-xs text-muted-foreground">Challenged</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

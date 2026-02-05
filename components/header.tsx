@@ -35,12 +35,7 @@ export function Header() {
           >
             Fraud Detection
           </Link>
-          <Link
-            href="/fraud-security"
-            className={`text-sm font-medium ${pathname === "/fraud-security" ? "text-black" : "text-gray-500"}`}
-          >
-            Fraud Security
-          </Link>
+
           <Link
             href="/settings"
             className={`text-sm font-medium ${pathname.startsWith("/settings") ? "text-black" : "text-gray-500"}`}

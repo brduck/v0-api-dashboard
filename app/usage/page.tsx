@@ -74,14 +74,16 @@ const totalSessions = 1355345
 const goodCount = 1016508
 const suspiciousCount = 108427
 const badCount = 230408
+const flaggedCount = suspiciousCount + badCount // 338,835
 
 const FRAUD_CATEGORIES = [
   {
     id: "identity-reuse",
     name: "Identity Reuse",
     description:
-      "The same person, device, or identity appeared multiple times. This is the most common reason sessions are classified as bad.",
+      "The same person, device, or identity appeared multiple times. This is the most common reason sessions are flagged.",
     badSessions: 112340,
+    suspiciousSessions: 53120,
     strength: "strong" as const,
     icon: Fingerprint,
     signals: [
@@ -97,6 +99,7 @@ const FRAUD_CATEGORIES = [
     description:
       "The participant was hiding their true network identity through VPNs, proxies, or anonymizing tools.",
     badSessions: 89420,
+    suspiciousSessions: 41230,
     strength: "strong" as const,
     icon: Shield,
     signals: [
@@ -112,6 +115,7 @@ const FRAUD_CATEGORIES = [
     description:
       "The participant's claimed or expected location did not match their actual connection details.",
     badSessions: 67150,
+    suspiciousSessions: 28740,
     strength: "moderate" as const,
     icon: MapPin,
     signals: [
@@ -126,6 +130,7 @@ const FRAUD_CATEGORIES = [
     description:
       "Behavioral signals suggest the session was automated, bot-driven, or AI-assisted rather than a genuine human participant.",
     badSessions: 42860,
+    suspiciousSessions: 12450,
     strength: "moderate" as const,
     icon: Bot,
     signals: [
@@ -141,6 +146,7 @@ const FRAUD_CATEGORIES = [
     description:
       "The participant's device or browser environment was modified or operating in an unusual configuration.",
     badSessions: 31200,
+    suspiciousSessions: 24860,
     strength: "weak" as const,
     icon: Eye,
     signals: [
@@ -157,6 +163,7 @@ const FRAUD_CATEGORIES = [
     description:
       "The participant used privacy-enhancing tools or techniques that may indicate an intent to avoid detection.",
     badSessions: 18900,
+    suspiciousSessions: 15340,
     strength: "weak" as const,
     icon: Layers,
     signals: [
@@ -264,7 +271,7 @@ export default function FraudDetectionPage() {
     setSelectedProject("all")
   }, [selectedClient])
 
-  const sorted = [...FRAUD_CATEGORIES].sort((a, b) => b.badSessions - a.badSessions)
+  const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badSessions + b.suspiciousSessions) - (a.badSessions + a.suspiciousSessions))
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -439,7 +446,7 @@ export default function FraudDetectionPage() {
           <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
             <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-sm text-muted-foreground">
-              Sessions were {labels.summaryVerb} {labels.badShort} primarily due to{" "}
+              {flaggedCount.toLocaleString()} sessions were flagged ({labels.badShort} or {labels.suspiciousShort}), primarily due to{" "}
               {sorted.slice(0, 2).map((c, i) => (
                 <span key={c.id} className="font-medium text-foreground">
                   {c.name}{i === 0 ? " and " : ""}
@@ -450,23 +457,21 @@ export default function FraudDetectionPage() {
         </CardContent>
       </Card>
 
-      {/* ── 2. Why Were Sessions Flagged? ─────────────────────────── */}
+      {/* ── 2. Sessions Flagged ─────────────────────────────────── */}
       <div>
-        <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-lg font-semibold text-foreground">Why Were Sessions Flagged?</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Sessions Flagged</h2>
           <InfoTip
-            text="Each category groups related signals that explain a decision. Percentages are relative to sessions labeled Bad, not total traffic. Categories are not additive."
+            text="Categories summarize behavior patterns across sessions labeled Bad or Suspicious. A session may appear in multiple categories. Percentages are relative to total flagged sessions, not total traffic. Categories are not additive."
             side="right"
           />
         </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Categories summarize behavior patterns. A session may appear in multiple categories.
-        </p>
 
         <div className="grid gap-3">
           {FRAUD_CATEGORIES.map((category) => {
             const isExpanded = expandedCategory === category.id
-            const pctOfBad = ((category.badSessions / badCount) * 100).toFixed(0)
+            const totalAffected = category.badSessions + category.suspiciousSessions
+            const pctOfFlagged = ((totalAffected / flaggedCount) * 100).toFixed(0)
             const sl = strengthLabel(category.strength)
             const Icon = category.icon
             const badSignals = category.signals.filter((s) => s.severity === "bad")
@@ -492,15 +497,15 @@ export default function FraudDetectionPage() {
                       <div>
                         <div className="font-semibold text-foreground">{category.name}</div>
                         <div className="text-sm text-muted-foreground mt-0.5">
-                          {category.badSessions.toLocaleString()} sessions affected
+                          {totalAffected.toLocaleString()} sessions affected
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-foreground">{pctOfBad}%</div>
-                        <div className="text-xs text-muted-foreground">of {badCount.toLocaleString()} {labels.badShort.toLowerCase()} sessions</div>
+                        <div className="text-2xl font-bold text-foreground">{pctOfFlagged}%</div>
+                        <div className="text-xs text-muted-foreground">of {flaggedCount.toLocaleString()} flagged sessions</div>
                       </div>
                       <TooltipProvider>
                         <Tooltip>
@@ -521,7 +526,7 @@ export default function FraudDetectionPage() {
                   <div className="mt-4 w-full h-1.5 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
-                      style={{ width: `${Number(pctOfBad)}%`, backgroundColor: CATEGORY_COLORS[category.name] }}
+                      style={{ width: `${Number(pctOfFlagged)}%`, backgroundColor: CATEGORY_COLORS[category.name] }}
                     />
                   </div>
                 </div>
@@ -530,6 +535,27 @@ export default function FraudDetectionPage() {
                 {isExpanded && (
                   <div className="px-5 pb-5 border-t border-border">
                     <p className="text-sm text-muted-foreground mt-4 mb-5 leading-relaxed">{category.description}</p>
+
+                    {/* Severity breakdown */}
+                    <div className="mb-5 p-4 bg-muted/30 rounded-lg">
+                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Sessions by Outcome</div>
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                          <span className="text-sm text-foreground font-medium">{category.badSessions.toLocaleString()}</span>
+                          <span className="text-xs text-muted-foreground">{labels.badShort}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                          <span className="text-sm text-foreground font-medium">{category.suspiciousSessions.toLocaleString()}</span>
+                          <span className="text-xs text-muted-foreground">{labels.suspiciousShort}</span>
+                        </div>
+                      </div>
+                      <div className="mt-3 w-full h-2 rounded-full overflow-hidden flex">
+                        <div className="bg-red-500 transition-all" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
+                        <div className="bg-amber-500 transition-all" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
+                      </div>
+                    </div>
 
                     {/* Bad signals */}
                     {badSignals.length > 0 && (

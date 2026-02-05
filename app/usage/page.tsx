@@ -93,8 +93,8 @@ const FRAUD_CATEGORIES = [
     id: "identity-reuse",
     name: "Identity Reuse",
     description: "The same person, device, or network identity appears multiple times, indicating repeated or duplicate attempts.",
-    badSessions: 112340,
-    suspiciousSessions: 53120,
+    badSessions: 165460,
+    suspiciousSessions: 0,
     strength: "strong" as const,
     icon: Fingerprint,
     signals: [
@@ -558,7 +558,10 @@ export default function FraudDetectionPage() {
                     </div>
                   </div>
 
-                  {isExpanded && (
+                  {isExpanded && (() => {
+                    const isBadOnly = badSignals.length > 0 && suspSignals.length === 0
+
+                    return (
                     <div className="px-4 pb-4 border-t border-border">
                       <p className="text-xs text-muted-foreground mt-3 mb-4 leading-relaxed">{category.description}</p>
 
@@ -566,24 +569,43 @@ export default function FraudDetectionPage() {
                       <div className="mb-4 p-3 bg-muted/30 rounded-lg">
                         <div className="flex items-center gap-1.5 mb-3">
                           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Signals Observed in These Sessions</span>
-                          <InfoTip text="Final session outcome is determined by the most severe signal. Suspicious signals may appear in sessions classified as Bad." side="right" />
+                          {!isBadOnly && (
+                            <InfoTip text="Final session outcome is determined by the most severe signal. Suspicious signals may appear in sessions classified as Bad." side="right" />
+                          )}
                         </div>
-                        <div className="flex items-center gap-6">
-                          <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-red-500" />
-                            <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
-                            <span className="text-[10px] text-muted-foreground">Bad</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-amber-500" />
-                            <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
-                            <span className="text-[10px] text-muted-foreground">Suspicious</span>
-                          </div>
-                        </div>
-                        <div className="mt-2.5 w-full h-1.5 rounded-full overflow-hidden flex">
-                          <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
-                          <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
-                        </div>
+
+                        {isBadOnly ? (
+                          <>
+                            <div className="flex items-center gap-1.5">
+                              <div className="h-2 w-2 rounded-full bg-red-500" />
+                              <span className="text-sm font-semibold text-foreground">{totalAffected.toLocaleString()} sessions</span>
+                              <span className="text-[10px] text-muted-foreground">&mdash; Bad</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-1.5">All sessions in this category were classified as Bad.</p>
+                            <div className="mt-2.5 w-full h-1.5 rounded-full overflow-hidden">
+                              <div className="h-full bg-red-500 rounded-full" style={{ width: "100%" }} />
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-6">
+                              <div className="flex items-center gap-1.5">
+                                <div className="h-2 w-2 rounded-full bg-red-500" />
+                                <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
+                                <span className="text-[10px] text-muted-foreground">Bad</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <div className="h-2 w-2 rounded-full bg-amber-500" />
+                                <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
+                                <span className="text-[10px] text-muted-foreground">Suspicious</span>
+                              </div>
+                            </div>
+                            <div className="mt-2.5 w-full h-1.5 rounded-full overflow-hidden flex">
+                              <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
+                              <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       {/* Bad signals */}
@@ -591,7 +613,7 @@ export default function FraudDetectionPage() {
                         <div className="mb-3">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Bad Signals</span>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{isBadOnly ? "Signals" : "Bad Signals"}</span>
                           </div>
                           <div className="space-y-1.5 pl-3 border-l-2 border-red-200">
                             {badSignals.map((signal) => (
@@ -628,7 +650,8 @@ export default function FraudDetectionPage() {
                         </p>
                       </div>
                     </div>
-                  )}
+                    )
+                  })()}
                 </Card>
               )
             })}
@@ -704,9 +727,9 @@ export default function FraudDetectionPage() {
             <div className="grid md:grid-cols-2 gap-6">
               {[
                 {
-      title: "Identity Reuse by Region",
-      subtitle: "% of 165,460 identity reuse sessions",
-      color: CATEGORY_COLORS["Identity Reuse"],
+                  title: "Identity Reuse by Region",
+                  subtitle: "% of 165,460 identity reuse sessions",
+                  color: CATEGORY_COLORS["Identity Reuse"],
                   regions: [
                     { region: "North America", pct: 34, sessions: 56256 },
                     { region: "Southeast Asia", pct: 28, sessions: 46329 },
@@ -716,9 +739,9 @@ export default function FraudDetectionPage() {
                   ],
                 },
                 {
-      title: "Network Masking by Region",
-      subtitle: "% of 130,650 network masking sessions",
-      color: CATEGORY_COLORS["Network Masking"],
+                  title: "Network Masking by Region",
+                  subtitle: "% of 130,650 network masking sessions",
+                  color: CATEGORY_COLORS["Network Masking"],
                   regions: [
                     { region: "Europe", pct: 31, sessions: 40502 },
                     { region: "North America", pct: 25, sessions: 32663 },

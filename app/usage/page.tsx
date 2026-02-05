@@ -12,16 +12,28 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Users,
   Fingerprint,
-  Globe,
   Shield,
   Bot,
   MapPin,
   Eye,
   Layers,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
+  Activity,
 } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -74,14 +86,13 @@ const totalSessions = 1355345
 const goodCount = 1016508
 const suspiciousCount = 108427
 const badCount = 230408
-const flaggedCount = suspiciousCount + badCount // 338,835
+const flaggedCount = suspiciousCount + badCount
 
 const FRAUD_CATEGORIES = [
   {
     id: "identity-reuse",
     name: "Identity Reuse",
-    description:
-      "The same person, device, or identity appeared multiple times. This is the most common reason sessions are flagged.",
+    description: "The same person, device, or identity appeared multiple times. This is the most common reason sessions are flagged.",
     badSessions: 112340,
     suspiciousSessions: 53120,
     strength: "strong" as const,
@@ -96,8 +107,7 @@ const FRAUD_CATEGORIES = [
   {
     id: "network-masking",
     name: "Network Masking",
-    description:
-      "The participant was hiding their true network identity through VPNs, proxies, or anonymizing tools.",
+    description: "The participant was hiding their true network identity through VPNs, proxies, or anonymizing tools.",
     badSessions: 89420,
     suspiciousSessions: 41230,
     strength: "strong" as const,
@@ -112,8 +122,7 @@ const FRAUD_CATEGORIES = [
   {
     id: "location-inconsistency",
     name: "Location Inconsistency",
-    description:
-      "The participant's claimed or expected location did not match their actual connection details.",
+    description: "The participant's claimed or expected location did not match their actual connection details.",
     badSessions: 67150,
     suspiciousSessions: 28740,
     strength: "moderate" as const,
@@ -127,8 +136,7 @@ const FRAUD_CATEGORIES = [
   {
     id: "non-human-behavior",
     name: "Non-Human Behavior",
-    description:
-      "Behavioral signals suggest the session was automated, bot-driven, or AI-assisted rather than a genuine human participant.",
+    description: "Behavioral signals suggest the session was automated, bot-driven, or AI-assisted rather than a genuine human participant.",
     badSessions: 42860,
     suspiciousSessions: 12450,
     strength: "moderate" as const,
@@ -143,8 +151,7 @@ const FRAUD_CATEGORIES = [
   {
     id: "environment-tampering",
     name: "Environment Tampering",
-    description:
-      "The participant's device or browser environment was modified or operating in an unusual configuration.",
+    description: "The participant's device or browser environment was modified or operating in an unusual configuration.",
     badSessions: 31200,
     suspiciousSessions: 24860,
     strength: "weak" as const,
@@ -160,8 +167,7 @@ const FRAUD_CATEGORIES = [
   {
     id: "evasion-signals",
     name: "Evasion Signals",
-    description:
-      "The participant used privacy-enhancing tools or techniques that may indicate an intent to avoid detection.",
+    description: "The participant used privacy-enhancing tools or techniques that may indicate an intent to avoid detection.",
     badSessions: 18900,
     suspiciousSessions: 15340,
     strength: "weak" as const,
@@ -220,27 +226,18 @@ function InfoTip({ text, side = "top" }: { text: string; side?: "top" | "right" 
   )
 }
 
-// Product-specific language
 function useProductLabels(product: "api" | "link-protector") {
   if (product === "api") {
     return {
-      goodLabel: "Labeled Good",
-      suspiciousLabel: "Labeled Suspicious",
-      badLabel: "Labeled Bad",
-      goodShort: "Good",
-      suspiciousShort: "Suspicious",
-      badShort: "Bad",
+      goodLabel: "Labeled Good", suspiciousLabel: "Labeled Suspicious", badLabel: "Labeled Bad",
+      goodShort: "Good", suspiciousShort: "Suspicious", badShort: "Bad",
       disclaimer: "Results are advisory. Enforcement decisions are made by you.",
       summaryVerb: "labeled",
     }
   }
   return {
-    goodLabel: "Allowed",
-    suspiciousLabel: "Reviewed",
-    badLabel: "Blocked",
-    goodShort: "Allowed",
-    suspiciousShort: "Reviewed",
-    badShort: "Blocked",
+    goodLabel: "Allowed", suspiciousLabel: "Reviewed", badLabel: "Blocked",
+    goodShort: "Allowed", suspiciousShort: "Reviewed", badShort: "Blocked",
     disclaimer: "Actions are applied automatically based on your configuration.",
     summaryVerb: "classified",
   }
@@ -267,26 +264,32 @@ export default function FraudDetectionPage() {
     return client?.projects || []
   }, [selectedClient])
 
-  React.useEffect(() => {
-    setSelectedProject("all")
-  }, [selectedClient])
+  React.useEffect(() => { setSelectedProject("all") }, [selectedClient])
 
   const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badSessions + b.suspiciousSessions) - (a.badSessions + a.suspiciousSessions))
 
+  const goodPct = ((goodCount / totalSessions) * 100).toFixed(1)
+  const suspPct = ((suspiciousCount / totalSessions) * 100).toFixed(1)
+  const badPct = ((badCount / totalSessions) * 100).toFixed(1)
+
+  const donutData = [
+    { name: labels.goodShort, value: goodCount, fill: "#10b981" },
+    { name: labels.suspiciousShort, value: suspiciousCount, fill: "#f59e0b" },
+    { name: labels.badShort, value: badCount, fill: "#ef4444" },
+  ]
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* ── Header + Product Switch + Filters ─────────────────────── */}
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto p-6 space-y-8">
+      {/* ── Header ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Fraud Detection</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Fraud Detection</h1>
           <div className="inline-flex rounded-lg border border-border overflow-hidden">
             <button
               onClick={() => setProduct("api")}
               className={cn(
-                "px-3.5 py-1.5 text-sm font-medium transition-colors",
-                product === "api"
-                  ? "bg-foreground text-background"
-                  : "bg-background text-muted-foreground hover:text-foreground"
+                "px-3 py-1.5 text-xs font-medium transition-colors",
+                product === "api" ? "bg-foreground text-background" : "bg-background text-muted-foreground hover:text-foreground"
               )}
             >
               API
@@ -294,10 +297,8 @@ export default function FraudDetectionPage() {
             <button
               onClick={() => setProduct("link-protector")}
               className={cn(
-                "px-3.5 py-1.5 text-sm font-medium transition-colors border-l border-border",
-                product === "link-protector"
-                  ? "bg-foreground text-background"
-                  : "bg-background text-muted-foreground hover:text-foreground"
+                "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
+                product === "link-protector" ? "bg-foreground text-background" : "bg-background text-muted-foreground hover:text-foreground"
               )}
             >
               Link Protector
@@ -305,24 +306,17 @@ export default function FraudDetectionPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-            <Calendar className="h-4 w-4" />
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" className="gap-2 bg-transparent text-xs">
+            <Calendar className="h-3.5 w-3.5" />
             Last 30 days
           </Button>
 
           <Popover open={clientOpen} onOpenChange={setClientOpen}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={clientOpen}
-                className="w-[200px] justify-between bg-transparent"
-              >
-                {selectedClient && selectedClient !== "all"
-                  ? CLIENTS.find((c) => c.id === selectedClient)?.name
-                  : "All Clients"}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <Button variant="outline" role="combobox" aria-expanded={clientOpen} className="w-[180px] justify-between bg-transparent text-xs">
+                {selectedClient !== "all" ? CLIENTS.find((c) => c.id === selectedClient)?.name : "All Clients"}
+                <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0" align="end">
@@ -349,17 +343,9 @@ export default function FraudDetectionPage() {
 
           <Popover open={projectOpen} onOpenChange={setProjectOpen}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={projectOpen}
-                className="w-[220px] justify-between bg-transparent"
-                disabled={!selectedClient || selectedClient === "all"}
-              >
-                {selectedProject && selectedProject !== "all"
-                  ? availableProjects.find((p) => p.id === selectedProject)?.name
-                  : "All Projects"}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <Button variant="outline" role="combobox" aria-expanded={projectOpen} className="w-[190px] justify-between bg-transparent text-xs" disabled={!selectedClient || selectedClient === "all"}>
+                {selectedProject !== "all" ? availableProjects.find((p) => p.id === selectedProject)?.name : "All Projects"}
+                <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[220px] p-0">
@@ -384,87 +370,157 @@ export default function FraudDetectionPage() {
             </PopoverContent>
           </Popover>
 
-          <Button size="sm" variant="outline" className="gap-2 bg-transparent">
-            <RefreshCw className="h-4 w-4" />
-            Refresh
+          <Button size="sm" variant="outline" className="gap-2 bg-transparent text-xs">
+            <RefreshCw className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
 
-      {/* Product disclaimer */}
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-        <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-        <p className="text-xs text-muted-foreground">{labels.disclaimer}</p>
+      {/* ── 1. KPI Strip (Wider-inspired) ────────────────────────── */}
+      <div className="grid grid-cols-4 gap-4">
+        {[
+          { label: "Sessions Evaluated", value: totalSessions.toLocaleString(), icon: Activity, change: "+3.2%", up: true, color: "text-foreground" },
+          { label: labels.goodShort, value: goodCount.toLocaleString(), icon: ShieldCheck, change: `${goodPct}%`, up: true, color: "text-emerald-600", dotColor: "bg-emerald-500" },
+          { label: labels.suspiciousShort, value: suspiciousCount.toLocaleString(), icon: ShieldAlert, change: `${suspPct}%`, up: false, color: "text-amber-600", dotColor: "bg-amber-500" },
+          { label: labels.badShort, value: badCount.toLocaleString(), icon: ShieldX, change: `${badPct}%`, up: false, color: "text-red-600", dotColor: "bg-red-500" },
+        ].map((kpi) => (
+          <Card key={kpi.label} className="border border-border shadow-sm">
+            <CardContent className="pt-5 pb-4 px-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {kpi.dotColor && <div className={cn("h-2 w-2 rounded-full", kpi.dotColor)} />}
+                  <span className="text-sm text-muted-foreground">{kpi.label}</span>
+                </div>
+                <kpi.icon className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex items-baseline gap-3">
+                <span className={cn("text-3xl font-bold tracking-tight", kpi.color)}>{kpi.value}</span>
+                <span className={cn("text-xs font-medium", kpi.up ? "text-emerald-600" : "text-red-500")}>
+                  {kpi.up ? <TrendingUp className="inline h-3 w-3 mr-0.5" /> : <TrendingDown className="inline h-3 w-3 mr-0.5" />}
+                  {kpi.change}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* ── 1. Outcome Summary ────────────────────────────────────── */}
-      <Card className="border border-border shadow-sm">
-        <CardContent className="pt-6 pb-5">
-          <div className="flex items-center gap-2 mb-5">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Outcome Summary</span>
-          </div>
-
-          <div className="grid grid-cols-4 gap-6 mb-6">
-            <div>
-              <div className="text-sm text-muted-foreground mb-1">Sessions Evaluated</div>
-              <div className="text-4xl font-bold text-foreground">{totalSessions.toLocaleString()}</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                <span className="text-sm text-muted-foreground">{labels.goodShort}</span>
+      {/* ── 2. Traffic Composition + Category Breakdown (DataCops-inspired) ── */}
+      <div className="grid lg:grid-cols-5 gap-4">
+        {/* Left: Donut + breakdown */}
+        <Card className="lg:col-span-2 border border-border shadow-sm">
+          <CardHeader className="pb-0">
+            <CardTitle className="text-sm font-semibold">Traffic Composition</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <ResponsiveContainer width={160} height={160}>
+                  <PieChart>
+                    <Pie data={donutData} cx="50%" cy="50%" innerRadius={50} outerRadius={72} dataKey="value" strokeWidth={0}>
+                      {donutData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        color: "hsl(var(--popover-foreground))",
+                        fontSize: "12px",
+                        padding: "6px 10px",
+                      }}
+                      formatter={(value: number) => value.toLocaleString()}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-xs text-muted-foreground">Total</span>
+                  <span className="text-lg font-bold text-foreground">{(totalSessions / 1000000).toFixed(1)}M</span>
+                </div>
               </div>
-              <div className="text-3xl font-bold text-foreground">{goodCount.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((goodCount / totalSessions) * 100).toFixed(0)}% of total</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-                <span className="text-sm text-muted-foreground">{labels.suspiciousShort}</span>
+
+              <div className="flex-1 space-y-3">
+                {donutData.map((entry) => {
+                  const pct = ((entry.value / totalSessions) * 100).toFixed(1)
+                  return (
+                    <div key={entry.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.fill }} />
+                        <span className="text-sm text-foreground">{entry.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sm font-semibold text-foreground">{entry.value.toLocaleString()}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{pct}%</span>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              <div className="text-3xl font-bold text-foreground">{suspiciousCount.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((suspiciousCount / totalSessions) * 100).toFixed(0)}% of total</div>
             </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                <span className="text-sm text-muted-foreground">{labels.badShort}</span>
-              </div>
-              <div className="text-3xl font-bold text-foreground">{badCount.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">{((badCount / totalSessions) * 100).toFixed(0)}% of total</div>
+
+            {/* Stacked progress bar */}
+            <div className="mt-5 w-full h-2 rounded-full overflow-hidden flex">
+              <div className="bg-emerald-500 transition-all" style={{ width: `${(goodCount / totalSessions) * 100}%` }} />
+              <div className="bg-amber-500 transition-all" style={{ width: `${(suspiciousCount / totalSessions) * 100}%` }} />
+              <div className="bg-red-500 transition-all" style={{ width: `${(badCount / totalSessions) * 100}%` }} />
             </div>
-          </div>
 
-          <div className="w-full h-3 rounded-full overflow-hidden flex mb-3">
-            <div className="bg-emerald-500 transition-all" style={{ width: `${(goodCount / totalSessions) * 100}%` }} />
-            <div className="bg-amber-500 transition-all" style={{ width: `${(suspiciousCount / totalSessions) * 100}%` }} />
-            <div className="bg-red-500 transition-all" style={{ width: `${(badCount / totalSessions) * 100}%` }} />
-          </div>
+            {/* Summary */}
+            <div className="mt-4 p-3 bg-muted/40 rounded-lg">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {flaggedCount.toLocaleString()} sessions flagged, primarily due to{" "}
+                <span className="font-medium text-foreground">{sorted[0].name}</span> and{" "}
+                <span className="font-medium text-foreground">{sorted[1].name}</span>.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Plain-English summary */}
-          <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
-            <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <p className="text-sm text-muted-foreground">
-              {flaggedCount.toLocaleString()} sessions were flagged ({labels.badShort} or {labels.suspiciousShort}), primarily due to{" "}
-              {sorted.slice(0, 2).map((c, i) => (
-                <span key={c.id} className="font-medium text-foreground">
-                  {c.name}{i === 0 ? " and " : ""}
-                </span>
-              ))}.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Right: Top categories as detail list */}
+        <Card className="lg:col-span-3 border border-border shadow-sm">
+          <CardHeader className="pb-0">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold">Top Fraud Categories</CardTitle>
+              <InfoTip text="Categories summarize behavior patterns across flagged sessions. A session may appear in multiple categories. Categories are not additive." side="right" />
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="space-y-3">
+              {sorted.map((cat, idx) => {
+                const totalAffected = cat.badSessions + cat.suspiciousSessions
+                const pct = ((totalAffected / flaggedCount) * 100).toFixed(0)
+                return (
+                  <div key={cat.id} className="flex items-center gap-4">
+                    <span className="text-xs font-mono text-muted-foreground w-5">{idx + 1}</span>
+                    <div className="h-3 w-3 rounded-sm shrink-0" style={{ backgroundColor: CATEGORY_COLORS[cat.name] }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-foreground truncate">{cat.name}</span>
+                        <span className="text-sm font-semibold text-foreground ml-2">{totalAffected.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${Number(pct)}%`, backgroundColor: CATEGORY_COLORS[cat.name] }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground w-12 text-right">{pct}%</span>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* ── 2. Sessions Flagged ─────────────────────────────────── */}
+      {/* ── 3. Sessions Flagged (Drill-In) ───────────────────────── */}
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-lg font-semibold text-foreground">Sessions Flagged</h2>
-          <InfoTip
-            text="Categories summarize behavior patterns across sessions labeled Bad or Suspicious. A session may appear in multiple categories. Percentages are relative to total flagged sessions, not total traffic. Categories are not additive."
-            side="right"
-          />
+          <h2 className="text-base font-semibold text-foreground">Sessions Flagged</h2>
+          <InfoTip text="Expand a category to see its severity breakdown and supporting signals. Percentages are relative to total flagged sessions." side="right" />
         </div>
 
         <div className="grid gap-3">
@@ -482,112 +538,90 @@ export default function FraudDetectionPage() {
                 key={category.id}
                 className={cn(
                   "border transition-all cursor-pointer",
-                  isExpanded ? "border-border shadow-md" : "border-border hover:border-gray-300"
+                  isExpanded ? "shadow-md border-gray-300" : "hover:border-gray-300"
                 )}
               >
-                <div className="p-5" onClick={() => setExpandedCategory(isExpanded ? null : category.id)}>
+                <div className="p-4" onClick={() => setExpandedCategory(isExpanded ? null : category.id)}>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <div
-                        className="h-10 w-10 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${CATEGORY_COLORS[category.name]}15` }}
+                        className="h-9 w-9 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${CATEGORY_COLORS[category.name]}12` }}
                       >
-                        <Icon className="h-5 w-5" style={{ color: CATEGORY_COLORS[category.name] }} />
+                        <Icon className="h-4 w-4" style={{ color: CATEGORY_COLORS[category.name] }} />
                       </div>
                       <div>
-                        <div className="font-semibold text-foreground">{category.name}</div>
-                        <div className="text-sm text-muted-foreground mt-0.5">
-                          {totalAffected.toLocaleString()} sessions affected
-                        </div>
+                        <div className="text-sm font-semibold text-foreground">{category.name}</div>
+                        <div className="text-xs text-muted-foreground">{totalAffected.toLocaleString()} sessions</div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-foreground">{pctOfFlagged}%</div>
-                        <div className="text-xs text-muted-foreground">of {flaggedCount.toLocaleString()} flagged sessions</div>
+                        <div className="text-xl font-bold text-foreground">{pctOfFlagged}%</div>
                       </div>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium cursor-help", sl.color)}>
-                              {sl.text}
-                            </span>
+                            <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium cursor-help", sl.color)}>{sl.text}</span>
                           </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[240px] text-xs">
-                            <p>{sl.definition}</p>
-                          </TooltipContent>
+                          <TooltipContent side="top" className="max-w-[240px] text-xs"><p>{sl.definition}</p></TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <ChevronRight className={cn("h-5 w-5 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
+                      <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
                     </div>
                   </div>
 
-                  <div className="mt-4 w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${Number(pctOfFlagged)}%`, backgroundColor: CATEGORY_COLORS[category.name] }}
-                    />
+                  <div className="mt-3 w-full h-1 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${Number(pctOfFlagged)}%`, backgroundColor: CATEGORY_COLORS[category.name] }} />
                   </div>
                 </div>
 
-                {/* ── Category Drill-In ──────────────────────────────── */}
                 {isExpanded && (
-                  <div className="px-5 pb-5 border-t border-border">
-                    <p className="text-sm text-muted-foreground mt-4 mb-5 leading-relaxed">{category.description}</p>
+                  <div className="px-4 pb-4 border-t border-border">
+                    <p className="text-xs text-muted-foreground mt-3 mb-4 leading-relaxed">{category.description}</p>
 
                     {/* Severity breakdown */}
-                    <div className="mb-5 p-4 bg-muted/30 rounded-lg">
-                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Sessions by Outcome</div>
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                          <span className="text-sm text-foreground font-medium">{category.badSessions.toLocaleString()}</span>
-                          <span className="text-xs text-muted-foreground">{labels.badShort}</span>
+                    <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Sessions by Outcome</div>
+                      <div className="flex items-center gap-5">
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-2 w-2 rounded-full bg-red-500" />
+                          <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
+                          <span className="text-[10px] text-muted-foreground">{labels.badShort}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-                          <span className="text-sm text-foreground font-medium">{category.suspiciousSessions.toLocaleString()}</span>
-                          <span className="text-xs text-muted-foreground">{labels.suspiciousShort}</span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-2 w-2 rounded-full bg-amber-500" />
+                          <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
+                          <span className="text-[10px] text-muted-foreground">{labels.suspiciousShort}</span>
                         </div>
                       </div>
-                      <div className="mt-3 w-full h-2 rounded-full overflow-hidden flex">
-                        <div className="bg-red-500 transition-all" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
-                        <div className="bg-amber-500 transition-all" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
+                      <div className="mt-2 w-full h-1.5 rounded-full overflow-hidden flex">
+                        <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
+                        <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
                       </div>
                     </div>
 
                     {/* Bad signals */}
                     {badSignals.length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="h-2 w-2 rounded-full bg-red-500" />
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Bad Signals</span>
-                          <InfoTip text="Signals that directly contributed to a Bad classification. Detection counts may exceed session counts when signals trigger across repeated attempts." />
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Bad Signals</span>
                         </div>
-                        <div className="space-y-2 pl-3 border-l-2 border-red-200">
+                        <div className="space-y-1.5 pl-3 border-l-2 border-red-200">
                           {badSignals.map((signal) => {
-                            const isSignalExpanded = expandedSignal === `${category.id}-${signal.name}`
+                            const isSigExp = expandedSignal === `${category.id}-${signal.name}`
                             return (
-                              <div key={signal.name} className={cn("border rounded-lg transition-all", isSignalExpanded ? "border-border bg-muted/30" : "border-border")}>
-                                <div
-                                  className="flex items-center justify-between p-3 cursor-pointer"
-                                  onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSignalExpanded ? null : `${category.id}-${signal.name}`) }}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="h-2 w-2 rounded-full bg-red-500" />
-                                    <span className="text-sm text-muted-foreground">{signal.name}</span>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-xs text-muted-foreground">{signal.fired.toLocaleString()} detections</span>
-                                    <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isSignalExpanded && "rotate-90")} />
+                              <div key={signal.name} className={cn("border rounded-lg transition-all", isSigExp && "bg-muted/30")}>
+                                <div className="flex items-center justify-between p-2.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSigExp ? null : `${category.id}-${signal.name}`) }}>
+                                  <span className="text-xs text-muted-foreground">{signal.name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-muted-foreground">{signal.fired.toLocaleString()}</span>
+                                    <ChevronRight className={cn("h-3 w-3 text-muted-foreground transition-transform", isSigExp && "rotate-90")} />
                                   </div>
                                 </div>
-                                {isSignalExpanded && (
-                                  <div className="px-3 pb-3 pt-1 border-t border-border">
-                                    <p className="text-xs text-muted-foreground">{signal.description}</p>
-                                  </div>
-                                )}
+                                {isSigExp && <div className="px-2.5 pb-2.5 pt-0.5 border-t border-border"><p className="text-[11px] text-muted-foreground">{signal.description}</p></div>}
                               </div>
                             )
                           })}
@@ -597,35 +631,24 @@ export default function FraudDetectionPage() {
 
                     {/* Suspicious signals */}
                     {suspSignals.length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="h-2 w-2 rounded-full bg-amber-500" />
-                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Suspicious Signals</span>
-                          <InfoTip text="Signals that indicate potentially suspicious behavior but are not conclusive on their own. They contribute to the overall category assessment." />
+                      <div className="mb-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Suspicious Signals</span>
                         </div>
-                        <div className="space-y-2 pl-3 border-l-2 border-amber-200">
+                        <div className="space-y-1.5 pl-3 border-l-2 border-amber-200">
                           {suspSignals.map((signal) => {
-                            const isSignalExpanded = expandedSignal === `${category.id}-${signal.name}`
+                            const isSigExp = expandedSignal === `${category.id}-${signal.name}`
                             return (
-                              <div key={signal.name} className={cn("border rounded-lg transition-all", isSignalExpanded ? "border-border bg-muted/30" : "border-border")}>
-                                <div
-                                  className="flex items-center justify-between p-3 cursor-pointer"
-                                  onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSignalExpanded ? null : `${category.id}-${signal.name}`) }}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="h-2 w-2 rounded-full bg-amber-500" />
-                                    <span className="text-sm text-muted-foreground">{signal.name}</span>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-xs text-muted-foreground">{signal.fired.toLocaleString()} detections</span>
-                                    <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isSignalExpanded && "rotate-90")} />
+                              <div key={signal.name} className={cn("border rounded-lg transition-all", isSigExp && "bg-muted/30")}>
+                                <div className="flex items-center justify-between p-2.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSigExp ? null : `${category.id}-${signal.name}`) }}>
+                                  <span className="text-xs text-muted-foreground">{signal.name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-muted-foreground">{signal.fired.toLocaleString()}</span>
+                                    <ChevronRight className={cn("h-3 w-3 text-muted-foreground transition-transform", isSigExp && "rotate-90")} />
                                   </div>
                                 </div>
-                                {isSignalExpanded && (
-                                  <div className="px-3 pb-3 pt-1 border-t border-border">
-                                    <p className="text-xs text-muted-foreground">{signal.description}</p>
-                                  </div>
-                                )}
+                                {isSigExp && <div className="px-2.5 pb-2.5 pt-0.5 border-t border-border"><p className="text-[11px] text-muted-foreground">{signal.description}</p></div>}
                               </div>
                             )
                           })}
@@ -633,12 +656,9 @@ export default function FraudDetectionPage() {
                       </div>
                     )}
 
-                    {/* Co-occurrence insight */}
-                    <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-                      <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground">Multiple signals frequently fired together in these sessions.</span>{" "}
-                        {category.coOccurrence}
+                    <div className="p-2.5 bg-muted/40 rounded-lg">
+                      <p className="text-[11px] text-muted-foreground">
+                        <span className="font-medium text-foreground">Co-occurrence:</span> {category.coOccurrence}
                       </p>
                     </div>
                   </div>
@@ -649,125 +669,126 @@ export default function FraudDetectionPage() {
         </div>
       </div>
 
-      {/* ── 3. Category Trends ────────────────────────────────────── */}
+      {/* ── 4. Category Trends ────────────────────────────────────── */}
       <Card className="border border-border shadow-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base font-semibold">Category Trends</CardTitle>
-            <InfoTip text="Trends reflect category volume over time. An upward trend indicates more sessions flagged in this category, not necessarily increased severity." side="right" />
+            <CardTitle className="text-sm font-semibold">Category Trends</CardTitle>
+            <InfoTip text="Trends reflect category volume over time. An upward trend indicates more sessions flagged, not necessarily increased severity." side="right" />
           </div>
-          <p className="text-sm text-muted-foreground mt-1">Are these issues increasing or decreasing over time?</p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={trendData} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
               <RechartsTooltip
                 contentStyle={{
                   backgroundColor: "hsl(var(--popover))",
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px",
                   color: "hsl(var(--popover-foreground))",
-                  fontSize: "13px",
-                  padding: "8px 12px",
+                  fontSize: "11px",
+                  padding: "6px 10px",
                 }}
                 cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
               />
               {FRAUD_CATEGORIES.map((cat) => (
-                <Bar key={cat.name} dataKey={cat.name} fill={CATEGORY_COLORS[cat.name]} radius={[4, 4, 0, 0]} stackId="a" />
+                <Bar key={cat.name} dataKey={cat.name} fill={CATEGORY_COLORS[cat.name]} radius={[3, 3, 0, 0]} stackId="a" />
               ))}
             </BarChart>
           </ResponsiveContainer>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-3">
             {FRAUD_CATEGORIES.map((cat) => (
-              <div key={cat.name} className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: CATEGORY_COLORS[cat.name] }} />
-                <span className="text-xs text-muted-foreground">{cat.name}</span>
+              <div key={cat.name} className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: CATEGORY_COLORS[cat.name] }} />
+                <span className="text-[10px] text-muted-foreground">{cat.name}</span>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-border">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-amber-500" />
-                <span className="text-sm text-muted-foreground">Identity Reuse &mdash; Trending up</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <TrendingDown className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm text-muted-foreground">Location Inconsistency &mdash; Trending down</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Minus className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Non-Human Behavior &mdash; Stable</span>
-              </div>
+          <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-border">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-xs text-muted-foreground">Identity Reuse</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <TrendingDown className="h-3.5 w-3.5 text-emerald-500" />
+              <span className="text-xs text-muted-foreground">Location Inconsistency</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Minus className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Non-Human Behavior</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* ── 4. Geographic Context (Secondary) ─────────────────────── */}
+      {/* ── 5. Geographic Context ─────────────────────────────────── */}
       <Card className="border border-border shadow-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-base font-semibold">Geographic Context</CardTitle>
-            <InfoTip text="Where flagged sessions originated, grouped by category. Location alone does not determine a session's decision. Percentages are relative to the category, not total traffic." side="right" />
+            <CardTitle className="text-sm font-semibold">Geographic Context</CardTitle>
+            <InfoTip text="Where flagged sessions originated, grouped by category. Location alone does not determine a session's decision." side="right" />
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <div className="text-sm font-medium text-foreground mb-1">Identity Reuse by Region</div>
-              <div className="text-xs text-muted-foreground mb-3">% of 112,340 identity reuse sessions</div>
-              <div className="space-y-3">
-                {[
-                  { region: "North America", pct: 34, sessions: 38196 },
-                  { region: "Southeast Asia", pct: 28, sessions: 31455 },
-                  { region: "South America", pct: 18, sessions: 20221 },
-                  { region: "Europe", pct: 12, sessions: 13481 },
-                  { region: "Other", pct: 8, sessions: 8987 },
-                ].map((item) => (
-                  <div key={item.region}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-foreground">{item.region}</span>
-                      <span className="text-xs text-muted-foreground">{item.pct}% &middot; {item.sessions.toLocaleString()} sessions</span>
+            {[
+              {
+                title: "Identity Reuse by Region",
+                subtitle: "% of 165,460 identity reuse sessions",
+                color: CATEGORY_COLORS["Identity Reuse"],
+                regions: [
+                  { region: "North America", pct: 34, sessions: 56256 },
+                  { region: "Southeast Asia", pct: 28, sessions: 46329 },
+                  { region: "South America", pct: 18, sessions: 29783 },
+                  { region: "Europe", pct: 12, sessions: 19855 },
+                  { region: "Other", pct: 8, sessions: 13237 },
+                ],
+              },
+              {
+                title: "Network Masking by Region",
+                subtitle: "% of 130,650 network masking sessions",
+                color: CATEGORY_COLORS["Network Masking"],
+                regions: [
+                  { region: "Europe", pct: 31, sessions: 40502 },
+                  { region: "North America", pct: 25, sessions: 32663 },
+                  { region: "East Asia", pct: 22, sessions: 28743 },
+                  { region: "South America", pct: 14, sessions: 18291 },
+                  { region: "Other", pct: 8, sessions: 10452 },
+                ],
+              },
+            ].map((section) => (
+              <div key={section.title}>
+                <div className="text-sm font-medium text-foreground mb-0.5">{section.title}</div>
+                <div className="text-[10px] text-muted-foreground mb-3">{section.subtitle}</div>
+                <div className="space-y-2.5">
+                  {section.regions.map((item) => (
+                    <div key={item.region}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs text-foreground">{item.region}</span>
+                        <span className="text-[10px] text-muted-foreground">{item.pct}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${item.pct}%`, backgroundColor: section.color }} />
+                      </div>
                     </div>
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS["Identity Reuse"] }} />
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="text-sm font-medium text-foreground mb-1">Network Masking by Region</div>
-              <div className="text-xs text-muted-foreground mb-3">% of 89,420 network masking sessions</div>
-              <div className="space-y-3">
-                {[
-                  { region: "Europe", pct: 31, sessions: 27720 },
-                  { region: "North America", pct: 25, sessions: 22355 },
-                  { region: "East Asia", pct: 22, sessions: 19672 },
-                  { region: "South America", pct: 14, sessions: 12519 },
-                  { region: "Other", pct: 8, sessions: 7154 },
-                ].map((item) => (
-                  <div key={item.region}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-foreground">{item.region}</span>
-                      <span className="text-xs text-muted-foreground">{item.pct}% &middot; {item.sessions.toLocaleString()} sessions</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS["Network Masking"] }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
+
+      {/* Product disclaimer */}
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
+        <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        <p className="text-[11px] text-muted-foreground">{labels.disclaimer}</p>
+      </div>
     </div>
   )
 }

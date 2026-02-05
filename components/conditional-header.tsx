@@ -5,12 +5,13 @@ import { Header } from "@/components/header"
 
 /**
  * Renders the main application header everywhere
- * except on routes that start with "/terminate", "/sign-in", or "/sign-up".
+ * except on routes that start with "/terminate".
  */
 export function ConditionalHeader() {
   const pathname = usePathname()
 
-  if (pathname.startsWith("/terminate") || pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")) {
+  // Hide header on the termination page (and any future sub-routes of /terminate)
+  if (pathname.startsWith("/terminate")) {
     return null
   }
 

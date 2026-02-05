@@ -232,10 +232,7 @@ export default function APIUsagePage() {
       {/* ── Header + Filters ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">API Usage</h1>
-          <p className="text-muted-foreground mt-1">
-            Understand decisions, categories, and supporting evidence
-          </p>
+ <h1 className="text-3xl font-bold tracking-tight text-foreground">Fraud Detection</h1>
         </div>
 
         <div className="flex items-center gap-3">
@@ -434,12 +431,19 @@ export default function APIUsagePage() {
 
       {/* ── 2. Category Breakdown (Primary Interaction) ──────────────── */}
       <div>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-foreground">Why were sessions flagged?</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Each category groups related signals that explain a decision. Percentages are relative to sessions labeled Bad, not total traffic. Categories are not additive.
-          </p>
-        </div>
+  <div className="flex items-center gap-2 mb-4">
+  <h2 className="text-lg font-semibold text-foreground">Sessions Flagged</h2>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+      </TooltipTrigger>
+      <TooltipContent side="right" className="max-w-[300px] text-xs">
+        <p>Each category groups related signals that explain a decision. Percentages are relative to sessions labeled Bad, not total traffic. Categories are not additive.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+  </div>
 
         <div className="grid gap-3">
           {FRAUD_CATEGORIES.map((category) => {
@@ -681,21 +685,22 @@ export default function APIUsagePage() {
       {/* ── 6. Geography (De-emphasized, contextual) ─────────────────── */}
       <Card className="border border-border shadow-sm">
         <CardHeader className="pb-2">
-          <div>
-            <CardTitle className="text-base font-semibold">Geographic Context</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Where flagged sessions originated, grouped by category. Geography provides context for decisions, not a cause.
-            </p>
-          </div>
+  <div className="flex items-center gap-2">
+  <CardTitle className="text-base font-semibold">Geographic Context</CardTitle>
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+      </TooltipTrigger>
+      <TooltipContent side="right" className="max-w-[300px] text-xs">
+        <p>Where flagged sessions originated, grouped by category. Location alone does not determine a session's decision. Percentages are relative to the category, not total traffic.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+  </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg mb-6">
-            <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              Geographic distribution reflects where flagged sessions were observed. Location alone does not determine a session's decision. Percentages are relative to the category, not total traffic.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
+  <CardContent>
+  <div className="grid md:grid-cols-2 gap-6">
             {/* Identity Reuse by region */}
             <div>
               <div className="text-sm font-medium text-foreground mb-1">Identity Reuse by Region</div>

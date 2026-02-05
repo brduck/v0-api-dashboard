@@ -39,7 +39,7 @@ export function Header() {
             href="/fraud-security"
             className={`text-sm font-medium ${pathname === "/fraud-security" ? "text-black" : "text-gray-500"}`}
           >
-            Fraud Report
+            Fraud Security
           </Link>
           <Link
             href="/settings"

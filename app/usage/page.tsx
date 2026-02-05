@@ -376,36 +376,7 @@ export default function FraudDetectionPage() {
         </div>
       </div>
 
-      {/* ── 1. KPI Strip (Wider-inspired) ────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4">
-        {[
-          { label: "Sessions Evaluated", value: totalSessions.toLocaleString(), icon: Activity, change: "+3.2%", up: true, color: "text-foreground" },
-          { label: labels.goodShort, value: goodCount.toLocaleString(), icon: ShieldCheck, change: `${goodPct}%`, up: true, color: "text-emerald-600", dotColor: "bg-emerald-500" },
-          { label: labels.suspiciousShort, value: suspiciousCount.toLocaleString(), icon: ShieldAlert, change: `${suspPct}%`, up: false, color: "text-amber-600", dotColor: "bg-amber-500" },
-          { label: labels.badShort, value: badCount.toLocaleString(), icon: ShieldX, change: `${badPct}%`, up: false, color: "text-red-600", dotColor: "bg-red-500" },
-        ].map((kpi) => (
-          <Card key={kpi.label} className="border border-border shadow-sm">
-            <CardContent className="pt-5 pb-4 px-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  {kpi.dotColor && <div className={cn("h-2 w-2 rounded-full", kpi.dotColor)} />}
-                  <span className="text-sm text-muted-foreground">{kpi.label}</span>
-                </div>
-                <kpi.icon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="flex items-baseline gap-3">
-                <span className={cn("text-3xl font-bold tracking-tight", kpi.color)}>{kpi.value}</span>
-                <span className={cn("text-xs font-medium", kpi.up ? "text-emerald-600" : "text-red-500")}>
-                  {kpi.up ? <TrendingUp className="inline h-3 w-3 mr-0.5" /> : <TrendingDown className="inline h-3 w-3 mr-0.5" />}
-                  {kpi.change}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* ── 2. Traffic Composition + Category Breakdown (DataCops-inspired) ── */}
+      {/* ── 1. Traffic Composition + Category Breakdown ────────── */}
       <div className="grid lg:grid-cols-5 gap-4">
         {/* Left: Donut + breakdown */}
         <Card className="lg:col-span-2 border border-border shadow-sm">
@@ -435,9 +406,20 @@ export default function FraudDetectionPage() {
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xs text-muted-foreground">Total</span>
-                  <span className="text-lg font-bold text-foreground">{(totalSessions / 1000000).toFixed(1)}M</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col items-center cursor-default">
+                          <span className="text-xs text-muted-foreground">Total</span>
+                          <span className="text-lg font-bold text-foreground">{(totalSessions / 1000000).toFixed(1)}M</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">
+                        <p>{totalSessions.toLocaleString()} sessions</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
 

@@ -562,32 +562,29 @@ export default function FraudDetectionPage() {
                     <div className="px-4 pb-4 border-t border-border">
                       <p className="text-xs text-muted-foreground mt-3 mb-4 leading-relaxed">{category.description}</p>
 
-                    {/* Signal presence breakdown */}
-                    <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Signals Observed in These Sessions</div>
-                      <p className="text-[10px] text-muted-foreground mb-3">
-                        {"Final session outcome is determined by the most severe signal. Suspicious signals may appear in sessions ultimately classified as Bad."}
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-2 w-2 rounded-full bg-red-500" />
-                          <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
-                          <span className="text-[10px] text-muted-foreground">{"Sessions with \u22651 Bad signal in this category"}</span>
+                      {/* Signal presence breakdown */}
+                      <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                        <div className="flex items-center gap-1.5 mb-3">
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Signals Observed in These Sessions</span>
+                          <InfoTip text="Final session outcome is determined by the most severe signal. Suspicious signals may appear in sessions classified as Bad." side="right" />
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="h-2 w-2 rounded-full bg-amber-500" />
-                          <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
-                          <span className="text-[10px] text-muted-foreground">{"Sessions with Suspicious signals in this category"}</span>
+                        <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-2 w-2 rounded-full bg-red-500" />
+                            <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
+                            <span className="text-[10px] text-muted-foreground">Bad</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-2 w-2 rounded-full bg-amber-500" />
+                            <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
+                            <span className="text-[10px] text-muted-foreground">Suspicious</span>
+                          </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground/70 italic pl-4">
-                          {"(may also include Bad signals from this or other categories)"}
-                        </p>
+                        <div className="mt-2.5 w-full h-1.5 rounded-full overflow-hidden flex">
+                          <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
+                          <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
+                        </div>
                       </div>
-                      <div className="mt-3 w-full h-1.5 rounded-full overflow-hidden flex">
-                        <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
-                        <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
-                      </div>
-                    </div>
 
                       {/* Bad signals */}
                       {badSignals.length > 0 && (
@@ -597,21 +594,12 @@ export default function FraudDetectionPage() {
                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Bad Signals</span>
                           </div>
                           <div className="space-y-1.5 pl-3 border-l-2 border-red-200">
-                            {badSignals.map((signal) => {
-                              const isSigExp = expandedSignal === `${category.id}-${signal.name}`
-                              return (
-                                <div key={signal.name} className={cn("border rounded-lg transition-all", isSigExp && "bg-muted/30")}>
-                                  <div className="flex items-center justify-between p-2.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSigExp ? null : `${category.id}-${signal.name}`) }}>
-                                    <span className="text-xs text-muted-foreground">{signal.name}</span>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] text-muted-foreground">{signal.fired.toLocaleString()}</span>
-                                      <ChevronRight className={cn("h-3 w-3 text-muted-foreground transition-transform", isSigExp && "rotate-90")} />
-                                    </div>
-                                  </div>
-                                  {isSigExp && <div className="px-2.5 pb-2.5 pt-0.5 border-t border-border"><p className="text-[11px] text-muted-foreground">{signal.description}</p></div>}
-                                </div>
-                              )
-                            })}
+                            {badSignals.map((signal) => (
+                              <div key={signal.name} className="flex items-center justify-between p-2.5 border rounded-lg">
+                                <span className="text-xs text-muted-foreground">{signal.name}</span>
+                                <span className="text-[10px] text-muted-foreground">{signal.fired.toLocaleString()}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
@@ -624,21 +612,12 @@ export default function FraudDetectionPage() {
                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Suspicious Signals</span>
                           </div>
                           <div className="space-y-1.5 pl-3 border-l-2 border-amber-200">
-                            {suspSignals.map((signal) => {
-                              const isSigExp = expandedSignal === `${category.id}-${signal.name}`
-                              return (
-                                <div key={signal.name} className={cn("border rounded-lg transition-all", isSigExp && "bg-muted/30")}>
-                                  <div className="flex items-center justify-between p-2.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); setExpandedSignal(isSigExp ? null : `${category.id}-${signal.name}`) }}>
-                                    <span className="text-xs text-muted-foreground">{signal.name}</span>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] text-muted-foreground">{signal.fired.toLocaleString()}</span>
-                                      <ChevronRight className={cn("h-3 w-3 text-muted-foreground transition-transform", isSigExp && "rotate-90")} />
-                                    </div>
-                                  </div>
-                                  {isSigExp && <div className="px-2.5 pb-2.5 pt-0.5 border-t border-border"><p className="text-[11px] text-muted-foreground">{signal.description}</p></div>}
-                                </div>
-                              )
-                            })}
+                            {suspSignals.map((signal) => (
+                              <div key={signal.name} className="flex items-center justify-between p-2.5 border rounded-lg">
+                                <span className="text-xs text-muted-foreground">{signal.name}</span>
+                                <span className="text-[10px] text-muted-foreground">{signal.fired.toLocaleString()}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}

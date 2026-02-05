@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip as RechartsTooltip } from "recharts"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 // ─── DATA ──────────────────────────────────────────────────────────────────────
@@ -187,10 +188,16 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 // ─── HELPERS ───────────────────────────────────────────────────────────────────
 
+const STRENGTH_DEFINITIONS: Record<string, string> = {
+  Strong: "Multiple corroborating signals frequently co-occur in these sessions",
+  Moderate: "One strong signal or several weaker signals contributed to these decisions",
+  Weak: "Single signal with limited corroboration from other checks",
+}
+
 function strengthLabel(s: "strong" | "moderate" | "weak") {
-  if (s === "strong") return { text: "Strong", color: "bg-red-100 text-red-700" }
-  if (s === "moderate") return { text: "Moderate", color: "bg-amber-100 text-amber-700" }
-  return { text: "Weak", color: "bg-gray-100 text-gray-600" }
+  if (s === "strong") return { text: "Strong", color: "bg-red-100 text-red-700", definition: STRENGTH_DEFINITIONS.Strong }
+  if (s === "moderate") return { text: "Moderate", color: "bg-amber-100 text-amber-700", definition: STRENGTH_DEFINITIONS.Moderate }
+  return { text: "Weak", color: "bg-gray-100 text-gray-600", definition: STRENGTH_DEFINITIONS.Weak }
 }
 
 // ─── COMPONENT ─────────────────────────────────────────────────────────────────
@@ -405,19 +412,33 @@ export default function APIUsagePage() {
             />
           </div>
 
-          {/* Summary sentence */}
+          {/* Primary driver summary */}
           <div className="flex items-start gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
             <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <p className="text-sm text-muted-foreground">{driverSummary}</p>
+            <div>
+              <p className="text-sm font-medium text-foreground mb-1">
+                Primary drivers of high-risk traffic: {sorted.slice(0, 2).map((c, i) => (
+                  <span key={c.id}>
+                    {c.name} ({strengthLabel(c.strength).text})
+                    {i === 0 ? ", " : ""}
+                  </span>
+                ))}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Categories explain why sessions were flagged. A single session may appear in multiple categories, so category counts do not sum to the total.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* ── 2. Category Breakdown (Primary Interaction) ──────────────── */}
       <div>
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4">
           <h2 className="text-lg font-semibold text-foreground">Why were sessions flagged?</h2>
-          <span className="text-sm text-muted-foreground">Categories explain the decision. They are not additive.</span>
+          <p className="text-sm text-muted-foreground mt-1">
+            Each category groups related signals that explain a decision. Percentages are relative to sessions labeled Bad, not total traffic. Categories are not additive.
+          </p>
         </div>
 
         <div className="grid gap-3">
@@ -459,11 +480,20 @@ export default function APIUsagePage() {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <div className="text-2xl font-bold text-foreground">{pctOfBad}%</div>
-                        <div className="text-xs text-muted-foreground">of bad traffic</div>
+                        <div className="text-xs text-muted-foreground">of {badCount.toLocaleString()} bad sessions</div>
                       </div>
-                      <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium", sl.color)}>
-                        {sl.text}
-                      </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium cursor-help", sl.color)}>
+                              {sl.text}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[240px] text-xs">
+                            <p>{sl.definition}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <ChevronRight
                         className={cn("h-5 w-5 text-muted-foreground transition-transform", isExpanded && "rotate-90")}
                       />
@@ -490,11 +520,23 @@ export default function APIUsagePage() {
                       {category.description}
                     </p>
 
-                    {/* Supporting signals */}
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                      Supporting Signals
+                    {/* Supporting evidence */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Supporting Evidence
+                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[280px] text-xs">
+                            <p>Signal detections may exceed session counts when signals trigger across repeated attempts from the same participant.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 pl-3 border-l-2 border-muted">
                       {category.signals.map((signal) => {
                         const isSignalExpanded = expandedSignal === `${category.id}-${signal.name}`
                         return (
@@ -519,11 +561,11 @@ export default function APIUsagePage() {
                                   className="h-2 w-2 rounded-full"
                                   style={{ backgroundColor: CATEGORY_COLORS[category.name] }}
                                 />
-                                <span className="text-sm font-medium text-foreground">{signal.name}</span>
+                                <span className="text-sm text-muted-foreground">{signal.name}</span>
                               </div>
                               <div className="flex items-center gap-3">
-                                <span className="text-sm text-muted-foreground">
-                                  {signal.fired.toLocaleString()} detections
+                                <span className="text-xs text-muted-foreground">
+                                  {signal.fired.toLocaleString()} signal detections
                                 </span>
                                 <ChevronRight
                                   className={cn(
@@ -535,7 +577,7 @@ export default function APIUsagePage() {
                             </div>
                             {isSignalExpanded && (
                               <div className="px-3 pb-3 pt-1 border-t border-border">
-                                <p className="text-sm text-muted-foreground">{signal.description}</p>
+                                <p className="text-xs text-muted-foreground">{signal.description}</p>
                               </div>
                             )}
                           </div>
@@ -611,18 +653,26 @@ export default function APIUsagePage() {
           </div>
 
           {/* Trend indicators */}
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-border">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-red-500" />
-              <span className="text-sm text-muted-foreground">Identity Reuse trending up</span>
+          <div className="mt-6 pt-4 border-t border-border">
+            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg mb-4">
+              <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                Trends reflect category volume over time. An upward trend indicates more sessions flagged in this category, not necessarily increased severity.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm text-muted-foreground">Location Inconsistency trending down</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Minus className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Non-Human Behavior stable</span>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-amber-500" />
+                <span className="text-sm text-muted-foreground">Identity Reuse &mdash; Trending up</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <TrendingDown className="h-4 w-4 text-emerald-500" />
+                <span className="text-sm text-muted-foreground">Location Inconsistency &mdash; Trending down</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Minus className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Non-Human Behavior &mdash; Stable</span>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -634,15 +684,22 @@ export default function APIUsagePage() {
           <div>
             <CardTitle className="text-base font-semibold">Geographic Context</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Where flagged sessions originated, grouped by category
+              Where flagged sessions originated, grouped by category. Geography provides context for decisions, not a cause.
             </p>
           </div>
         </CardHeader>
         <CardContent>
+          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg mb-6">
+            <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              Geographic distribution reflects where flagged sessions were observed. Location alone does not determine a session's decision. Percentages are relative to the category, not total traffic.
+            </p>
+          </div>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Identity Reuse by region */}
             <div>
-              <div className="text-sm font-medium text-foreground mb-3">Identity Reuse by Region</div>
+              <div className="text-sm font-medium text-foreground mb-1">Identity Reuse by Region</div>
+              <div className="text-xs text-muted-foreground mb-3">% of 112,340 identity reuse sessions</div>
               <div className="space-y-3">
                 {[
                   { region: "North America", pct: 34, sessions: 38196 },
@@ -654,8 +711,8 @@ export default function APIUsagePage() {
                   <div key={item.region}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm text-foreground">{item.region}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {item.pct}% ({item.sessions.toLocaleString()})
+                      <span className="text-xs text-muted-foreground">
+                        {item.pct}% &middot; {item.sessions.toLocaleString()} sessions
                       </span>
                     </div>
                     <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
@@ -671,7 +728,8 @@ export default function APIUsagePage() {
 
             {/* Network Masking by region */}
             <div>
-              <div className="text-sm font-medium text-foreground mb-3">Network Masking by Region</div>
+              <div className="text-sm font-medium text-foreground mb-1">Network Masking by Region</div>
+              <div className="text-xs text-muted-foreground mb-3">% of 89,420 network masking sessions</div>
               <div className="space-y-3">
                 {[
                   { region: "Europe", pct: 31, sessions: 27720 },
@@ -683,8 +741,8 @@ export default function APIUsagePage() {
                   <div key={item.region}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm text-foreground">{item.region}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {item.pct}% ({item.sessions.toLocaleString()})
+                      <span className="text-xs text-muted-foreground">
+                        {item.pct}% &middot; {item.sessions.toLocaleString()} sessions
                       </span>
                     </div>
                     <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">

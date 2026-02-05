@@ -562,26 +562,32 @@ export default function FraudDetectionPage() {
                     <div className="px-4 pb-4 border-t border-border">
                       <p className="text-xs text-muted-foreground mt-3 mb-4 leading-relaxed">{category.description}</p>
 
-                      {/* Severity breakdown */}
-                      <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Sessions by Outcome</div>
-                        <div className="flex items-center gap-5">
-                          <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-red-500" />
-                            <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
-                            <span className="text-[10px] text-muted-foreground">{labels.badShort}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="h-2 w-2 rounded-full bg-amber-500" />
-                            <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
-                            <span className="text-[10px] text-muted-foreground">{labels.suspiciousShort}</span>
-                          </div>
+                    {/* Signal presence breakdown */}
+                    <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Signals Observed in These Sessions</div>
+                      <p className="text-[10px] text-muted-foreground mb-3">
+                        {"Final session outcome is determined by the most severe signal. Suspicious signals may appear in sessions ultimately classified as Bad."}
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-2 w-2 rounded-full bg-red-500" />
+                          <span className="text-sm font-semibold text-foreground">{category.badSessions.toLocaleString()}</span>
+                          <span className="text-[10px] text-muted-foreground">{"Sessions with \u22651 Bad signal in this category"}</span>
                         </div>
-                        <div className="mt-2 w-full h-1.5 rounded-full overflow-hidden flex">
-                          <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
-                          <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-2 w-2 rounded-full bg-amber-500" />
+                          <span className="text-sm font-semibold text-foreground">{category.suspiciousSessions.toLocaleString()}</span>
+                          <span className="text-[10px] text-muted-foreground">{"Sessions with Suspicious signals in this category"}</span>
                         </div>
+                        <p className="text-[10px] text-muted-foreground/70 italic pl-4">
+                          {"(may also include Bad signals from this or other categories)"}
+                        </p>
                       </div>
+                      <div className="mt-3 w-full h-1.5 rounded-full overflow-hidden flex">
+                        <div className="bg-red-500" style={{ width: `${(category.badSessions / totalAffected) * 100}%` }} />
+                        <div className="bg-amber-500" style={{ width: `${(category.suspiciousSessions / totalAffected) * 100}%` }} />
+                      </div>
+                    </div>
 
                       {/* Bad signals */}
                       {badSignals.length > 0 && (

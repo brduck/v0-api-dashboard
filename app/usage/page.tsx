@@ -288,73 +288,73 @@ const SAMPLE_SESSIONS = [
   {
     visitorId: "21eaefbf-ca2f-33c8-3ad3-dac19aff3939",
     outcome: "good" as const,
-    createdAt: "00:07.1",
+    createdAt: "2026-02-06 14:00:07",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "4a72f5f8-292c-41d6-8cb4-24def0bfb258",
     outcome: "bad" as const,
-    createdAt: "00:36.9",
+    createdAt: "2026-02-06 14:00:36",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "FAIL" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "9f6e415e-ccd3-9d3b-be32-7445be8f3fdc",
     outcome: "good" as const,
-    createdAt: "01:04.5",
+    createdAt: "2026-02-06 14:01:04",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "53fe041c8984386916e220541cd934f0",
     outcome: "suspicious" as const,
-    createdAt: "01:27.6",
+    createdAt: "2026-02-06 14:01:27",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "FAIL" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "b8ddacf5eaeef7c47d227be3450a7282928a0cb2",
     outcome: "bad" as const,
-    createdAt: "02:03.4",
+    createdAt: "2026-02-06 14:02:03",
     checks: { "Location Validation": "FAIL" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "FAIL" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "2e87e720-86de-4506-574c-d2ac44837abc",
     outcome: "bad" as const,
-    createdAt: "02:04.0",
+    createdAt: "2026-02-06 14:02:04",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "FAIL" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "FAIL" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "0FfIE3Pgou5MdA",
     outcome: "good" as const,
-    createdAt: "02:10.0",
+    createdAt: "2026-02-06 14:02:10",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "04551dda-16f0-406d-a15e-f66dfa996a1f",
     outcome: "bad" as const,
-    createdAt: "02:17.4",
+    createdAt: "2026-02-06 14:02:17",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "FAIL" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "d97e8c60-7184-2f65-ae0c-b95548db99e2",
     outcome: "good" as const,
-    createdAt: "02:24.3",
+    createdAt: "2026-02-06 14:02:24",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "D8TSOflVevtcRw",
     outcome: "bad" as const,
-    createdAt: "02:33.6",
+    createdAt: "2026-02-06 14:02:33",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "FAIL" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "NlJ3ZJwgfGGfjw",
     outcome: "suspicious" as const,
-    createdAt: "03:15.5",
+    createdAt: "2026-02-06 14:03:15",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "FAIL" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
   {
     visitorId: "458d796098c0564cb161be3d2c831f898595f9bb",
     outcome: "good" as const,
-    createdAt: "03:18.5",
+    createdAt: "2026-02-06 14:03:18",
     checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
   },
 ]
@@ -988,7 +988,7 @@ export default function FraudDetectionPage() {
                     {CHECK_KEYS.map((key) => (
                       <TableHead key={key} className="text-[10px] font-semibold uppercase tracking-wide text-center whitespace-nowrap px-2.5 min-w-[75px]">{key}</TableHead>
                     ))}
-                    <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-right min-w-[80px]">Created At</TableHead>
+                    <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-right min-w-[150px]">Created At</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

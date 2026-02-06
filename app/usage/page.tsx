@@ -384,7 +384,10 @@ export default function FraudDetectionPage() {
   const [flaggedView, setFlaggedView] = useState<"categories" | "signals">("categories")
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
   const [sessionSearch, setSessionSearch] = useState("")
-  const [scoreFilter, setScoreFilter] = useState<"all" | "good" | "suspicious" | "bad">("all")
+  const [scoreFilters, setScoreFilters] = useState<Set<string>>(new Set())
+  const [checkFilter, setCheckFilter] = useState<{ check: string; result: "FAIL" | "PASS" } | null>(null)
+  const [scoreDropdownOpen, setScoreDropdownOpen] = useState(false)
+  const [checkDropdownOpen, setCheckDropdownOpen] = useState(false)
 
   const availableProjects = React.useMemo(() => {
     if (!selectedClient || selectedClient === "all") return []
@@ -982,8 +985,8 @@ export default function FraudDetectionPage() {
             </div>
 
             {/* Search + Filter controls */}
-            <div className="flex items-center gap-3 mt-3">
-              <div className="relative flex-1 max-w-sm">
+            <div className="flex items-center gap-3 mt-3 flex-wrap">
+              <div className="relative flex-1 max-w-sm min-w-[180px]">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   placeholder="Search by Visitor ID..."
@@ -992,34 +995,135 @@ export default function FraudDetectionPage() {
                   className="pl-8 h-8 text-xs"
                 />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Score:</span>
-                {(["all", "bad", "suspicious", "good"] as const).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setScoreFilter(s)}
-                    className={cn(
-                      "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors",
-                      scoreFilter === s
-                        ? s === "bad" ? "bg-red-50 text-red-600"
-                          : s === "suspicious" ? "bg-amber-50 text-amber-700"
-                          : s === "good" ? "bg-emerald-50 text-emerald-700"
-                          : "bg-foreground text-background"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80",
+
+              {/* Score multi-select dropdown */}
+              <Popover open={scoreDropdownOpen} onOpenChange={setScoreDropdownOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal">
+                    Score
+                    {scoreFilters.size > 0 && (
+                      <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{scoreFilters.size}</span>
                     )}
-                  >
-                    {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
-                  </button>
-                ))}
-              </div>
+                    <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[180px] p-1" align="start">
+                  {(["good", "suspicious", "bad"] as const).map((s) => {
+                    const selected = scoreFilters.has(s)
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => {
+                          const next = new Set(scoreFilters)
+                          if (selected) next.delete(s)
+                          else next.add(s)
+                          setScoreFilters(next)
+                        }}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors"
+                      >
+                        <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", selected ? "bg-foreground border-foreground" : "border-input")}>
+                          {selected && <Check className="h-2.5 w-2.5 text-background" />}
+                        </div>
+                        <span className={cn(
+                          "font-medium",
+                          s === "bad" && "text-red-600",
+                          s === "suspicious" && "text-amber-600",
+                          s === "good" && "text-emerald-600",
+                        )}>
+                          {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </span>
+                      </button>
+                    )
+                  })}
+                  {scoreFilters.size > 0 && (
+                    <>
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        onClick={() => setScoreFilters(new Set())}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors"
+                      >
+                        Clear filters
+                      </button>
+                    </>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              {/* Check result filter dropdown */}
+              <Popover open={checkDropdownOpen} onOpenChange={setCheckDropdownOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal">
+                    {checkFilter ? (
+                      <>
+                        <span className={cn("font-semibold", checkFilter.result === "FAIL" ? "text-red-500" : "text-emerald-600")}>{checkFilter.result}</span>
+                        <span className="max-w-[120px] truncate">{checkFilter.check}</span>
+                      </>
+                    ) : "Check Result"}
+                    <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[260px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search checks..." className="h-8 text-xs" />
+                    <CommandList>
+                      <CommandEmpty className="py-3 text-xs text-center text-muted-foreground">No checks found.</CommandEmpty>
+                      <CommandGroup heading="Show sessions where check is FAIL">
+                        {CHECK_KEYS.map((key) => (
+                          <CommandItem
+                            key={`fail-${key}`}
+                            value={`fail ${key}`}
+                            onSelect={() => {
+                              setCheckFilter(checkFilter?.check === key && checkFilter?.result === "FAIL" ? null : { check: key, result: "FAIL" })
+                              setCheckDropdownOpen(false)
+                            }}
+                            className="text-xs"
+                          >
+                            <Check className={cn("mr-2 h-3.5 w-3.5", checkFilter?.check === key && checkFilter?.result === "FAIL" ? "opacity-100" : "opacity-0")} />
+                            <span className="text-red-500 font-medium mr-1.5">FAIL</span>
+                            {key}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                      <CommandGroup heading="Show sessions where check is PASS">
+                        {CHECK_KEYS.map((key) => (
+                          <CommandItem
+                            key={`pass-${key}`}
+                            value={`pass ${key}`}
+                            onSelect={() => {
+                              setCheckFilter(checkFilter?.check === key && checkFilter?.result === "PASS" ? null : { check: key, result: "PASS" })
+                              setCheckDropdownOpen(false)
+                            }}
+                            className="text-xs"
+                          >
+                            <Check className={cn("mr-2 h-3.5 w-3.5", checkFilter?.check === key && checkFilter?.result === "PASS" ? "opacity-100" : "opacity-0")} />
+                            <span className="text-emerald-600 font-medium mr-1.5">PASS</span>
+                            {key}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                  {checkFilter && (
+                    <div className="p-1 border-t border-border">
+                      <button
+                        onClick={() => { setCheckFilter(null); setCheckDropdownOpen(false) }}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors"
+                      >
+                        Clear filter
+                      </button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             {(() => {
               const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
                 const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
-                const matchesScore = scoreFilter === "all" || session.outcome === scoreFilter
-                return matchesSearch && matchesScore
+                const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
+                const matchesCheck = !checkFilter || session.checks[checkFilter.check] === checkFilter.result
+                return matchesSearch && matchesScore && matchesCheck
               })
 
               return (

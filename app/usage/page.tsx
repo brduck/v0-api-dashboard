@@ -20,6 +20,7 @@ import {
   ShieldAlert,
   ShieldX,
   Activity,
+  Search,
 } from "lucide-react"
 import {
   Bar,
@@ -41,6 +42,7 @@ import { Tooltip as RechartsTooltip } from "recharts"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 // ─── SHARED DATA ──────────────────────────────────────────────────────────────
@@ -381,6 +383,8 @@ export default function FraudDetectionPage() {
   const [view, setView] = useState<"overview" | "session-details">("overview")
   const [flaggedView, setFlaggedView] = useState<"categories" | "signals">("categories")
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
+  const [sessionSearch, setSessionSearch] = useState("")
+  const [scoreFilter, setScoreFilter] = useState<"all" | "good" | "suspicious" | "bad">("all")
 
   const availableProjects = React.useMemo(() => {
     if (!selectedClient || selectedClient === "all") return []
@@ -975,26 +979,76 @@ export default function FraudDetectionPage() {
                 <CardTitle className="text-sm font-semibold">Session Details</CardTitle>
                 <p className="text-xs text-muted-foreground mt-1">Raw check results per session. Each row represents a single participant evaluation.</p>
               </div>
-              <div className="text-xs text-muted-foreground">Showing {SAMPLE_SESSIONS.length} of {totalSessions.toLocaleString()} sessions</div>
+            </div>
+
+            {/* Search + Filter controls */}
+            <div className="flex items-center gap-3 mt-3">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search by Visitor ID..."
+                  value={sessionSearch}
+                  onChange={(e) => setSessionSearch(e.target.value)}
+                  className="pl-8 h-8 text-xs"
+                />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Score:</span>
+                {(["all", "bad", "suspicious", "good"] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setScoreFilter(s)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors",
+                      scoreFilter === s
+                        ? s === "bad" ? "bg-red-50 text-red-600"
+                          : s === "suspicious" ? "bg-amber-50 text-amber-700"
+                          : s === "good" ? "bg-emerald-50 text-emerald-700"
+                          : "bg-foreground text-background"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80",
+                    )}
+                  >
+                    {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap sticky left-0 bg-background z-10 min-w-[180px]">Visitor ID</TableHead>
-                    <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap min-w-[90px]">dtect Score</TableHead>
-                    {CHECK_KEYS.map((key) => (
-                      <TableHead key={key} className="text-[10px] font-semibold uppercase tracking-wide text-center whitespace-nowrap px-2.5 min-w-[75px]">{key}</TableHead>
-                    ))}
-                    <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-right min-w-[150px]">Created At</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {SAMPLE_SESSIONS.map((session) => (
-                    <TableRow key={session.visitorId}>
-                      <TableCell className="font-mono text-[11px] text-muted-foreground whitespace-nowrap sticky left-0 bg-background z-10">{session.visitorId}</TableCell>
+            {(() => {
+              const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
+                const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
+                const matchesScore = scoreFilter === "all" || session.outcome === scoreFilter
+                return matchesSearch && matchesScore
+              })
+
+              return (
+                <>
+                  <div className="px-6 pb-2">
+                    <span className="text-xs text-muted-foreground">Showing {filteredSessions.length} of {totalSessions.toLocaleString()} sessions</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap sticky left-0 bg-background z-10 min-w-[180px]">Visitor ID</TableHead>
+                          <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap min-w-[90px]">dtect Score</TableHead>
+                          {CHECK_KEYS.map((key) => (
+                            <TableHead key={key} className="text-[10px] font-semibold uppercase tracking-wide text-center whitespace-nowrap px-2.5 min-w-[75px]">{key}</TableHead>
+                          ))}
+                          <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-right min-w-[150px]">Created At</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredSessions.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={CHECK_KEYS.length + 3} className="text-center py-8 text-sm text-muted-foreground">
+                              No sessions match your filters.
+                            </TableCell>
+                          </TableRow>
+                        ) : filteredSessions.map((session) => (
+                          <TableRow key={session.visitorId}>
+                            <TableCell className="font-mono text-[11px] text-muted-foreground whitespace-nowrap sticky left-0 bg-background z-10">{session.visitorId}</TableCell>
                       <TableCell>
                         <span className={cn(
                           "text-[11px] font-medium",
@@ -1021,11 +1075,14 @@ export default function FraudDetectionPage() {
                         )
                       })}
                       <TableCell className="text-[11px] text-muted-foreground tabular-nums text-right whitespace-nowrap">{session.createdAt}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
+              )
+            })()}
           </CardContent>
         </Card>
 

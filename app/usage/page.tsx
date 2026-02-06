@@ -385,7 +385,7 @@ export default function FraudDetectionPage() {
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
   const [sessionSearch, setSessionSearch] = useState("")
   const [scoreFilters, setScoreFilters] = useState<Set<string>>(new Set())
-  const [checkFilter, setCheckFilter] = useState<string | null>(null)
+  const [checkFilters, setCheckFilters] = useState<Set<string>>(new Set())
   const [scoreDropdownOpen, setScoreDropdownOpen] = useState(false)
   const [checkDropdownOpen, setCheckDropdownOpen] = useState(false)
 
@@ -1049,46 +1049,54 @@ export default function FraudDetectionPage() {
                 </PopoverContent>
               </Popover>
 
-              {/* Failed check filter dropdown */}
+              {/* Failed check multi-select dropdown */}
               <Popover open={checkDropdownOpen} onOpenChange={setCheckDropdownOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal">
-                    {checkFilter ? (
-                      <span className="max-w-[160px] truncate">{checkFilter}</span>
-                    ) : "Failed Check"}
+                    Failed Check
+                    {checkFilters.size > 0 && (
+                      <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{checkFilters.size}</span>
+                    )}
                     <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-0" align="start">
+                <PopoverContent className="w-[240px] p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Search checks..." className="h-8 text-xs" />
                     <CommandList>
                       <CommandEmpty className="py-3 text-xs text-center text-muted-foreground">No checks found.</CommandEmpty>
                       <CommandGroup>
-                        {CHECK_KEYS.map((key) => (
-                          <CommandItem
-                            key={key}
-                            value={key}
-                            onSelect={() => {
-                              setCheckFilter(checkFilter === key ? null : key)
-                              setCheckDropdownOpen(false)
-                            }}
-                            className="text-xs"
-                          >
-                            <Check className={cn("mr-2 h-3.5 w-3.5", checkFilter === key ? "opacity-100" : "opacity-0")} />
-                            {key}
-                          </CommandItem>
-                        ))}
+                        {CHECK_KEYS.map((key) => {
+                          const selected = checkFilters.has(key)
+                          return (
+                            <CommandItem
+                              key={key}
+                              value={key}
+                              onSelect={() => {
+                                const next = new Set(checkFilters)
+                                if (selected) next.delete(key)
+                                else next.add(key)
+                                setCheckFilters(next)
+                              }}
+                              className="text-xs"
+                            >
+                              <div className={cn("mr-2 h-3.5 w-3.5 rounded-sm border flex items-center justify-center shrink-0", selected ? "bg-foreground border-foreground" : "border-input")}>
+                                {selected && <Check className="h-2.5 w-2.5 text-background" />}
+                              </div>
+                              {key}
+                            </CommandItem>
+                          )
+                        })}
                       </CommandGroup>
                     </CommandList>
                   </Command>
-                  {checkFilter && (
+                  {checkFilters.size > 0 && (
                     <div className="p-1 border-t border-border">
                       <button
-                        onClick={() => { setCheckFilter(null); setCheckDropdownOpen(false) }}
+                        onClick={() => setCheckFilters(new Set())}
                         className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors"
                       >
-                        Clear filter
+                        Clear filters
                       </button>
                     </div>
                   )}
@@ -1101,7 +1109,7 @@ export default function FraudDetectionPage() {
               const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
                 const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
                 const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
-                const matchesCheck = !checkFilter || session.checks[checkFilter] === "FAIL"
+                const matchesCheck = checkFilters.size === 0 || Array.from(checkFilters).every((key) => session.checks[key] === "FAIL")
                 return matchesSearch && matchesScore && matchesCheck
               })
 

@@ -385,7 +385,7 @@ export default function FraudDetectionPage() {
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
   const [sessionSearch, setSessionSearch] = useState("")
   const [scoreFilters, setScoreFilters] = useState<Set<string>>(new Set())
-  const [checkFilter, setCheckFilter] = useState<{ check: string; result: "FAIL" | "PASS" } | null>(null)
+  const [checkFilter, setCheckFilter] = useState<string | null>(null)
   const [scoreDropdownOpen, setScoreDropdownOpen] = useState(false)
   const [checkDropdownOpen, setCheckDropdownOpen] = useState(false)
 
@@ -1049,54 +1049,33 @@ export default function FraudDetectionPage() {
                 </PopoverContent>
               </Popover>
 
-              {/* Check result filter dropdown */}
+              {/* Failed check filter dropdown */}
               <Popover open={checkDropdownOpen} onOpenChange={setCheckDropdownOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal">
                     {checkFilter ? (
-                      <>
-                        <span className={cn("font-semibold", checkFilter.result === "FAIL" ? "text-red-500" : "text-emerald-600")}>{checkFilter.result}</span>
-                        <span className="max-w-[120px] truncate">{checkFilter.check}</span>
-                      </>
-                    ) : "Check Result"}
+                      <span className="max-w-[160px] truncate">{checkFilter}</span>
+                    ) : "Failed Check"}
                     <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[260px] p-0" align="start">
+                <PopoverContent className="w-[220px] p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Search checks..." className="h-8 text-xs" />
                     <CommandList>
                       <CommandEmpty className="py-3 text-xs text-center text-muted-foreground">No checks found.</CommandEmpty>
-                      <CommandGroup heading="Show sessions where check is FAIL">
+                      <CommandGroup>
                         {CHECK_KEYS.map((key) => (
                           <CommandItem
-                            key={`fail-${key}`}
-                            value={`fail ${key}`}
+                            key={key}
+                            value={key}
                             onSelect={() => {
-                              setCheckFilter(checkFilter?.check === key && checkFilter?.result === "FAIL" ? null : { check: key, result: "FAIL" })
+                              setCheckFilter(checkFilter === key ? null : key)
                               setCheckDropdownOpen(false)
                             }}
                             className="text-xs"
                           >
-                            <Check className={cn("mr-2 h-3.5 w-3.5", checkFilter?.check === key && checkFilter?.result === "FAIL" ? "opacity-100" : "opacity-0")} />
-                            <span className="text-red-500 font-medium mr-1.5">FAIL</span>
-                            {key}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                      <CommandGroup heading="Show sessions where check is PASS">
-                        {CHECK_KEYS.map((key) => (
-                          <CommandItem
-                            key={`pass-${key}`}
-                            value={`pass ${key}`}
-                            onSelect={() => {
-                              setCheckFilter(checkFilter?.check === key && checkFilter?.result === "PASS" ? null : { check: key, result: "PASS" })
-                              setCheckDropdownOpen(false)
-                            }}
-                            className="text-xs"
-                          >
-                            <Check className={cn("mr-2 h-3.5 w-3.5", checkFilter?.check === key && checkFilter?.result === "PASS" ? "opacity-100" : "opacity-0")} />
-                            <span className="text-emerald-600 font-medium mr-1.5">PASS</span>
+                            <Check className={cn("mr-2 h-3.5 w-3.5", checkFilter === key ? "opacity-100" : "opacity-0")} />
                             {key}
                           </CommandItem>
                         ))}
@@ -1122,7 +1101,7 @@ export default function FraudDetectionPage() {
               const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
                 const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
                 const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
-                const matchesCheck = !checkFilter || session.checks[checkFilter.check] === checkFilter.result
+                const matchesCheck = !checkFilter || session.checks[checkFilter] === "FAIL"
                 return matchesSearch && matchesScore && matchesCheck
               })
 

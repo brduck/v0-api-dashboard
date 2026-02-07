@@ -23,12 +23,12 @@ import {
   Search,
   AlertTriangle,
   Copy,
-  Globe,
   Monitor,
   Wifi,
   ChevronDown,
-  Clock,
   MapPinned,
+  Download,
+  X,
 } from "lucide-react"
 import {
   Bar,
@@ -51,7 +51,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { cn } from "@/lib/utils"
 
 // ─── SHARED DATA ──────────────────────────────────────────────────────────────
@@ -471,6 +471,8 @@ export default function FraudDetectionPage() {
   const [checkFilters, setCheckFilters] = useState<Set<string>>(new Set())
   const [scoreDropdownOpen, setScoreDropdownOpen] = useState(false)
   const [checkDropdownOpen, setCheckDropdownOpen] = useState(false)
+  const [categoryFilters, setCategoryFilters] = useState<Set<string>>(new Set())
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [expandedSession, setExpandedSession] = useState<string | null>(null)
 
   const availableProjects = React.useMemo(() => {
@@ -1070,17 +1072,21 @@ export default function FraudDetectionPage() {
         <>
         {/* ── SESSION DETAILS VIEW ────────────────────────────────── */}
         <Card className="border border-border shadow-sm">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-sm font-semibold">Session Details</CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">Click a row to expand location, network, and device signals for that session.</p>
+                <p className="text-xs text-muted-foreground mt-1">Raw check results per session. Each row represents a single participant evaluation.</p>
               </div>
+              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 bg-transparent">
+                <Download className="h-3.5 w-3.5" />
+                Export CSV
+              </Button>
             </div>
 
             {/* Search + Filter controls */}
-            <div className="flex items-center gap-3 mt-3 flex-wrap">
-              <div className="relative flex-1 max-w-sm min-w-[180px]">
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <div className="relative flex-1 max-w-xs min-w-[180px]">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   placeholder="Search by Visitor ID..."
@@ -1093,12 +1099,12 @@ export default function FraudDetectionPage() {
               {/* Score multi-select dropdown */}
               <Popover open={scoreDropdownOpen} onOpenChange={setScoreDropdownOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal">
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal bg-transparent">
                     Score
                     {scoreFilters.size > 0 && (
                       <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{scoreFilters.size}</span>
                     )}
-                    <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
+                    <ChevronsUpDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[180px] p-1" align="start">
@@ -1146,12 +1152,12 @@ export default function FraudDetectionPage() {
               {/* Failed check multi-select dropdown */}
               <Popover open={checkDropdownOpen} onOpenChange={setCheckDropdownOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal">
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal bg-transparent">
                     Failed Check
                     {checkFilters.size > 0 && (
                       <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{checkFilters.size}</span>
                     )}
-                    <ChevronsUpDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
+                    <ChevronsUpDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[240px] p-0" align="start">
@@ -1196,232 +1202,340 @@ export default function FraudDetectionPage() {
                   )}
                 </PopoverContent>
               </Popover>
+
+              {/* Category / Finding multi-select dropdown */}
+              <Popover open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal bg-transparent">
+                    Finding
+                    {categoryFilters.size > 0 && (
+                      <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{categoryFilters.size}</span>
+                    )}
+                    <ChevronsUpDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[220px] p-1" align="start">
+                  {FRAUD_CATEGORIES.map((cat) => {
+                    const selected = categoryFilters.has(cat.name)
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          const next = new Set(categoryFilters)
+                          if (selected) next.delete(cat.name)
+                          else next.add(cat.name)
+                          setCategoryFilters(next)
+                        }}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors"
+                      >
+                        <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", selected ? "bg-foreground border-foreground" : "border-input")}>
+                          {selected && <Check className="h-2.5 w-2.5 text-background" />}
+                        </div>
+                        <span className="font-medium">{cat.name}</span>
+                      </button>
+                    )
+                  })}
+                  {categoryFilters.size > 0 && (
+                    <>
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        onClick={() => setCategoryFilters(new Set())}
+                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors"
+                      >
+                        Clear filters
+                      </button>
+                    </>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4 pt-0">
+          <CardContent className="px-0 pb-0 pt-0">
             {(() => {
               const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
                 const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
                 const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
                 const matchesCheck = checkFilters.size === 0 || Array.from(checkFilters).every((key) => session.checks[key] === "FAIL")
-                return matchesSearch && matchesScore && matchesCheck
+                const matchesCategory = categoryFilters.size === 0 || session.categories.some((cat) => categoryFilters.has(cat))
+                return matchesSearch && matchesScore && matchesCheck && matchesCategory
               })
 
               const riskBadge = (risk: "low" | "medium" | "high") => (
-                <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium",
+                <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium inline-flex",
                   risk === "high" && "bg-red-50 text-red-600",
                   risk === "medium" && "bg-amber-50 text-amber-700",
                   risk === "low" && "bg-emerald-50 text-emerald-700",
                 )}>
-                  {risk.charAt(0).toUpperCase() + risk.slice(1)} Risk
+                  {risk.charAt(0).toUpperCase() + risk.slice(1)}
                 </span>
               )
 
-              const copyButton = (text: string) => (
+              const copyBtn = (text: string) => (
                 <button
                   onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text) }}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-0.5"
                   aria-label={`Copy ${text}`}
                 >
                   <Copy className="h-3 w-3" />
                 </button>
               )
 
+              const detailRow = (label: string, value: React.ReactNode, mono = false) => (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">{label}</span>
+                  <span className={cn("text-[11px] text-foreground", mono && "font-mono")}>{value}</span>
+                </div>
+              )
+
               return (
                 <>
-                  <div className="pb-2">
+                  <div className="px-6 pb-2 pt-1">
                     <span className="text-xs text-muted-foreground">Showing {filteredSessions.length} of {totalSessions.toLocaleString()} sessions</span>
                   </div>
 
-                  {filteredSessions.length === 0 ? (
-                    <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-                      No sessions match your filters.
+                  {/* Sticky table header */}
+                  <div className="border-t border-border">
+                    <div className="grid grid-cols-[20px_1fr_80px_1fr_1fr_140px] items-center gap-3 px-6 py-2 bg-muted/50 border-b border-border">
+                      <span />
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Visitor ID</span>
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Score</span>
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Findings</span>
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Failed Checks</span>
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide text-right">Timestamp</span>
                     </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {filteredSessions.map((session) => {
-                        const isExpanded = expandedSession === session.visitorId
-                        const failedChecks = Object.entries(session.checks).filter(([, v]) => v === "FAIL").map(([k]) => k)
 
-                        return (
-                          <div key={session.visitorId} className={cn("border border-border rounded-lg transition-shadow", isExpanded && "shadow-sm")}>
-                            {/* Compact row */}
-                            <button
-                              onClick={() => setExpandedSession(isExpanded ? null : session.visitorId)}
-                              className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-muted/50 transition-colors rounded-lg"
-                            >
-                              <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isExpanded && "rotate-180")} />
+                    {filteredSessions.length === 0 ? (
+                      <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+                        No sessions match your filters.
+                      </div>
+                    ) : (
+                      <div>
+                        {filteredSessions.map((session) => {
+                          const isExpanded = expandedSession === session.visitorId
+                          const failedChecks = Object.entries(session.checks).filter(([, v]) => v === "FAIL").map(([k]) => k)
+                          const passedChecks = Object.entries(session.checks).filter(([, v]) => v === "PASS").map(([k]) => k)
 
-                              <span className="font-mono text-[11px] text-foreground min-w-[200px] truncate">{session.visitorId}</span>
+                          return (
+                            <div key={session.visitorId} className={cn(
+                              "border-b border-border transition-colors",
+                              isExpanded && "bg-muted/30",
+                            )}>
+                              {/* Row */}
+                              <button
+                                onClick={() => setExpandedSession(isExpanded ? null : session.visitorId)}
+                                className={cn(
+                                  "grid grid-cols-[20px_1fr_80px_1fr_1fr_140px] items-center gap-3 w-full px-6 h-12 text-left hover:bg-muted/40 transition-colors relative",
+                                  session.outcome === "bad" && "border-l-[3px] border-l-red-500",
+                                  session.outcome === "suspicious" && "border-l-[3px] border-l-amber-500",
+                                  session.outcome === "good" && "border-l-[3px] border-l-transparent",
+                                )}
+                              >
+                                <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
 
-                              <Badge variant="outline" className={cn("text-[10px] font-medium border-0 shrink-0",
-                                session.outcome === "bad" && "bg-red-50 text-red-600",
-                                session.outcome === "suspicious" && "bg-amber-50 text-amber-700",
-                                session.outcome === "good" && "bg-emerald-50 text-emerald-700",
-                              )}>
-                                {session.outcome}
-                              </Badge>
+                                <span className="font-mono text-[11px] text-foreground truncate">{session.visitorId}</span>
 
-                              <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                                {session.categories.map((cat) => (
-                                  <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-muted-foreground whitespace-nowrap">{cat}</span>
-                                ))}
-                              </div>
+                                <span className={cn(
+                                  "text-[11px] font-medium",
+                                  session.outcome === "bad" && "text-red-600",
+                                  session.outcome === "suspicious" && "text-amber-600",
+                                  session.outcome === "good" && "text-emerald-600",
+                                )}>
+                                  {session.outcome}
+                                </span>
 
-                              {failedChecks.length > 0 && (
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                  {failedChecks.slice(0, 2).map((fc) => (
-                                    <span key={fc} className="px-1.5 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600 whitespace-nowrap">{fc}</span>
-                                  ))}
-                                  {failedChecks.length > 2 && (
-                                    <span className="text-[10px] text-muted-foreground">+{failedChecks.length - 2}</span>
+                                <div className="flex items-center gap-1 overflow-hidden">
+                                  {session.categories.length === 0 ? (
+                                    <span className="text-[10px] text-muted-foreground/50">--</span>
+                                  ) : (
+                                    <>
+                                      {session.categories.slice(0, 3).map((cat) => (
+                                        <span key={cat} className="px-1.5 py-0.5 rounded-md bg-muted text-[10px] font-medium text-muted-foreground whitespace-nowrap">{cat}</span>
+                                      ))}
+                                      {session.categories.length > 3 && (
+                                        <span className="text-[10px] text-muted-foreground">+{session.categories.length - 3}</span>
+                                      )}
+                                    </>
                                   )}
                                 </div>
-                              )}
 
-                              <span className="text-[10px] text-muted-foreground tabular-nums whitespace-nowrap shrink-0 ml-auto">{session.createdAt}</span>
-                            </button>
+                                <div className="flex items-center gap-1 overflow-hidden">
+                                  {failedChecks.length === 0 ? (
+                                    <span className="text-[10px] text-muted-foreground/50">--</span>
+                                  ) : (
+                                    <>
+                                      {failedChecks.slice(0, 2).map((fc) => (
+                                        <span key={fc} className="px-1.5 py-0.5 rounded-md bg-red-50 text-[10px] font-medium text-red-600 whitespace-nowrap">{fc}</span>
+                                      ))}
+                                      {failedChecks.length > 2 && (
+                                        <span className="text-[10px] text-muted-foreground">+{failedChecks.length - 2}</span>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
 
-                            {/* Expanded detail */}
-                            {isExpanded && (
-                              <div className="px-4 pb-4 pt-1 border-t border-border">
-                                {/* Failed checks summary */}
-                                {failedChecks.length > 0 && (
-                                  <div className="flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-border">
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-1">Failed Checks:</span>
-                                    {failedChecks.map((fc) => (
-                                      <span key={fc} className="px-2 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600">{fc}</span>
-                                    ))}
-                                  </div>
-                                )}
+                                <span className="text-[11px] text-muted-foreground tabular-nums whitespace-nowrap text-right">{session.createdAt}</span>
+                              </button>
 
-                                <Tabs defaultValue="location" className="w-full">
-                                  <TabsList className="h-8 w-full justify-start bg-muted/50">
-                                    <TabsTrigger value="location" className="text-[11px] h-7 gap-1.5">
-                                      <MapPinned className="h-3 w-3" />
-                                      Location
-                                    </TabsTrigger>
-                                    <TabsTrigger value="network" className="text-[11px] h-7 gap-1.5">
-                                      <Wifi className="h-3 w-3" />
-                                      Network
-                                    </TabsTrigger>
-                                    <TabsTrigger value="device" className="text-[11px] h-7 gap-1.5">
-                                      <Monitor className="h-3 w-3" />
-                                      Device
-                                    </TabsTrigger>
-                                  </TabsList>
+                              {/* Expanded 3-column detail panel */}
+                              {isExpanded && (
+                                <div className="relative bg-muted/20 border-t border-border">
+                                  {/* Close button */}
+                                  <button
+                                    onClick={() => setExpandedSession(null)}
+                                    className="absolute top-3 right-4 text-muted-foreground hover:text-foreground transition-colors z-10"
+                                    aria-label="Close detail panel"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
 
-                                  {/* ── LOCATION TAB ─────────────────────── */}
-                                  <TabsContent value="location" className="mt-3">
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="text-xs font-semibold text-foreground">Current Location</div>
+                                  <div className="px-6 py-4">
+                                    {/* Failed checks summary strip */}
+                                    {failedChecks.length > 0 && (
+                                      <div className="flex flex-wrap items-center gap-1.5 mb-4">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-1">Failed:</span>
+                                        {failedChecks.map((fc) => (
+                                          <span key={fc} className="px-2 py-0.5 rounded-md bg-red-50 text-[10px] font-medium text-red-600">{fc}</span>
+                                        ))}
+                                      </div>
+                                    )}
+
+                                    {/* 3-column layout: Location | Network | Device */}
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                      {/* ── LOCATION ───────────────────── */}
+                                      <div className="space-y-3">
                                         <div className="flex items-center gap-1.5">
-                                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                                          <span className="text-xs text-foreground">{session.location.city}, {session.location.country}</span>
+                                          <MapPinned className="h-3.5 w-3.5 text-muted-foreground" />
+                                          <span className="text-xs font-semibold text-foreground">Location</span>
                                         </div>
-                                        <div className="text-[10px] text-muted-foreground font-mono">{session.location.coords}</div>
-                                        {riskBadge(session.location.risk)}
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="text-xs font-semibold text-foreground">Timezone Analysis</div>
-                                        <div className="text-[11px] text-muted-foreground">IP Timezone: <span className="text-foreground font-mono">{session.location.ipTimezone}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">Browser Timezone: <span className="text-foreground font-mono">{session.location.browserTimezone}</span></div>
-                                        {session.location.offsetMinutes > 0 && (
-                                          <div className="text-[11px] text-red-500 font-medium">Offset: {session.location.offsetMinutes} minutes</div>
-                                        )}
-                                        {session.location.tzMismatch && (
+                                        <div className="space-y-1.5">
                                           <div className="flex items-center gap-1.5">
-                                            <AlertTriangle className="h-3 w-3 text-amber-500" />
-                                            <span className="text-[10px] font-medium text-amber-700">Timezone Mismatch</span>
+                                            <span className="text-xs text-foreground">{session.location.city}, {session.location.country}</span>
+                                            {riskBadge(session.location.risk)}
                                           </div>
-                                        )}
+                                          <div className="text-[10px] text-muted-foreground font-mono">{session.location.coords}</div>
+                                        </div>
+                                        <div className="border-t border-border pt-2 space-y-1">
+                                          {detailRow("IP Timezone", session.location.ipTimezone, true)}
+                                          {detailRow("Browser TZ", session.location.browserTimezone, true)}
+                                          {session.location.offsetMinutes > 0 && (
+                                            <div className="flex items-center gap-1.5">
+                                              <span className="text-[10px] text-muted-foreground">Offset:</span>
+                                              <span className="text-[11px] text-red-500 font-medium">{session.location.offsetMinutes} min</span>
+                                              <AlertTriangle className="h-3 w-3 text-amber-500" />
+                                            </div>
+                                          )}
+                                          {detailRow("Locations (24h)", String(session.location.recentLocations24h))}
+                                          {detailRow("Locations (7d)", String(session.location.recentLocations7d))}
+                                        </div>
                                       </div>
-                                    </div>
-                                    <div className="mt-3 pt-3 border-t border-border">
-                                      <span className="text-[10px] text-muted-foreground">
-                                        Location History: {session.location.recentLocations24h} location{session.location.recentLocations24h !== 1 ? "s" : ""} in last 24h | {session.location.recentLocations7d} in last 7d
-                                      </span>
-                                    </div>
-                                  </TabsContent>
 
-                                  {/* ── NETWORK TAB ──────────────────────── */}
-                                  <TabsContent value="network" className="mt-3">
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[11px] text-muted-foreground">IP Address:</span>
-                                          <span className="text-xs font-mono text-foreground">{session.network.ip}</span>
-                                          {copyButton(session.network.ip)}
+                                      {/* ── NETWORK ────────────────────── */}
+                                      <div className="space-y-3">
+                                        <div className="flex items-center gap-1.5">
+                                          <Wifi className="h-3.5 w-3.5 text-muted-foreground" />
+                                          <span className="text-xs font-semibold text-foreground">Network</span>
                                         </div>
-                                        <div className="text-[11px] text-muted-foreground">ASN: <span className="text-foreground">{session.network.asn}</span></div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[11px] text-muted-foreground">Type: <span className="text-foreground">{session.network.type}</span></span>
-                                          {session.network.typeRisk === "high" && <span className="text-[9px] text-red-500 font-medium">HIGH RISK</span>}
-                                        </div>
-                                        {session.network.proxy && (
-                                          <div className="text-[11px] text-muted-foreground">Proxy: <span className="text-amber-600 font-medium">{session.network.proxy}</span></div>
-                                        )}
-                                        {riskBadge(session.network.risk)}
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="text-xs font-semibold text-foreground">Usage History</div>
-                                        <div className="text-[11px] text-muted-foreground">First Seen: <span className="text-foreground">{session.network.firstSeen}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">This Project: <span className="text-foreground">{session.network.sessionsThisProject} session{session.network.sessionsThisProject !== 1 ? "s" : ""}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">All Projects: <span className="text-foreground">{session.network.sessionsAllProjects} sessions across {session.network.projectsCount} project{session.network.projectsCount !== 1 ? "s" : ""}</span></div>
-                                        {session.network.warning && (
+                                        <div className="space-y-1.5">
                                           <div className="flex items-center gap-1.5">
-                                            <AlertTriangle className="h-3 w-3 text-amber-500" />
-                                            <span className="text-[10px] font-medium text-amber-700">{session.network.warning}</span>
+                                            <span className="text-xs font-mono text-foreground">{session.network.ip}</span>
+                                            {copyBtn(session.network.ip)}
+                                            {riskBadge(session.network.risk)}
                                           </div>
-                                        )}
+                                          <div className="text-[11px] text-muted-foreground">
+                                            {session.network.asn} <span className="mx-1 text-border">|</span> {session.network.type}
+                                            {session.network.proxy && <span className="mx-1 text-border">|</span>}
+                                            {session.network.proxy && <span className="text-amber-600 font-medium">{session.network.proxy}</span>}
+                                          </div>
+                                        </div>
+                                        <div className="border-t border-border pt-2 space-y-1">
+                                          {detailRow("First seen", session.network.firstSeen)}
+                                          {detailRow("Project", `${session.network.sessionsThisProject} session${session.network.sessionsThisProject !== 1 ? "s" : ""}`)}
+                                          <div className="flex items-baseline gap-2">
+                                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">Account</span>
+                                            <span className="text-[11px] text-foreground">
+                                              {session.network.sessionsAllProjects} sessions, {session.network.projectsCount} project{session.network.projectsCount !== 1 ? "s" : ""}
+                                            </span>
+                                            {(session.network.sessionsAllProjects > 10 || session.network.projectsCount > 3) && (
+                                              <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                                            )}
+                                          </div>
+                                          {session.network.warning && (
+                                            <div className="flex items-center gap-1.5 mt-1">
+                                              <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                                              <span className="text-[10px] font-medium text-amber-700">{session.network.warning}</span>
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  </TabsContent>
 
-                                  {/* ── DEVICE TAB ───────────────────────── */}
-                                  <TabsContent value="device" className="mt-3">
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                      <div className="space-y-2">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-[11px] text-muted-foreground">Device ID:</span>
-                                          <span className="text-xs font-mono text-foreground">{session.device.deviceId}</span>
-                                          {copyButton(session.device.deviceId)}
+                                      {/* ── DEVICE ─────────────────────── */}
+                                      <div className="space-y-3">
+                                        <div className="flex items-center gap-1.5">
+                                          <Monitor className="h-3.5 w-3.5 text-muted-foreground" />
+                                          <span className="text-xs font-semibold text-foreground">Device</span>
                                         </div>
-                                        <div className="text-[11px] text-muted-foreground">Type: <span className="text-foreground">{session.device.type}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">OS: <span className="text-foreground">{session.device.os}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">Browser: <span className="text-foreground">{session.device.browser}</span></div>
-                                        {riskBadge(session.device.risk)}
-                                      </div>
-                                      <div className="space-y-2">
-                                        <div className="text-xs font-semibold text-foreground">Usage History</div>
-                                        <div className="text-[11px] text-muted-foreground">First Seen: <span className="text-foreground">{session.device.firstSeen}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">This Project: <span className="text-foreground">{session.device.sessionsThisProject} session{session.device.sessionsThisProject !== 1 ? "s" : ""}</span></div>
-                                        <div className="text-[11px] text-muted-foreground">All Projects: <span className="text-foreground">{session.device.sessionsAllProjects} sessions across {session.device.projectsCount} project{session.device.projectsCount !== 1 ? "s" : ""}</span></div>
-                                        {session.device.warning && (
+                                        <div className="space-y-1.5">
                                           <div className="flex items-center gap-1.5">
-                                            <AlertTriangle className="h-3 w-3 text-red-500" />
-                                            <span className={cn("text-[10px] font-medium", session.device.risk === "high" ? "text-red-600" : "text-amber-700")}>{session.device.warning}</span>
+                                            <span className="text-xs font-mono text-foreground truncate max-w-[140px]" title={session.device.deviceId}>{session.device.deviceId}</span>
+                                            {copyBtn(session.device.deviceId)}
+                                            {riskBadge(session.device.risk)}
                                           </div>
-                                        )}
+                                          <div className="text-[11px] text-muted-foreground">
+                                            {session.device.type} <span className="mx-1 text-border">|</span> {session.device.os} <span className="mx-1 text-border">|</span> {session.device.browser}
+                                          </div>
+                                        </div>
+                                        <div className="border-t border-border pt-2 space-y-1">
+                                          {detailRow("First seen", session.device.firstSeen)}
+                                          {detailRow("Project", `${session.device.sessionsThisProject} session${session.device.sessionsThisProject !== 1 ? "s" : ""}`)}
+                                          <div className="flex items-baseline gap-2">
+                                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">Account</span>
+                                            <span className="text-[11px] text-foreground">
+                                              {session.device.sessionsAllProjects} sessions, {session.device.projectsCount} project{session.device.projectsCount !== 1 ? "s" : ""}
+                                            </span>
+                                            {(session.device.sessionsAllProjects > 10 || session.device.projectsCount > 3) && (
+                                              <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" />
+                                            )}
+                                          </div>
+                                          {session.device.warning && (
+                                            <div className="flex items-center gap-1.5 mt-1">
+                                              <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" />
+                                              <span className={cn("text-[10px] font-medium", session.device.risk === "high" ? "text-red-600" : "text-amber-700")}>{session.device.warning}</span>
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
-                                    <div className="mt-3 pt-3 border-t border-border">
-                                      <div className="flex items-center gap-2 mb-1">
+
+                                    {/* Bottom row: User Agent + Flags */}
+                                    <div className="mt-4 pt-3 border-t border-border">
+                                      <div className="flex items-center gap-2 mb-1.5">
                                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">User Agent</span>
-                                        {copyButton(session.device.userAgent)}
+                                        {copyBtn(session.device.userAgent)}
                                       </div>
-                                      <p className="text-[10px] text-muted-foreground font-mono leading-relaxed break-all">{session.device.userAgent}</p>
+                                      <p className="text-[10px] text-muted-foreground font-mono leading-relaxed break-all mb-3">{session.device.userAgent}</p>
+
+                                      {/* Quick flags */}
+                                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                        {passedChecks.slice(0, 8).map((check) => (
+                                          <span key={check} className="text-[10px] text-muted-foreground">
+                                            <Check className="h-3 w-3 text-emerald-500 inline mr-0.5 -mt-0.5" />
+                                            {check}
+                                          </span>
+                                        ))}
+                                        {passedChecks.length > 8 && (
+                                          <span className="text-[10px] text-muted-foreground">+{passedChecks.length - 8} more passed</span>
+                                        )}
+                                      </div>
                                     </div>
-                                  </TabsContent>
-                                </Tabs>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </>
               )
             })()}

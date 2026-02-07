@@ -22,6 +22,13 @@ import {
   Activity,
   Search,
   AlertTriangle,
+  Copy,
+  Globe,
+  Monitor,
+  Wifi,
+  ChevronDown,
+  Clock,
+  MapPinned,
 } from "lucide-react"
 import {
   Bar,
@@ -44,6 +51,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
 // ─── SHARED DATA ──────────────────────────────────────────────────────────────
@@ -287,78 +295,152 @@ const labels = {
 
 type CheckResult = "PASS" | "FAIL" | "EMPTY"
 
-const SAMPLE_SESSIONS = [
+interface SessionDetail {
+  visitorId: string
+  outcome: "good" | "suspicious" | "bad"
+  createdAt: string
+  categories: string[]
+  checks: Record<string, CheckResult>
+  location: {
+    city: string
+    country: string
+    coords: string
+    risk: "low" | "medium" | "high"
+    ipTimezone: string
+    browserTimezone: string
+    offsetMinutes: number
+    tzMismatch: boolean
+    recentLocations24h: number
+    recentLocations7d: number
+  }
+  network: {
+    ip: string
+    asn: string
+    type: string
+    typeRisk: "low" | "medium" | "high"
+    proxy: string | null
+    risk: "low" | "medium" | "high"
+    firstSeen: string
+    sessionsThisProject: number
+    sessionsAllProjects: number
+    projectsCount: number
+    warning: string | null
+  }
+  device: {
+    deviceId: string
+    type: string
+    os: string
+    browser: string
+    risk: "low" | "medium" | "high"
+    firstSeen: string
+    sessionsThisProject: number
+    sessionsAllProjects: number
+    projectsCount: number
+    warning: string | null
+    userAgent: string
+  }
+}
+
+const SAMPLE_SESSIONS: SessionDetail[] = [
   {
     visitorId: "21eaefbf-ca2f-33c8-3ad3-dac19aff3939",
-    outcome: "good" as const,
+    outcome: "good",
     createdAt: "2026-02-06 14:00:07",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: [],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Austin, TX", country: "United States", coords: "30.2672, -97.7431", risk: "low", ipTimezone: "America/Chicago", browserTimezone: "America/Chicago", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
+    network: { ip: "73.162.45.112", asn: "Comcast Cable", type: "Residential", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Nov 12, 2025", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null },
+    device: { deviceId: "dev_f3a912bc-x1", type: "Macintosh (Apple)", os: "macOS 15.2", browser: "Safari 18.1", risk: "low", firstSeen: "Jan 10, 2026", sessionsThisProject: 1, sessionsAllProjects: 2, projectsCount: 1, warning: null, userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15" },
   },
   {
     visitorId: "4a72f5f8-292c-41d6-8cb4-24def0bfb258",
-    outcome: "bad" as const,
+    outcome: "bad",
     createdAt: "2026-02-06 14:00:36",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "FAIL" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Non-Human Behavior"],
+    checks: { "Location Validation": "PASS", "Automation Detection": "FAIL", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Mumbai", country: "India", coords: "19.0760, 72.8777", risk: "low", ipTimezone: "Asia/Kolkata", browserTimezone: "Asia/Kolkata", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 2 },
+    network: { ip: "49.36.128.91", asn: "Reliance Jio", type: "Mobile", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Dec 20, 2025", sessionsThisProject: 3, sessionsAllProjects: 8, projectsCount: 3, warning: null },
+    device: { deviceId: "dev_7bc412f9-m2", type: "Linux (Server)", os: "Ubuntu 22.04", browser: "Headless Chrome 120.0", risk: "high", firstSeen: "Jan 28, 2026", sessionsThisProject: 3, sessionsAllProjects: 47, projectsCount: 12, warning: "Headless browser pattern", userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.6099.109 Safari/537.36" },
   },
   {
     visitorId: "9f6e415e-ccd3-9d3b-be32-7445be8f3fdc",
-    outcome: "good" as const,
+    outcome: "good",
     createdAt: "2026-02-06 14:01:04",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: [],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "London", country: "United Kingdom", coords: "51.5074, -0.1278", risk: "low", ipTimezone: "Europe/London", browserTimezone: "Europe/London", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
+    network: { ip: "86.21.143.77", asn: "BT Group", type: "Residential", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Oct 5, 2025", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null },
+    device: { deviceId: "dev_a2c891de-w3", type: "Windows PC", os: "Windows 11", browser: "Chrome 131.0", risk: "low", firstSeen: "Feb 1, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" },
   },
   {
     visitorId: "53fe041c8984386916e220541cd934f0",
-    outcome: "suspicious" as const,
+    outcome: "suspicious",
     createdAt: "2026-02-06 14:01:27",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "FAIL" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Network Masking"],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "FAIL", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Frankfurt", country: "Germany", coords: "50.1109, 8.6821", risk: "medium", ipTimezone: "Europe/Berlin", browserTimezone: "America/Sao_Paulo", offsetMinutes: 240, tzMismatch: true, recentLocations24h: 2, recentLocations7d: 5 },
+    network: { ip: "185.220.101.34", asn: "Tor Exit Node", type: "Hosting", typeRisk: "high", proxy: "Tor detected", risk: "high", firstSeen: "Feb 6, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: "Tor exit node" },
+    device: { deviceId: "dev_c9d3e2f1-t4", type: "Linux PC", os: "Tails 6.0", browser: "Tor Browser 13.0", risk: "high", firstSeen: "Feb 6, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: "Privacy-hardened OS", userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0" },
   },
   {
     visitorId: "b8ddacf5eaeef7c47d227be3450a7282928a0cb2",
-    outcome: "bad" as const,
+    outcome: "bad",
     createdAt: "2026-02-06 14:02:03",
-    checks: { "Location Validation": "FAIL" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "FAIL" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Identity Reuse", "Location Inconsistency"],
+    checks: { "Location Validation": "FAIL", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "FAIL", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Madrid", country: "Spain", coords: "40.4168, -3.7038", risk: "medium", ipTimezone: "Europe/Madrid", browserTimezone: "America/Sao_Paulo", offsetMinutes: 240, tzMismatch: true, recentLocations24h: 3, recentLocations7d: 12 },
+    network: { ip: "185.15.22.1", asn: "M247 Ltd", type: "Hosting", typeRisk: "high", proxy: "VPN detected", risk: "high", firstSeen: "Dec 1, 2025", sessionsThisProject: 1, sessionsAllProjects: 15, projectsCount: 5, warning: "Duplicate IP across accounts" },
+    device: { deviceId: "dev_8x92123-ax", type: "Macintosh (Apple)", os: "macOS 26.0.1", browser: "Chrome 143.0", risk: "high", firstSeen: "Jan 15, 2024", sessionsThisProject: 3, sessionsAllProjects: 450, projectsCount: 42, warning: "Professional attacker pattern", userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36" },
   },
   {
     visitorId: "2e87e720-86de-4506-574c-d2ac44837abc",
-    outcome: "bad" as const,
+    outcome: "bad",
     createdAt: "2026-02-06 14:02:04",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "FAIL" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "FAIL" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Identity Reuse", "Non-Human Behavior"],
+    checks: { "Location Validation": "PASS", "Automation Detection": "FAIL", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "FAIL", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Sao Paulo", country: "Brazil", coords: "-23.5505, -46.6333", risk: "low", ipTimezone: "America/Sao_Paulo", browserTimezone: "America/Sao_Paulo", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 3 },
+    network: { ip: "177.84.23.192", asn: "Vivo SA", type: "Residential", typeRisk: "low", proxy: null, risk: "medium", firstSeen: "Nov 3, 2025", sessionsThisProject: 5, sessionsAllProjects: 22, projectsCount: 8, warning: "Duplicate IP across accounts" },
+    device: { deviceId: "dev_44bc9f21-s5", type: "Android Phone", os: "Android 15", browser: "Chrome Mobile 131.0", risk: "medium", firstSeen: "Dec 10, 2025", sessionsThisProject: 5, sessionsAllProjects: 22, projectsCount: 8, warning: "High session velocity", userAgent: "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.39 Mobile Safari/537.36" },
   },
   {
     visitorId: "0FfIE3Pgou5MdA",
-    outcome: "good" as const,
+    outcome: "good",
     createdAt: "2026-02-06 14:02:10",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: [],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Tokyo", country: "Japan", coords: "35.6762, 139.6503", risk: "low", ipTimezone: "Asia/Tokyo", browserTimezone: "Asia/Tokyo", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
+    network: { ip: "126.78.210.43", asn: "SoftBank Corp", type: "Residential", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Sep 15, 2025", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null },
+    device: { deviceId: "dev_e1d49a3c-j6", type: "iPhone (Apple)", os: "iOS 18.2", browser: "Safari Mobile 18.2", risk: "low", firstSeen: "Jan 20, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.1" },
   },
   {
     visitorId: "04551dda-16f0-406d-a15e-f66dfa996a1f",
-    outcome: "bad" as const,
+    outcome: "bad",
     createdAt: "2026-02-06 14:02:17",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "FAIL" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
-  },
-  {
-    visitorId: "d97e8c60-7184-2f65-ae0c-b95548db99e2",
-    outcome: "good" as const,
-    createdAt: "2026-02-06 14:02:24",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Identity Reuse"],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "FAIL", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Manila", country: "Philippines", coords: "14.5995, 120.9842", risk: "low", ipTimezone: "Asia/Manila", browserTimezone: "Asia/Manila", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 2 },
+    network: { ip: "112.198.77.45", asn: "Globe Telecom", type: "Mobile", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Jan 5, 2026", sessionsThisProject: 2, sessionsAllProjects: 6, projectsCount: 3, warning: null },
+    device: { deviceId: "dev_b3f28a71-p8", type: "Android Phone", os: "Android 14", browser: "Chrome Mobile 130.0", risk: "medium", firstSeen: "Dec 15, 2025", sessionsThisProject: 4, sessionsAllProjects: 18, projectsCount: 6, warning: "Duplicate device across accounts", userAgent: "Mozilla/5.0 (Linux; Android 14; SM-A546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.58 Mobile Safari/537.36" },
   },
   {
     visitorId: "D8TSOflVevtcRw",
-    outcome: "bad" as const,
+    outcome: "bad",
     createdAt: "2026-02-06 14:02:33",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "FAIL" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Behavioral Integrity"],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "FAIL", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Lagos", country: "Nigeria", coords: "6.5244, 3.3792", risk: "low", ipTimezone: "Africa/Lagos", browserTimezone: "Africa/Lagos", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
+    network: { ip: "197.210.52.88", asn: "MTN Nigeria", type: "Mobile", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Jan 30, 2026", sessionsThisProject: 1, sessionsAllProjects: 3, projectsCount: 2, warning: null },
+    device: { deviceId: "dev_91ca7b3e-n9", type: "Android Phone", os: "Android 13", browser: "UC Browser 15.5", risk: "medium", firstSeen: "Feb 2, 2026", sessionsThisProject: 1, sessionsAllProjects: 3, projectsCount: 2, warning: "Untrusted browser", userAgent: "Mozilla/5.0 (Linux; U; Android 13; en-US; Infinix X6831) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/15.5.6.46 Mobile Safari/534.30" },
   },
   {
     visitorId: "NlJ3ZJwgfGGfjw",
-    outcome: "suspicious" as const,
+    outcome: "suspicious",
     createdAt: "2026-02-06 14:03:15",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "FAIL" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
-  },
-  {
-    visitorId: "458d796098c0564cb161be3d2c831f898595f9bb",
-    outcome: "good" as const,
-    createdAt: "2026-02-06 14:03:18",
-    checks: { "Location Validation": "PASS" as CheckResult, "Automation Detection": "PASS" as CheckResult, "Untrusted Browsers/OS": "PASS" as CheckResult, "Blocked IP": "PASS" as CheckResult, "Location Lock": "PASS" as CheckResult, "Duplicate Device": "PASS" as CheckResult, "Duplicate IP": "PASS" as CheckResult, "Duplicate ID": "PASS" as CheckResult, "VPN Usage": "PASS" as CheckResult, "Device Tampering": "PASS" as CheckResult, "Virtual Machine": "PASS" as CheckResult, "Dev Tools": "PASS" as CheckResult, "Privacy-Focused Settings": "PASS" as CheckResult, "Tor Exit Node": "PASS" as CheckResult, "High-Activity Device": "PASS" as CheckResult, "Incognito Mode": "PASS" as CheckResult, "AI Detection": "EMPTY" as CheckResult, "Quality Questions": "EMPTY" as CheckResult },
+    categories: ["Network Masking"],
+    checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "FAIL", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    location: { city: "Amsterdam", country: "Netherlands", coords: "52.3676, 4.9041", risk: "medium", ipTimezone: "Europe/Amsterdam", browserTimezone: "Asia/Kolkata", offsetMinutes: 270, tzMismatch: true, recentLocations24h: 2, recentLocations7d: 4 },
+    network: { ip: "45.76.182.211", asn: "Vultr Holdings", type: "Hosting", typeRisk: "high", proxy: "VPN detected", risk: "high", firstSeen: "Feb 5, 2026", sessionsThisProject: 1, sessionsAllProjects: 4, projectsCount: 3, warning: "Datacenter IP" },
+    device: { deviceId: "dev_d4e56f78-v0", type: "Windows PC", os: "Windows 11", browser: "Chrome 131.0", risk: "low", firstSeen: "Feb 5, 2026", sessionsThisProject: 1, sessionsAllProjects: 4, projectsCount: 3, warning: null, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" },
   },
 ]
 
@@ -389,6 +471,7 @@ export default function FraudDetectionPage() {
   const [checkFilters, setCheckFilters] = useState<Set<string>>(new Set())
   const [scoreDropdownOpen, setScoreDropdownOpen] = useState(false)
   const [checkDropdownOpen, setCheckDropdownOpen] = useState(false)
+  const [expandedSession, setExpandedSession] = useState<string | null>(null)
 
   const availableProjects = React.useMemo(() => {
     if (!selectedClient || selectedClient === "all") return []
@@ -991,7 +1074,7 @@ export default function FraudDetectionPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-sm font-semibold">Session Details</CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">Raw check results per session. Each row represents a single participant evaluation.</p>
+                <p className="text-xs text-muted-foreground mt-1">Click a row to expand location, network, and device signals for that session.</p>
               </div>
             </div>
 
@@ -1115,7 +1198,7 @@ export default function FraudDetectionPage() {
               </Popover>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="px-4 pb-4 pt-0">
             {(() => {
               const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
                 const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
@@ -1124,64 +1207,221 @@ export default function FraudDetectionPage() {
                 return matchesSearch && matchesScore && matchesCheck
               })
 
+              const riskBadge = (risk: "low" | "medium" | "high") => (
+                <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium",
+                  risk === "high" && "bg-red-50 text-red-600",
+                  risk === "medium" && "bg-amber-50 text-amber-700",
+                  risk === "low" && "bg-emerald-50 text-emerald-700",
+                )}>
+                  {risk.charAt(0).toUpperCase() + risk.slice(1)} Risk
+                </span>
+              )
+
+              const copyButton = (text: string) => (
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text) }}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={`Copy ${text}`}
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              )
+
               return (
                 <>
-                  <div className="px-6 pb-2">
+                  <div className="pb-2">
                     <span className="text-xs text-muted-foreground">Showing {filteredSessions.length} of {totalSessions.toLocaleString()} sessions</span>
                   </div>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap sticky left-0 bg-background z-10 min-w-[180px]">Visitor ID</TableHead>
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap min-w-[90px]">dtect Score</TableHead>
-                          {CHECK_KEYS.map((key) => (
-                            <TableHead key={key} className="text-[10px] font-semibold uppercase tracking-wide text-center whitespace-nowrap px-2.5 min-w-[75px]">{key}</TableHead>
-                          ))}
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap text-right min-w-[150px]">Created At</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredSessions.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={CHECK_KEYS.length + 3} className="text-center py-8 text-sm text-muted-foreground">
-                              No sessions match your filters.
-                            </TableCell>
-                          </TableRow>
-                        ) : filteredSessions.map((session) => (
-                          <TableRow key={session.visitorId}>
-                            <TableCell className="font-mono text-[11px] text-muted-foreground whitespace-nowrap sticky left-0 bg-background z-10">{session.visitorId}</TableCell>
-                      <TableCell>
-                        <span className={cn(
-                          "text-[11px] font-medium",
-                          session.outcome === "bad" && "text-red-600",
-                          session.outcome === "suspicious" && "text-amber-600",
-                          session.outcome === "good" && "text-emerald-600",
-                        )}>
-                          {session.outcome}
-                        </span>
-                      </TableCell>
-                      {CHECK_KEYS.map((key) => {
-                        const val = session.checks[key]
+
+                  {filteredSessions.length === 0 ? (
+                    <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+                      No sessions match your filters.
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {filteredSessions.map((session) => {
+                        const isExpanded = expandedSession === session.visitorId
+                        const failedChecks = Object.entries(session.checks).filter(([, v]) => v === "FAIL").map(([k]) => k)
+
                         return (
-                          <TableCell key={key} className="text-center px-2.5">
-                            <span className={cn(
-                              "text-[11px] font-medium",
-                              val === "PASS" && "text-emerald-600",
-                              val === "FAIL" && "text-red-500",
-                              val === "EMPTY" && "text-muted-foreground/50",
-                            )}>
-                              {val}
-                            </span>
-                          </TableCell>
+                          <div key={session.visitorId} className={cn("border border-border rounded-lg transition-shadow", isExpanded && "shadow-sm")}>
+                            {/* Compact row */}
+                            <button
+                              onClick={() => setExpandedSession(isExpanded ? null : session.visitorId)}
+                              className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-muted/50 transition-colors rounded-lg"
+                            >
+                              <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isExpanded && "rotate-180")} />
+
+                              <span className="font-mono text-[11px] text-foreground min-w-[200px] truncate">{session.visitorId}</span>
+
+                              <Badge variant="outline" className={cn("text-[10px] font-medium border-0 shrink-0",
+                                session.outcome === "bad" && "bg-red-50 text-red-600",
+                                session.outcome === "suspicious" && "bg-amber-50 text-amber-700",
+                                session.outcome === "good" && "bg-emerald-50 text-emerald-700",
+                              )}>
+                                {session.outcome}
+                              </Badge>
+
+                              <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                {session.categories.map((cat) => (
+                                  <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-muted-foreground whitespace-nowrap">{cat}</span>
+                                ))}
+                              </div>
+
+                              {failedChecks.length > 0 && (
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {failedChecks.slice(0, 2).map((fc) => (
+                                    <span key={fc} className="px-1.5 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600 whitespace-nowrap">{fc}</span>
+                                  ))}
+                                  {failedChecks.length > 2 && (
+                                    <span className="text-[10px] text-muted-foreground">+{failedChecks.length - 2}</span>
+                                  )}
+                                </div>
+                              )}
+
+                              <span className="text-[10px] text-muted-foreground tabular-nums whitespace-nowrap shrink-0 ml-auto">{session.createdAt}</span>
+                            </button>
+
+                            {/* Expanded detail */}
+                            {isExpanded && (
+                              <div className="px-4 pb-4 pt-1 border-t border-border">
+                                {/* Failed checks summary */}
+                                {failedChecks.length > 0 && (
+                                  <div className="flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-border">
+                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-1">Failed Checks:</span>
+                                    {failedChecks.map((fc) => (
+                                      <span key={fc} className="px-2 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600">{fc}</span>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <Tabs defaultValue="location" className="w-full">
+                                  <TabsList className="h-8 w-full justify-start bg-muted/50">
+                                    <TabsTrigger value="location" className="text-[11px] h-7 gap-1.5">
+                                      <MapPinned className="h-3 w-3" />
+                                      Location
+                                    </TabsTrigger>
+                                    <TabsTrigger value="network" className="text-[11px] h-7 gap-1.5">
+                                      <Wifi className="h-3 w-3" />
+                                      Network
+                                    </TabsTrigger>
+                                    <TabsTrigger value="device" className="text-[11px] h-7 gap-1.5">
+                                      <Monitor className="h-3 w-3" />
+                                      Device
+                                    </TabsTrigger>
+                                  </TabsList>
+
+                                  {/* ── LOCATION TAB ─────────────────────── */}
+                                  <TabsContent value="location" className="mt-3">
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <div className="text-xs font-semibold text-foreground">Current Location</div>
+                                        <div className="flex items-center gap-1.5">
+                                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                          <span className="text-xs text-foreground">{session.location.city}, {session.location.country}</span>
+                                        </div>
+                                        <div className="text-[10px] text-muted-foreground font-mono">{session.location.coords}</div>
+                                        {riskBadge(session.location.risk)}
+                                      </div>
+                                      <div className="space-y-2">
+                                        <div className="text-xs font-semibold text-foreground">Timezone Analysis</div>
+                                        <div className="text-[11px] text-muted-foreground">IP Timezone: <span className="text-foreground font-mono">{session.location.ipTimezone}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">Browser Timezone: <span className="text-foreground font-mono">{session.location.browserTimezone}</span></div>
+                                        {session.location.offsetMinutes > 0 && (
+                                          <div className="text-[11px] text-red-500 font-medium">Offset: {session.location.offsetMinutes} minutes</div>
+                                        )}
+                                        {session.location.tzMismatch && (
+                                          <div className="flex items-center gap-1.5">
+                                            <AlertTriangle className="h-3 w-3 text-amber-500" />
+                                            <span className="text-[10px] font-medium text-amber-700">Timezone Mismatch</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="mt-3 pt-3 border-t border-border">
+                                      <span className="text-[10px] text-muted-foreground">
+                                        Location History: {session.location.recentLocations24h} location{session.location.recentLocations24h !== 1 ? "s" : ""} in last 24h | {session.location.recentLocations7d} in last 7d
+                                      </span>
+                                    </div>
+                                  </TabsContent>
+
+                                  {/* ── NETWORK TAB ──────────────────────── */}
+                                  <TabsContent value="network" className="mt-3">
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-[11px] text-muted-foreground">IP Address:</span>
+                                          <span className="text-xs font-mono text-foreground">{session.network.ip}</span>
+                                          {copyButton(session.network.ip)}
+                                        </div>
+                                        <div className="text-[11px] text-muted-foreground">ASN: <span className="text-foreground">{session.network.asn}</span></div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-[11px] text-muted-foreground">Type: <span className="text-foreground">{session.network.type}</span></span>
+                                          {session.network.typeRisk === "high" && <span className="text-[9px] text-red-500 font-medium">HIGH RISK</span>}
+                                        </div>
+                                        {session.network.proxy && (
+                                          <div className="text-[11px] text-muted-foreground">Proxy: <span className="text-amber-600 font-medium">{session.network.proxy}</span></div>
+                                        )}
+                                        {riskBadge(session.network.risk)}
+                                      </div>
+                                      <div className="space-y-2">
+                                        <div className="text-xs font-semibold text-foreground">Usage History</div>
+                                        <div className="text-[11px] text-muted-foreground">First Seen: <span className="text-foreground">{session.network.firstSeen}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">This Project: <span className="text-foreground">{session.network.sessionsThisProject} session{session.network.sessionsThisProject !== 1 ? "s" : ""}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">All Projects: <span className="text-foreground">{session.network.sessionsAllProjects} sessions across {session.network.projectsCount} project{session.network.projectsCount !== 1 ? "s" : ""}</span></div>
+                                        {session.network.warning && (
+                                          <div className="flex items-center gap-1.5">
+                                            <AlertTriangle className="h-3 w-3 text-amber-500" />
+                                            <span className="text-[10px] font-medium text-amber-700">{session.network.warning}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </TabsContent>
+
+                                  {/* ── DEVICE TAB ───────────────────────── */}
+                                  <TabsContent value="device" className="mt-3">
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-[11px] text-muted-foreground">Device ID:</span>
+                                          <span className="text-xs font-mono text-foreground">{session.device.deviceId}</span>
+                                          {copyButton(session.device.deviceId)}
+                                        </div>
+                                        <div className="text-[11px] text-muted-foreground">Type: <span className="text-foreground">{session.device.type}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">OS: <span className="text-foreground">{session.device.os}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">Browser: <span className="text-foreground">{session.device.browser}</span></div>
+                                        {riskBadge(session.device.risk)}
+                                      </div>
+                                      <div className="space-y-2">
+                                        <div className="text-xs font-semibold text-foreground">Usage History</div>
+                                        <div className="text-[11px] text-muted-foreground">First Seen: <span className="text-foreground">{session.device.firstSeen}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">This Project: <span className="text-foreground">{session.device.sessionsThisProject} session{session.device.sessionsThisProject !== 1 ? "s" : ""}</span></div>
+                                        <div className="text-[11px] text-muted-foreground">All Projects: <span className="text-foreground">{session.device.sessionsAllProjects} sessions across {session.device.projectsCount} project{session.device.projectsCount !== 1 ? "s" : ""}</span></div>
+                                        {session.device.warning && (
+                                          <div className="flex items-center gap-1.5">
+                                            <AlertTriangle className="h-3 w-3 text-red-500" />
+                                            <span className={cn("text-[10px] font-medium", session.device.risk === "high" ? "text-red-600" : "text-amber-700")}>{session.device.warning}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="mt-3 pt-3 border-t border-border">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">User Agent</span>
+                                        {copyButton(session.device.userAgent)}
+                                      </div>
+                                      <p className="text-[10px] text-muted-foreground font-mono leading-relaxed break-all">{session.device.userAgent}</p>
+                                    </div>
+                                  </TabsContent>
+                                </Tabs>
+                              </div>
+                            )}
+                          </div>
                         )
                       })}
-                      <TableCell className="text-[11px] text-muted-foreground tabular-nums text-right whitespace-nowrap">{session.createdAt}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                    </div>
+                  )}
                 </>
               )
             })()}

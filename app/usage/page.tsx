@@ -21,6 +21,7 @@ import {
   ShieldX,
   Activity,
   Search,
+  AlertTriangle,
 } from "lucide-react"
 import {
   Bar,
@@ -145,7 +146,7 @@ const FRAUD_CATEGORIES = [
       { name: "Automation Detection", severity: "bad" as const, participants: 18935, description: "Patterns consistent with scripted or automated interaction" },
       { name: "High-Activity Device", severity: "suspicious" as const, participants: 18542, description: "Device seen in an abnormally high number of sessions" },
     ],
-    coOccurrence: "Automation Detection and High-Activity Device co-fired in 38% of flagged sessions",
+    coOccurrence: "Automation Detection and High-Activity Device co-fired in 38% of flagged sessions. This overlap is expected as both indicate non-human patterns.",
   },
   {
     id: "environment-manipulation",
@@ -568,9 +569,9 @@ export default function FraudDetectionPage() {
               {/* Summary */}
               <div className="mt-4 p-3 bg-muted/40 rounded-lg">
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {badCount.toLocaleString()} sessions classified as Bad. The most common explanations are{" "}
-                  <span className="font-medium text-foreground">{sorted[0].name}</span> and{" "}
-                  <span className="font-medium text-foreground">{sorted[1].name}</span>.
+                  {badCount.toLocaleString()} sessions classified as Bad. Most common:{" "}
+                  <span className="font-medium text-foreground">{sorted[0].name} ({Math.round(sorted[0].badParticipants / 1000)}K)</span> and{" "}
+                  <span className="font-medium text-foreground">{sorted[1].name} ({Math.round((sorted[1].badParticipants + sorted[1].suspiciousParticipants) / 1000)}K)</span>
                 </p>
               </div>
             </CardContent>
@@ -581,7 +582,7 @@ export default function FraudDetectionPage() {
             <CardHeader className="pb-0">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-semibold">Traffic Volume</CardTitle>
-                <div className="inline-flex rounded-lg border border-border overflow-hidden">
+              <div className="inline-flex rounded-lg border border-border overflow-hidden">
                   <button
                     onClick={() => setTrafficResolution("weekly")}
                     className={cn(
@@ -668,9 +669,12 @@ export default function FraudDetectionPage() {
         <Card className="border border-border shadow-sm">
           <CardHeader className="pb-0">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-sm font-semibold">Sessions Flagged</CardTitle>
-                <InfoTip text="Each participant has one final outcome (Bad or Suspicious) based on their highest-severity check. Bad and Suspicious counts within each category are mutually exclusive." side="right" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-semibold">Sessions Flagged</CardTitle>
+                  <InfoTip text="Each participant has one final outcome (Bad or Suspicious) based on their highest-severity check. Bad and Suspicious counts within each category are mutually exclusive." side="right" />
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">Note: A single session may contribute to multiple findings</p>
               </div>
               <div className="inline-flex rounded-lg border border-border overflow-hidden">
                 <button
@@ -680,7 +684,7 @@ export default function FraudDetectionPage() {
                     flaggedView === "categories" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  By Category
+                  By Finding
                 </button>
                 <button
                   onClick={() => setFlaggedView("signals")}
@@ -689,7 +693,7 @@ export default function FraudDetectionPage() {
                     flaggedView === "signals" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  By Check
+                  By Signal
                 </button>
               </div>
             </div>
@@ -778,7 +782,11 @@ export default function FraudDetectionPage() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium cursor-help", sl.color)}>{sl.text}</span>
+                                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium cursor-help inline-flex items-center gap-1", sl.color)}>
+                                  {category.strength === "strong" && <AlertTriangle className="h-3 w-3 text-red-500" />}
+                                  {category.strength === "moderate" && <AlertTriangle className="h-3 w-3 text-amber-500" />}
+                                  {sl.text}
+                                </span>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-[240px] text-xs"><p>{sl.definition}</p></TooltipContent>
                             </Tooltip>
@@ -826,9 +834,12 @@ export default function FraudDetectionPage() {
 
                             {/* Check breakdown table */}
                             <div className="mb-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Check Breakdown</span>
-                                <InfoTip text="Each count represents distinct participants where this check fired. Counts may overlap across checks and do not represent final outcomes." side="right" />
+                              <div className="mb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Check Breakdown</span>
+                                  <InfoTip text="Each count represents distinct participants where this check fired. Counts may overlap across checks and do not represent final outcomes." side="right" />
+                                </div>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {category.name} finding:</p>
                               </div>
                               <div className="rounded-lg border border-border overflow-hidden">
                                 <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-3 py-1.5 bg-muted/50 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">

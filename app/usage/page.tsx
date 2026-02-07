@@ -26,9 +26,13 @@ import {
   Monitor,
   Wifi,
   ChevronDown,
+  ChevronUp,
+  ArrowUpDown,
   MapPinned,
   Download,
   X,
+  PanelRightOpen,
+  PanelRightClose,
 } from "lucide-react"
 import {
   Bar,
@@ -51,6 +55,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 
 import { cn } from "@/lib/utils"
 
@@ -463,6 +468,7 @@ export default function FraudDetectionPage() {
   const [projectSearch, setProjectSearch] = useState("")
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
   const [expandedSignal, setExpandedSignal] = useState<string | null>(null)
+  const [expandedSession, setExpandedSession] = useState<string | null>(null)
   const [view, setView] = useState<"overview" | "session-details">("overview")
   const [flaggedView, setFlaggedView] = useState<"categories" | "signals">("categories")
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
@@ -473,7 +479,11 @@ export default function FraudDetectionPage() {
   const [checkDropdownOpen, setCheckDropdownOpen] = useState(false)
   const [categoryFilters, setCategoryFilters] = useState<Set<string>>(new Set())
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
-  const [expandedSession, setExpandedSession] = useState<string | null>(null)
+  const [selectedSession, setSelectedSession] = useState<string | null>(null)
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
+  const [sortCol, setSortCol] = useState<"visitorId" | "outcome" | "location" | "createdAt">("createdAt")
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
+  const tableRef = React.useRef<HTMLDivElement>(null)
 
   const availableProjects = React.useMemo(() => {
     if (!selectedClient || selectedClient === "all") return []
@@ -482,6 +492,79 @@ export default function FraudDetectionPage() {
   }, [selectedClient])
 
   React.useEffect(() => { setSelectedProject("all") }, [selectedClient])
+
+  // ── Session filtering, sorting, keyboard nav ──
+  const filteredSessions = React.useMemo(() => {
+    let sessions = SAMPLE_SESSIONS.filter((session) => {
+      const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
+      const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
+      const matchesCheck = checkFilters.size === 0 || Array.from(checkFilters).every((key) => session.checks[key] === "FAIL")
+      const matchesCategory = categoryFilters.size === 0 || session.categories.some((cat) => categoryFilters.has(cat))
+      return matchesSearch && matchesScore && matchesCheck && matchesCategory
+    })
+    const scoreOrder = { bad: 0, suspicious: 1, good: 2 }
+    sessions.sort((a, b) => {
+      let cmp = 0
+      switch (sortCol) {
+        case "visitorId": cmp = a.visitorId.localeCompare(b.visitorId); break
+        case "outcome": cmp = scoreOrder[a.outcome] - scoreOrder[b.outcome]; break
+        case "location": cmp = a.location.city.localeCompare(b.location.city); break
+        case "createdAt": cmp = a.createdAt.localeCompare(b.createdAt); break
+      }
+      return sortDir === "asc" ? cmp : -cmp
+    })
+    return sessions
+  }, [sessionSearch, scoreFilters, checkFilters, categoryFilters, sortCol, sortDir])
+
+  const selectedSessionData = React.useMemo(
+    () => filteredSessions.find((s) => s.visitorId === selectedSession) ?? null,
+    [filteredSessions, selectedSession]
+  )
+
+  const toggleSort = (col: typeof sortCol) => {
+    if (sortCol === col) setSortDir((d) => d === "asc" ? "desc" : "asc")
+    else { setSortCol(col); setSortDir("desc") }
+  }
+
+  const SortIcon = ({ col }: { col: typeof sortCol }) => {
+    if (sortCol !== col) return <ArrowUpDown className="h-3 w-3 opacity-30" />
+    return sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+  }
+
+  // Keyboard navigation for sessions
+  React.useEffect(() => {
+    if (view !== "session-details" || !selectedSession) return
+    const handler = (e: KeyboardEvent) => {
+      const idx = filteredSessions.findIndex((s) => s.visitorId === selectedSession)
+      if (idx === -1) return
+      if (e.key === "ArrowDown" && idx < filteredSessions.length - 1) {
+        e.preventDefault()
+        setSelectedSession(filteredSessions[idx + 1].visitorId)
+      } else if (e.key === "ArrowUp" && idx > 0) {
+        e.preventDefault()
+        setSelectedSession(filteredSessions[idx - 1].visitorId)
+      } else if (e.key === "Escape") {
+        e.preventDefault()
+        setSelectedSession(null)
+      }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [view, selectedSession, filteredSessions])
+
+  const toggleRowSelection = (id: string) => {
+    setSelectedRows((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleAllRows = () => {
+    if (selectedRows.size === filteredSessions.length) setSelectedRows(new Set())
+    else setSelectedRows(new Set(filteredSessions.map((s) => s.visitorId)))
+  }
 
   const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badParticipants + b.suspiciousParticipants) - (a.badParticipants + a.suspiciousParticipants))
 
@@ -1071,455 +1154,499 @@ export default function FraudDetectionPage() {
         ) : (
         <>
         {/* ── SESSION DETAILS VIEW ────────────────────────────────── */}
-        <Card className="border border-border shadow-sm overflow-hidden">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-sm font-semibold">Session Details</CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">Individual participant evaluations with signal-level detail</p>
-              </div>
-              <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 bg-transparent">
-                <Download className="h-3.5 w-3.5" />
-                Export
-              </Button>
+        {(() => {
+          const truncateId = (id: string) => id.length <= 13 ? id : `${id.slice(0, 7)}...${id.slice(-4)}`
+
+          const riskBadge = (risk: "low" | "medium" | "high") => (
+            <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium inline-flex",
+              risk === "high" && "bg-red-50 text-red-600",
+              risk === "medium" && "bg-amber-50 text-amber-700",
+              risk === "low" && "bg-emerald-50 text-emerald-700",
+            )}>
+              {risk.charAt(0).toUpperCase() + risk.slice(1)}
+            </span>
+          )
+
+          const copyBtn = (text: string) => (
+            <button
+              onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text) }}
+              className="text-muted-foreground hover:text-foreground transition-colors p-0.5 inline-flex"
+              aria-label={`Copy ${text}`}
+            >
+              <Copy className="h-3 w-3" />
+            </button>
+          )
+
+          const detailRow = (label: string, value: React.ReactNode, mono = false) => (
+            <div className="flex items-baseline justify-between gap-3 py-1">
+              <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">{label}</span>
+              <span className={cn("text-[11px] text-foreground text-right truncate", mono && "font-mono")}>{value}</span>
             </div>
+          )
 
-            {/* Toolbar: Search + Filters */}
-            <div className="flex items-center gap-2 mt-3 flex-wrap">
-              <div className="relative flex-1 max-w-xs min-w-[200px]">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  placeholder="Search by Visitor ID..."
-                  value={sessionSearch}
-                  onChange={(e) => setSessionSearch(e.target.value)}
-                  className="pl-8 h-8 text-xs"
-                />
-              </div>
+          const s = selectedSessionData
+          const failedChecks = s ? Object.entries(s.checks).filter(([, v]) => v === "FAIL").map(([k]) => k) : []
+          const passedChecks = s ? Object.entries(s.checks).filter(([, v]) => v === "PASS").map(([k]) => k) : []
 
-              {/* Score filter */}
-              <Popover open={scoreDropdownOpen} onOpenChange={setScoreDropdownOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal bg-transparent">
-                    Score
-                    {scoreFilters.size > 0 && (
-                      <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{scoreFilters.size}</span>
-                    )}
-                    <ChevronsUpDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[180px] p-1" align="start">
-                  {(["good", "suspicious", "bad"] as const).map((s) => {
-                    const selected = scoreFilters.has(s)
-                    return (
-                      <button
-                        key={s}
-                        onClick={() => {
-                          const next = new Set(scoreFilters)
-                          if (selected) next.delete(s)
-                          else next.add(s)
-                          setScoreFilters(next)
-                        }}
-                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors"
-                      >
-                        <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", selected ? "bg-foreground border-foreground" : "border-input")}>
-                          {selected && <Check className="h-2.5 w-2.5 text-background" />}
-                        </div>
-                        <span className={cn("font-medium", s === "bad" && "text-red-600", s === "suspicious" && "text-amber-600", s === "good" && "text-emerald-600")}>
-                          {s.charAt(0).toUpperCase() + s.slice(1)}
-                        </span>
-                      </button>
-                    )
-                  })}
-                  {scoreFilters.size > 0 && (
-                    <>
-                      <div className="my-1 border-t border-border" />
-                      <button onClick={() => setScoreFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear filters</button>
-                    </>
-                  )}
-                </PopoverContent>
-              </Popover>
+          return (
+            <div className="flex gap-0 h-[calc(100vh-220px)] min-h-[500px]">
+              {/* ── LEFT: Data Table ──────────────────────────────────── */}
+              <div className={cn("flex flex-col border border-border rounded-lg overflow-hidden bg-background transition-all", selectedSession ? "flex-1 min-w-0" : "w-full")}>
+                {/* Toolbar */}
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-border flex-wrap bg-background">
+                  <div className="relative flex-1 max-w-xs min-w-[180px]">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      placeholder="Search Visitor ID..."
+                      value={sessionSearch}
+                      onChange={(e) => setSessionSearch(e.target.value)}
+                      className="pl-8 h-8 text-xs"
+                    />
+                  </div>
 
-              {/* Failed Check filter */}
-              <Popover open={checkDropdownOpen} onOpenChange={setCheckDropdownOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal bg-transparent">
-                    Failed Check
-                    {checkFilters.size > 0 && (
-                      <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{checkFilters.size}</span>
-                    )}
-                    <ChevronsUpDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[240px] p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search checks..." className="h-8 text-xs" />
-                    <CommandList>
-                      <CommandEmpty className="py-3 text-xs text-center text-muted-foreground">No checks found.</CommandEmpty>
-                      <CommandGroup>
-                        {CHECK_KEYS.map((key) => {
-                          const selected = checkFilters.has(key)
-                          return (
-                            <CommandItem key={key} value={key} onSelect={() => { const next = new Set(checkFilters); if (selected) next.delete(key); else next.add(key); setCheckFilters(next) }} className="text-xs">
-                              <div className={cn("mr-2 h-3.5 w-3.5 rounded-sm border flex items-center justify-center shrink-0", selected ? "bg-foreground border-foreground" : "border-input")}>
-                                {selected && <Check className="h-2.5 w-2.5 text-background" />}
-                              </div>
-                              {key}
-                            </CommandItem>
-                          )
-                        })}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                  {checkFilters.size > 0 && (
-                    <div className="p-1 border-t border-border">
-                      <button onClick={() => setCheckFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear filters</button>
-                    </div>
-                  )}
-                </PopoverContent>
-              </Popover>
+                  {/* Score filter */}
+                  <Popover open={scoreDropdownOpen} onOpenChange={setScoreDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
+                        Score
+                        {scoreFilters.size > 0 && (
+                          <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{scoreFilters.size}</span>
+                        )}
+                        <ChevronsUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[180px] p-1" align="start">
+                      {(["good", "suspicious", "bad"] as const).map((sc) => {
+                        const sel = scoreFilters.has(sc)
+                        return (
+                          <button key={sc} onClick={() => { const next = new Set(scoreFilters); if (sel) next.delete(sc); else next.add(sc); setScoreFilters(next) }} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors">
+                            <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", sel ? "bg-foreground border-foreground" : "border-input")}>
+                              {sel && <Check className="h-2.5 w-2.5 text-background" />}
+                            </div>
+                            <span className={cn("font-medium", sc === "bad" && "text-red-600", sc === "suspicious" && "text-amber-600", sc === "good" && "text-emerald-600")}>{sc.charAt(0).toUpperCase() + sc.slice(1)}</span>
+                          </button>
+                        )
+                      })}
+                      {scoreFilters.size > 0 && (<><div className="my-1 border-t border-border" /><button onClick={() => setScoreFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></>)}
+                    </PopoverContent>
+                  </Popover>
 
-              {/* Finding filter */}
-              <Popover open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 font-normal bg-transparent">
-                    Finding
-                    {categoryFilters.size > 0 && (
-                      <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{categoryFilters.size}</span>
-                    )}
-                    <ChevronsUpDown className="ml-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[220px] p-1" align="start">
-                  {FRAUD_CATEGORIES.map((cat) => {
-                    const selected = categoryFilters.has(cat.name)
-                    return (
-                      <button key={cat.id} onClick={() => { const next = new Set(categoryFilters); if (selected) next.delete(cat.name); else next.add(cat.name); setCategoryFilters(next) }} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors">
-                        <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", selected ? "bg-foreground border-foreground" : "border-input")}>
-                          {selected && <Check className="h-2.5 w-2.5 text-background" />}
-                        </div>
-                        <span className="font-medium">{cat.name}</span>
-                      </button>
-                    )
-                  })}
-                  {categoryFilters.size > 0 && (
-                    <>
-                      <div className="my-1 border-t border-border" />
-                      <button onClick={() => setCategoryFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear filters</button>
-                    </>
-                  )}
-                </PopoverContent>
-              </Popover>
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            {(() => {
-              const filteredSessions = SAMPLE_SESSIONS.filter((session) => {
-                const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
-                const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
-                const matchesCheck = checkFilters.size === 0 || Array.from(checkFilters).every((key) => session.checks[key] === "FAIL")
-                const matchesCategory = categoryFilters.size === 0 || session.categories.some((cat) => categoryFilters.has(cat))
-                return matchesSearch && matchesScore && matchesCheck && matchesCategory
-              })
-
-              const truncateId = (id: string) => {
-                if (id.length <= 12) return id
-                return `${id.slice(0, 6)}...${id.slice(-4)}`
-              }
-
-              const riskBadge = (risk: "low" | "medium" | "high") => (
-                <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium inline-flex",
-                  risk === "high" && "bg-red-50 text-red-600",
-                  risk === "medium" && "bg-amber-50 text-amber-700",
-                  risk === "low" && "bg-emerald-50 text-emerald-700",
-                )}>
-                  {risk.charAt(0).toUpperCase() + risk.slice(1)}
-                </span>
-              )
-
-              const copyBtn = (text: string) => (
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(text) }}
-                  className="text-muted-foreground hover:text-foreground transition-colors p-0.5"
-                  aria-label={`Copy ${text}`}
-                >
-                  <Copy className="h-3 w-3" />
-                </button>
-              )
-
-              const detailRow = (label: string, value: React.ReactNode, mono = false) => (
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">{label}</span>
-                  <span className={cn("text-[11px] text-foreground text-right", mono && "font-mono")}>{value}</span>
-                </div>
-              )
-
-              return (
-                <>
-                  {/* Table */}
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="hover:bg-transparent bg-muted/40">
-                          <TableHead className="w-[40px] pl-5 pr-0" />
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[130px]">Visitor ID</TableHead>
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground w-[80px]">Score</TableHead>
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[130px]">Location</TableHead>
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[140px]">Findings</TableHead>
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[150px]">Failed Checks</TableHead>
-                          <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right min-w-[150px] pr-5">Created At</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredSessions.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={7} className="text-center py-16 text-sm text-muted-foreground">
-                              No sessions match your filters.
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          <>
-                            {filteredSessions.map((session) => {
-                              const isExpanded = expandedSession === session.visitorId
-                              const failedChecks = Object.entries(session.checks).filter(([, v]) => v === "FAIL").map(([k]) => k)
-                              const passedChecks = Object.entries(session.checks).filter(([, v]) => v === "PASS").map(([k]) => k)
-
+                  {/* Failed Check filter */}
+                  <Popover open={checkDropdownOpen} onOpenChange={setCheckDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
+                        Check
+                        {checkFilters.size > 0 && (
+                          <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{checkFilters.size}</span>
+                        )}
+                        <ChevronsUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[240px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search checks..." className="h-8 text-xs" />
+                        <CommandList>
+                          <CommandEmpty className="py-3 text-xs text-center text-muted-foreground">No checks found.</CommandEmpty>
+                          <CommandGroup>
+                            {CHECK_KEYS.map((key) => {
+                              const sel = checkFilters.has(key)
                               return (
-                                <React.Fragment key={session.visitorId}>
-                                  {/* Data row */}
-                                  <TableRow
-                                    onClick={() => setExpandedSession(isExpanded ? null : session.visitorId)}
-                                    className={cn(
-                                      "cursor-pointer transition-colors group h-[50px]",
-                                      isExpanded ? "bg-muted/50" : "hover:bg-muted/30",
-                                      session.outcome === "bad" && "border-l-[3px] border-l-red-400",
-                                      session.outcome === "suspicious" && "border-l-[3px] border-l-amber-400",
-                                      session.outcome === "good" && "border-l-[3px] border-l-transparent",
-                                    )}
-                                  >
-                                    <TableCell className="pl-5 pr-0 py-0">
-                                      <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground/60 transition-transform group-hover:text-muted-foreground", isExpanded && "rotate-180")} />
-                                    </TableCell>
-                                    <TableCell className="py-0">
-                                      <span className="font-mono text-xs text-foreground" title={session.visitorId}>{truncateId(session.visitorId)}</span>
-                                    </TableCell>
-                                    <TableCell className="py-0">
-                                      <span className={cn(
-                                        "text-xs font-medium capitalize",
-                                        session.outcome === "bad" && "text-red-600",
-                                        session.outcome === "suspicious" && "text-amber-600",
-                                        session.outcome === "good" && "text-emerald-600",
-                                      )}>
-                                        {session.outcome}
-                                      </span>
-                                    </TableCell>
-                                    <TableCell className="py-0">
-                                      <span className="text-xs text-foreground">{session.location.city}</span>
-                                      <span className="text-[10px] text-muted-foreground ml-1.5">{session.location.country}</span>
-                                    </TableCell>
-                                    <TableCell className="py-0">
-                                      <div className="flex items-center gap-1 overflow-hidden">
-                                        {session.categories.length === 0 ? (
-                                          <span className="text-xs text-muted-foreground/40">--</span>
-                                        ) : (
-                                          <>
-                                            {session.categories.slice(0, 2).map((cat) => (
-                                              <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-muted-foreground whitespace-nowrap">{cat}</span>
-                                            ))}
-                                            {session.categories.length > 2 && (
-                                              <span className="text-[10px] text-muted-foreground ml-0.5">+{session.categories.length - 2}</span>
-                                            )}
-                                          </>
-                                        )}
-                                      </div>
-                                    </TableCell>
-                                    <TableCell className="py-0">
-                                      <div className="flex items-center gap-1 overflow-hidden">
-                                        {failedChecks.length === 0 ? (
-                                          <span className="text-xs text-muted-foreground/40">--</span>
-                                        ) : (
-                                          <>
-                                            {failedChecks.slice(0, 2).map((fc) => (
-                                              <span key={fc} className="px-1.5 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600 whitespace-nowrap">{fc}</span>
-                                            ))}
-                                            {failedChecks.length > 2 && (
-                                              <span className="text-[10px] text-muted-foreground ml-0.5">+{failedChecks.length - 2}</span>
-                                            )}
-                                          </>
-                                        )}
-                                      </div>
-                                    </TableCell>
-                                    <TableCell className="py-0 text-right pr-5">
-                                      <span className="text-xs text-muted-foreground tabular-nums">{session.createdAt}</span>
-                                    </TableCell>
-                                  </TableRow>
-
-                                  {/* Expanded detail panel */}
-                                  {isExpanded && (
-                                    <TableRow className="hover:bg-transparent">
-                                      <TableCell colSpan={7} className="p-0 border-b-0">
-                                        <div className="relative bg-muted/20 border-y border-border">
-                                          {/* Close */}
-                                          <button onClick={() => setExpandedSession(null)} className="absolute top-3 right-4 text-muted-foreground hover:text-foreground transition-colors z-10" aria-label="Close">
-                                            <X className="h-4 w-4" />
-                                          </button>
-
-                                          <div className="px-8 py-5">
-                                            {/* Top: ID + Failed checks strip */}
-                                            <div className="flex items-center gap-3 mb-5">
-                                              <span className="font-mono text-xs text-foreground">{session.visitorId}</span>
-                                              {copyBtn(session.visitorId)}
-                                              {failedChecks.length > 0 && (
-                                                <div className="flex items-center gap-1.5 ml-2">
-                                                  {failedChecks.map((fc) => (
-                                                    <span key={fc} className="px-2 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600">{fc}</span>
-                                                  ))}
-                                                </div>
-                                              )}
-                                            </div>
-
-                                            {/* 3 Signal columns */}
-                                            <div className="grid md:grid-cols-3 gap-px bg-border rounded-lg overflow-hidden">
-                                              {/* ── LOCATION ───────────────────── */}
-                                              <div className="bg-background p-4 space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                  <div className="flex items-center gap-1.5">
-                                                    <MapPinned className="h-3.5 w-3.5 text-muted-foreground" />
-                                                    <span className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Location</span>
-                                                  </div>
-                                                  {riskBadge(session.location.risk)}
-                                                </div>
-                                                <div>
-                                                  <div className="text-sm font-medium text-foreground">{session.location.city}</div>
-                                                  <div className="text-[11px] text-muted-foreground">{session.location.country}</div>
-                                                  <div className="text-[10px] text-muted-foreground/70 font-mono mt-0.5">{session.location.coords}</div>
-                                                </div>
-                                                <div className="space-y-1.5 pt-2 border-t border-border">
-                                                  {detailRow("IP Timezone", session.location.ipTimezone, true)}
-                                                  {detailRow("Browser TZ", session.location.browserTimezone, true)}
-                                                  {session.location.tzMismatch && (
-                                                    <div className="flex items-center gap-1.5 py-1 px-2 rounded bg-amber-50 mt-1">
-                                                      <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
-                                                      <span className="text-[10px] font-medium text-amber-700">TZ Mismatch ({session.location.offsetMinutes}m offset)</span>
-                                                    </div>
-                                                  )}
-                                                  {detailRow("Locations (24h)", String(session.location.recentLocations24h))}
-                                                  {detailRow("Locations (7d)", String(session.location.recentLocations7d))}
-                                                </div>
-                                              </div>
-
-                                              {/* ── NETWORK ────────────────────── */}
-                                              <div className="bg-background p-4 space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                  <div className="flex items-center gap-1.5">
-                                                    <Wifi className="h-3.5 w-3.5 text-muted-foreground" />
-                                                    <span className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Network</span>
-                                                  </div>
-                                                  {riskBadge(session.network.risk)}
-                                                </div>
-                                                <div>
-                                                  <div className="flex items-center gap-1.5">
-                                                    <span className="text-sm font-medium font-mono text-foreground">{session.network.ip}</span>
-                                                    {copyBtn(session.network.ip)}
-                                                  </div>
-                                                  <div className="text-[11px] text-muted-foreground mt-0.5">{session.network.asn}</div>
-                                                </div>
-                                                <div className="space-y-1.5 pt-2 border-t border-border">
-                                                  {detailRow("Type", session.network.type)}
-                                                  {session.network.proxy && (
-                                                    <div className="flex items-center gap-1.5 py-1 px-2 rounded bg-amber-50">
-                                                      <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
-                                                      <span className="text-[10px] font-medium text-amber-700">{session.network.proxy}</span>
-                                                    </div>
-                                                  )}
-                                                  {detailRow("First seen", session.network.firstSeen)}
-                                                  {detailRow("This project", `${session.network.sessionsThisProject} session${session.network.sessionsThisProject !== 1 ? "s" : ""}`)}
-                                                  {detailRow("All projects", `${session.network.sessionsAllProjects} across ${session.network.projectsCount}`)}
-                                                  {session.network.warning && (
-                                                    <div className="flex items-center gap-1.5 py-1 px-2 rounded bg-amber-50 mt-1">
-                                                      <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
-                                                      <span className="text-[10px] font-medium text-amber-700">{session.network.warning}</span>
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-
-                                              {/* ── DEVICE ─────────────────────── */}
-                                              <div className="bg-background p-4 space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                  <div className="flex items-center gap-1.5">
-                                                    <Monitor className="h-3.5 w-3.5 text-muted-foreground" />
-                                                    <span className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Device</span>
-                                                  </div>
-                                                  {riskBadge(session.device.risk)}
-                                                </div>
-                                                <div>
-                                                  <div className="flex items-center gap-1.5">
-                                                    <span className="text-sm font-medium font-mono text-foreground truncate" title={session.device.deviceId}>{truncateId(session.device.deviceId)}</span>
-                                                    {copyBtn(session.device.deviceId)}
-                                                  </div>
-                                                  <div className="text-[11px] text-muted-foreground mt-0.5">{session.device.type}</div>
-                                                </div>
-                                                <div className="space-y-1.5 pt-2 border-t border-border">
-                                                  {detailRow("OS", session.device.os)}
-                                                  {detailRow("Browser", session.device.browser)}
-                                                  {detailRow("First seen", session.device.firstSeen)}
-                                                  {detailRow("This project", `${session.device.sessionsThisProject} session${session.device.sessionsThisProject !== 1 ? "s" : ""}`)}
-                                                  {detailRow("All projects", `${session.device.sessionsAllProjects} across ${session.device.projectsCount}`)}
-                                                  {session.device.warning && (
-                                                    <div className={cn("flex items-center gap-1.5 py-1 px-2 rounded mt-1", session.device.risk === "high" ? "bg-red-50" : "bg-amber-50")}>
-                                                      <AlertTriangle className={cn("h-3 w-3 shrink-0", session.device.risk === "high" ? "text-red-500" : "text-amber-500")} />
-                                                      <span className={cn("text-[10px] font-medium", session.device.risk === "high" ? "text-red-600" : "text-amber-700")}>{session.device.warning}</span>
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            {/* User Agent bar */}
-                                            <div className="mt-4 flex items-start gap-3 py-2.5 px-3 rounded-lg bg-muted/50">
-                                              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide whitespace-nowrap pt-px">UA</span>
-                                              <p className="text-[10px] text-muted-foreground font-mono leading-relaxed break-all flex-1">{session.device.userAgent}</p>
-                                              {copyBtn(session.device.userAgent)}
-                                            </div>
-
-                                            {/* Passed checks */}
-                                            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-                                              {passedChecks.map((check) => (
-                                                <span key={check} className="text-[10px] text-muted-foreground/70 inline-flex items-center gap-0.5">
-                                                  <Check className="h-2.5 w-2.5 text-emerald-400" />
-                                                  {check}
-                                                </span>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </TableCell>
-                                    </TableRow>
-                                  )}
-                                </React.Fragment>
+                                <CommandItem key={key} value={key} onSelect={() => { const next = new Set(checkFilters); if (sel) next.delete(key); else next.add(key); setCheckFilters(next) }} className="text-xs">
+                                  <div className={cn("mr-2 h-3.5 w-3.5 rounded-sm border flex items-center justify-center shrink-0", sel ? "bg-foreground border-foreground" : "border-input")}>
+                                    {sel && <Check className="h-2.5 w-2.5 text-background" />}
+                                  </div>
+                                  {key}
+                                </CommandItem>
                               )
                             })}
-                          </>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                      {checkFilters.size > 0 && (<div className="p-1 border-t border-border"><button onClick={() => setCheckFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></div>)}
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* Finding filter */}
+                  <Popover open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
+                        Finding
+                        {categoryFilters.size > 0 && (
+                          <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{categoryFilters.size}</span>
                         )}
-                      </TableBody>
-                    </Table>
+                        <ChevronsUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[220px] p-1" align="start">
+                      {FRAUD_CATEGORIES.map((cat) => {
+                        const sel = categoryFilters.has(cat.name)
+                        return (
+                          <button key={cat.id} onClick={() => { const next = new Set(categoryFilters); if (sel) next.delete(cat.name); else next.add(cat.name); setCategoryFilters(next) }} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors">
+                            <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", sel ? "bg-foreground border-foreground" : "border-input")}>
+                              {sel && <Check className="h-2.5 w-2.5 text-background" />}
+                            </div>
+                            <span className="font-medium">{cat.name}</span>
+                          </button>
+                        )
+                      })}
+                      {categoryFilters.size > 0 && (<><div className="my-1 border-t border-border" /><button onClick={() => setCategoryFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></>)}
+                    </PopoverContent>
+                  </Popover>
+
+                  <div className="flex-1" />
+
+                  {/* Selection summary */}
+                  {selectedRows.size > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">{selectedRows.size}</span> selected
+                        {(() => {
+                          const selSessions = filteredSessions.filter((ss) => selectedRows.has(ss.visitorId))
+                          const badCount = selSessions.filter((ss) => ss.outcome === "bad").length
+                          const suspCount = selSessions.filter((ss) => ss.outcome === "suspicious").length
+                          const parts: string[] = []
+                          if (badCount > 0) parts.push(`${badCount} Bad`)
+                          if (suspCount > 0) parts.push(`${suspCount} Suspicious`)
+                          return parts.length > 0 ? ` (${parts.join(", ")})` : ""
+                        })()}
+                      </span>
+                      <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1 bg-transparent" onClick={() => setSelectedRows(new Set())}>
+                        <X className="h-3 w-3" /> Clear
+                      </Button>
+                    </div>
+                  )}
+
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 bg-transparent">
+                    <Download className="h-3.5 w-3.5" />
+                    Export
+                  </Button>
+                </div>
+
+                {/* Table */}
+                <div className="flex-1 overflow-auto" ref={tableRef}>
+                  <Table>
+                    <TableHeader className="sticky top-0 z-10 bg-muted/60 backdrop-blur-sm">
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-[40px] pl-4 pr-0">
+                          <Checkbox
+                            checked={selectedRows.size === filteredSessions.length && filteredSessions.length > 0}
+                            onCheckedChange={toggleAllRows}
+                            aria-label="Select all"
+                            className="h-3.5 w-3.5"
+                          />
+                        </TableHead>
+                        <TableHead className="min-w-[120px]">
+                          <button onClick={() => toggleSort("visitorId")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            Visitor ID <SortIcon col="visitorId" />
+                          </button>
+                        </TableHead>
+                        <TableHead className="w-[85px]">
+                          <button onClick={() => toggleSort("outcome")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            Score <SortIcon col="outcome" />
+                          </button>
+                        </TableHead>
+                        <TableHead className="min-w-[100px]">
+                          <button onClick={() => toggleSort("location")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            Location <SortIcon col="location" />
+                          </button>
+                        </TableHead>
+                        <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Category</TableHead>
+                        <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Signal</TableHead>
+                        <TableHead className="min-w-[140px] text-right pr-4">
+                          <button onClick={() => toggleSort("createdAt")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors ml-auto">
+                            Created At <SortIcon col="createdAt" />
+                          </button>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredSessions.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-20 text-sm text-muted-foreground">
+                            No sessions match your filters.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredSessions.map((session) => {
+                          const isSelected = selectedSession === session.visitorId
+                          const isChecked = selectedRows.has(session.visitorId)
+                          const rowFailedChecks = Object.entries(session.checks).filter(([, v]) => v === "FAIL").map(([k]) => k)
+
+                          return (
+                            <TableRow
+                              key={session.visitorId}
+                              onClick={() => setSelectedSession(isSelected ? null : session.visitorId)}
+                              className={cn(
+                                "cursor-pointer transition-colors h-[44px] group",
+                                isSelected ? "bg-muted/60" : "hover:bg-muted/30",
+                              )}
+                            >
+                              <TableCell className="pl-4 pr-0 py-0" onClick={(e) => e.stopPropagation()}>
+                                <Checkbox
+                                  checked={isChecked}
+                                  onCheckedChange={() => toggleRowSelection(session.visitorId)}
+                                  aria-label={`Select ${session.visitorId}`}
+                                  className="h-3.5 w-3.5"
+                                />
+                              </TableCell>
+                              <TableCell className="py-0">
+                                <span className="font-mono text-xs text-foreground" title={session.visitorId}>{truncateId(session.visitorId)}</span>
+                              </TableCell>
+                              <TableCell className="py-0">
+                                <span className={cn(
+                                  "inline-flex items-center gap-1 text-xs font-medium capitalize",
+                                  session.outcome === "bad" && "text-red-600",
+                                  session.outcome === "suspicious" && "text-amber-600",
+                                  session.outcome === "good" && "text-emerald-600",
+                                )}>
+                                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0",
+                                    session.outcome === "bad" && "bg-red-500",
+                                    session.outcome === "suspicious" && "bg-amber-500",
+                                    session.outcome === "good" && "bg-emerald-500",
+                                  )} />
+                                  {session.outcome}
+                                </span>
+                              </TableCell>
+                              <TableCell className="py-0">
+                                <div>
+                                  <span className="text-xs text-foreground">{session.location.city}</span>
+                                  <span className="text-[10px] text-muted-foreground ml-1">{session.location.country === "United States" ? "US" : session.location.country === "United Kingdom" ? "UK" : session.location.country.length > 10 ? session.location.country.slice(0, 8) + ".." : session.location.country}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-0">
+                                {session.categories.length === 0 ? (
+                                  <span className="text-[10px] text-muted-foreground/40">--</span>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground font-medium truncate block max-w-[140px]" title={session.categories.join(", ")}>
+                                    {session.categories[0]}{session.categories.length > 1 && <span className="text-muted-foreground/50 ml-0.5">+{session.categories.length - 1}</span>}
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="py-0">
+                                {rowFailedChecks.length === 0 ? (
+                                  <span className="text-[10px] text-muted-foreground/40">--</span>
+                                ) : (
+                                  <div className="flex items-center gap-1 overflow-hidden">
+                                    <span className="px-1.5 py-0.5 rounded bg-red-50 text-[10px] font-medium text-red-600 whitespace-nowrap">{rowFailedChecks[0]}</span>
+                                    {rowFailedChecks.length > 1 && (
+                                      <span className="text-[10px] text-muted-foreground">+{rowFailedChecks.length - 1}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell className="py-0 text-right pr-4">
+                                <span className="text-xs text-muted-foreground tabular-nums">{session.createdAt}</span>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/30 shrink-0">
+                  <span className="text-[11px] text-muted-foreground">
+                    Showing <span className="font-medium text-foreground">{filteredSessions.length}</span> of <span className="font-medium text-foreground">{totalSessions.toLocaleString()}</span> sessions
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    Use <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[9px] font-mono">Arrow Up</kbd> <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[9px] font-mono">Arrow Down</kbd> to navigate
+                  </span>
+                </div>
+              </div>
+
+              {/* ── RIGHT: Detail Side Panel ─────────────────────────── */}
+              {selectedSession && s && (
+                <div className="w-[400px] shrink-0 border border-border border-l-0 rounded-r-lg bg-background flex flex-col overflow-hidden ml-0">
+                  {/* Panel header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={cn(
+                        "inline-flex items-center gap-1 text-xs font-semibold capitalize",
+                        s.outcome === "bad" && "text-red-600",
+                        s.outcome === "suspicious" && "text-amber-600",
+                        s.outcome === "good" && "text-emerald-600",
+                      )}>
+                        <span className={cn("h-2 w-2 rounded-full shrink-0",
+                          s.outcome === "bad" && "bg-red-500",
+                          s.outcome === "suspicious" && "bg-amber-500",
+                          s.outcome === "good" && "bg-emerald-500",
+                        )} />
+                        {s.outcome}
+                      </span>
+                      <span className="font-mono text-[11px] text-muted-foreground truncate" title={s.visitorId}>{truncateId(s.visitorId)}</span>
+                      {copyBtn(s.visitorId)}
+                    </div>
+                    <button onClick={() => setSelectedSession(null)} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted" aria-label="Close panel">
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
 
-                  {/* Footer */}
-                  <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-muted/30">
-                    <span className="text-xs text-muted-foreground">
-                      Rows Displayed: <span className="font-medium text-foreground">{filteredSessions.length}</span>
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Total Results: <span className="font-medium text-foreground">{totalSessions.toLocaleString()}</span>
+                  {/* Scrollable content */}
+                  <div className="flex-1 overflow-y-auto">
+                    {/* Failed checks strip */}
+                    {failedChecks.length > 0 && (
+                      <div className="px-4 py-2.5 bg-red-50/50 border-b border-border">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[10px] font-semibold text-red-600 uppercase tracking-wide mr-0.5">Failed:</span>
+                          {failedChecks.map((fc) => (
+                            <span key={fc} className="px-1.5 py-0.5 rounded bg-red-100 text-[10px] font-medium text-red-700">{fc}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Categories */}
+                    {s.categories.length > 0 && (
+                      <div className="px-4 py-2.5 border-b border-border">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-0.5">Findings:</span>
+                          {s.categories.map((cat) => (
+                            <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-foreground">{cat}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── LOCATION ─────────────────────────── */}
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <MapPinned className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Location</span>
+                        </div>
+                        {riskBadge(s.location.risk)}
+                      </div>
+                      <div className="mb-2">
+                        <div className="text-sm font-medium text-foreground">{s.location.city}</div>
+                        <div className="text-[11px] text-muted-foreground">{s.location.country} <span className="text-muted-foreground/50 font-mono text-[10px]">{s.location.coords}</span></div>
+                      </div>
+                      <div className="space-y-0">
+                        {detailRow("IP Timezone", s.location.ipTimezone, true)}
+                        {detailRow("Browser TZ", s.location.browserTimezone, true)}
+                        {s.location.tzMismatch && (
+                          <div className="flex items-center gap-1.5 py-1.5 px-2 rounded bg-amber-50 my-1">
+                            <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                            <span className="text-[10px] font-medium text-amber-700">TZ Mismatch ({s.location.offsetMinutes}m offset)</span>
+                          </div>
+                        )}
+                        {detailRow("Locations (24h)", String(s.location.recentLocations24h))}
+                        {detailRow("Locations (7d)", String(s.location.recentLocations7d))}
+                      </div>
+                    </div>
+
+                    {/* ── NETWORK ──────────────────────────── */}
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <Wifi className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Network</span>
+                        </div>
+                        {riskBadge(s.network.risk)}
+                      </div>
+                      <div className="mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium font-mono text-foreground">{s.network.ip}</span>
+                          {copyBtn(s.network.ip)}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">{s.network.asn}</div>
+                      </div>
+                      <div className="space-y-0">
+                        {detailRow("Type", s.network.type)}
+                        {s.network.proxy && (
+                          <div className="flex items-center gap-1.5 py-1.5 px-2 rounded bg-amber-50 my-1">
+                            <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                            <span className="text-[10px] font-medium text-amber-700">{s.network.proxy}</span>
+                          </div>
+                        )}
+                        {detailRow("First seen", s.network.firstSeen)}
+                        {detailRow("This project", `${s.network.sessionsThisProject} session${s.network.sessionsThisProject !== 1 ? "s" : ""}`)}
+                        {detailRow("All projects", `${s.network.sessionsAllProjects} across ${s.network.projectsCount}`)}
+                        {s.network.warning && (
+                          <div className="flex items-center gap-1.5 py-1.5 px-2 rounded bg-amber-50 my-1">
+                            <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
+                            <span className="text-[10px] font-medium text-amber-700">{s.network.warning}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ── DEVICE ───────────────────────────── */}
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <Monitor className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-[11px] font-semibold text-foreground uppercase tracking-wide">Device</span>
+                        </div>
+                        {riskBadge(s.device.risk)}
+                      </div>
+                      <div className="mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium font-mono text-foreground truncate" title={s.device.deviceId}>{truncateId(s.device.deviceId)}</span>
+                          {copyBtn(s.device.deviceId)}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">{s.device.type}</div>
+                      </div>
+                      <div className="space-y-0">
+                        {detailRow("OS", s.device.os)}
+                        {detailRow("Browser", s.device.browser)}
+                        {detailRow("First seen", s.device.firstSeen)}
+                        {detailRow("This project", `${s.device.sessionsThisProject} session${s.device.sessionsThisProject !== 1 ? "s" : ""}`)}
+                        {detailRow("All projects", `${s.device.sessionsAllProjects} across ${s.device.projectsCount}`)}
+                        {s.device.warning && (
+                          <div className={cn("flex items-center gap-1.5 py-1.5 px-2 rounded my-1", s.device.risk === "high" ? "bg-red-50" : "bg-amber-50")}>
+                            <AlertTriangle className={cn("h-3 w-3 shrink-0", s.device.risk === "high" ? "text-red-500" : "text-amber-500")} />
+                            <span className={cn("text-[10px] font-medium", s.device.risk === "high" ? "text-red-600" : "text-amber-700")}>{s.device.warning}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* User Agent */}
+                    <div className="px-4 py-3 border-b border-border">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">User Agent</span>
+                        {copyBtn(s.device.userAgent)}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground font-mono leading-relaxed break-all">{s.device.userAgent}</p>
+                    </div>
+
+                    {/* All checks */}
+                    <div className="px-4 py-3">
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">All Checks</span>
+                      <div className="mt-2 space-y-0.5">
+                        {Object.entries(s.checks).map(([key, val]) => (
+                          <div key={key} className="flex items-center justify-between py-1">
+                            <span className="text-[11px] text-foreground">{key}</span>
+                            <span className={cn("text-[10px] font-medium",
+                              val === "PASS" && "text-emerald-600",
+                              val === "FAIL" && "text-red-600",
+                              val === "EMPTY" && "text-muted-foreground/50",
+                            )}>
+                              {val === "PASS" && <Check className="h-3 w-3 inline -mt-0.5 mr-0.5" />}
+                              {val === "FAIL" && <X className="h-3 w-3 inline -mt-0.5 mr-0.5" />}
+                              {val}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Panel footer: nav hint */}
+                  <div className="px-4 py-2 border-t border-border bg-muted/30 shrink-0">
+                    <span className="text-[10px] text-muted-foreground">
+                      <kbd className="px-1 py-0.5 rounded border border-border bg-background text-[9px] font-mono">&#8593;</kbd>{" "}
+                      <kbd className="px-1 py-0.5 rounded border border-border bg-background text-[9px] font-mono">&#8595;</kbd> navigate{" "}
+                      <kbd className="px-1 py-0.5 rounded border border-border bg-background text-[9px] font-mono ml-1">Esc</kbd> close
                     </span>
                   </div>
-                </>
-              )
-            })()}
-          </CardContent>
-        </Card>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
           <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />

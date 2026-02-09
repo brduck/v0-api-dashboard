@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
   Globe,
+  Info,
   MapPin,
   Shield,
   Smartphone,
@@ -389,6 +390,25 @@ export default function CreateLinkProtector() {
                           />
                         )}
                       </div>
+                    </div>
+                  </div>
+
+                  {/* URL Parameters Tip */}
+                  <div className="flex gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-900">
+                      <p className="font-medium mb-1">URL Parameters are forwarded automatically</p>
+                      <p className="text-blue-700 leading-relaxed">
+                        All URL parameters sent to your entry link will be automatically appended to your Protected Link and Termination Link. You only need to add static values above.{" "}
+                        <a
+                          href="https://dtect.io/knowledge-base/url-parameters"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium underline hover:no-underline"
+                        >
+                          Learn More
+                        </a>
+                      </p>
                     </div>
                   </div>
                 </div>

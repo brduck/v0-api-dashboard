@@ -930,12 +930,12 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     </div>
 
                     {/* URL Parameters Tip */}
-                    <div className="flex gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-                      <div className="text-sm text-blue-900">
+                    <div className="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="text-sm text-amber-900">
                         <p className="font-medium mb-1">URL Parameters are forwarded automatically</p>
-                        <p className="text-blue-700 leading-relaxed">
-                          All URL parameters sent to your entry link will be automatically appended to your Protected Link and Termination Link. You only need to add static values when configuring your links.{" "}
+                        <p className="text-amber-700 leading-relaxed">
+                          We detected template variables or empty parameters in your links. Any URL parameters sent to your entry link (e.g., ?RID=123) are automatically forwarded to your Protected Link and Termination Link. You only need to add static values to your links.{" "}
                           <a
                             href="https://dtect.io/knowledge-base/url-parameters"
                             target="_blank"
@@ -1855,12 +1855,12 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                   </div>
 
                   {/* URL Parameters Tip */}
-                  <div className="flex gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-                    <div className="text-sm text-blue-900">
+                  <div className="flex gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <Info className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-amber-900">
                       <p className="font-medium mb-1">URL Parameters are forwarded automatically</p>
-                      <p className="text-blue-700 leading-relaxed">
-                        All URL parameters sent to your entry link will be automatically appended to your Protected Link and Termination Link. You only need to add static values above.{" "}
+                      <p className="text-amber-700 leading-relaxed">
+                        We detected template variables or empty parameters in your links. Any URL parameters sent to your entry link (e.g., ?RID=123) are automatically forwarded to your Protected Link and Termination Link. You only need to add static values to your links.{" "}
                         <a
                           href="https://dtect.io/knowledge-base/url-parameters"
                           target="_blank"

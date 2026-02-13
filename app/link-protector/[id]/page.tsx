@@ -9,6 +9,7 @@ import {
   Download,
   ExternalLink,
   Globe,
+  Info,
   LayoutDashboard,
   Lock,
   MapPin,
@@ -928,6 +929,25 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                       <div className="p-3 text-sm break-all">{project.terminationLink}</div>
                     </div>
 
+                    {/* URL Parameters Tip */}
+                    <div className="flex gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                      <div className="text-sm text-blue-900">
+                        <p className="font-medium mb-1">URL Parameters are forwarded automatically</p>
+                        <p className="text-blue-700 leading-relaxed">
+                          All URL parameters sent to your entry link will be automatically appended to your Protected Link and Termination Link. You only need to add static values when configuring your links.{" "}
+                          <a
+                            href="https://dtect.io/knowledge-base/url-parameters"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium underline hover:no-underline"
+                          >
+                            Learn More
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+
                     {/* Paused Link - only visible when Custom Link for Paused Traffic is enabled */}
                     {customPausedLinkEnabled && (
                       <div className="border rounded-lg overflow-hidden">
@@ -1831,6 +1851,25 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           />
                         )}
                       </div>
+                    </div>
+                  </div>
+
+                  {/* URL Parameters Tip */}
+                  <div className="flex gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-900">
+                      <p className="font-medium mb-1">URL Parameters are forwarded automatically</p>
+                      <p className="text-blue-700 leading-relaxed">
+                        All URL parameters sent to your entry link will be automatically appended to your Protected Link and Termination Link. You only need to add static values above.{" "}
+                        <a
+                          href="https://dtect.io/knowledge-base/url-parameters"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium underline hover:no-underline"
+                        >
+                          Learn More
+                        </a>
+                      </p>
                     </div>
                   </div>
 

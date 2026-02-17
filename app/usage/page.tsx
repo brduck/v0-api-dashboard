@@ -843,7 +843,7 @@ export default function FraudDetectionPage() {
                   <CardTitle className="text-sm font-semibold">Sessions Flagged</CardTitle>
                   <InfoTip text="Each participant has one final outcome (Bad or Suspicious) based on their highest-severity check. Bad and Suspicious counts within each category are mutually exclusive." side="right" />
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">Note: A single session may contribute to multiple findings</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Note: A single session may contribute to multiple categories</p>
               </div>
               <div className="inline-flex rounded-lg border border-border overflow-hidden">
                 <button
@@ -853,7 +853,7 @@ export default function FraudDetectionPage() {
                     flaggedView === "categories" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  By Finding
+                  By Category
                 </button>
                 <button
                   onClick={() => setFlaggedView("signals")}
@@ -1008,7 +1008,7 @@ export default function FraudDetectionPage() {
                                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Check Breakdown</span>
                                   <InfoTip text="Each count represents distinct participants where this check fired. Counts may overlap across checks and do not represent final outcomes." side="right" />
                                 </div>
-                                <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {category.name} finding:</p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {category.name} category:</p>
                               </div>
                               <div className="rounded-lg border border-border overflow-hidden">
                                 <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-3 py-1.5 bg-muted/50 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">

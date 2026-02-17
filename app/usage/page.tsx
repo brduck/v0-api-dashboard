@@ -481,7 +481,7 @@ export default function FraudDetectionPage() {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState<string | null>(null)
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
-  const [sortCol, setSortCol] = useState<"visitorId" | "outcome" | "location" | "createdAt">("createdAt")
+  const [sortCol, setSortCol] = useState<"visitorId" | "outcome" | "country" | "city" | "createdAt">("createdAt")
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
   const tableRef = React.useRef<HTMLDivElement>(null)
 
@@ -508,7 +508,8 @@ export default function FraudDetectionPage() {
       switch (sortCol) {
         case "visitorId": cmp = a.visitorId.localeCompare(b.visitorId); break
         case "outcome": cmp = scoreOrder[a.outcome] - scoreOrder[b.outcome]; break
-        case "location": cmp = a.location.city.localeCompare(b.location.city); break
+        case "country": cmp = a.location.country.localeCompare(b.location.country); break
+        case "city": cmp = a.location.city.localeCompare(b.location.city); break
         case "createdAt": cmp = a.createdAt.localeCompare(b.createdAt); break
       }
       return sortDir === "asc" ? cmp : -cmp
@@ -1345,9 +1346,14 @@ export default function FraudDetectionPage() {
                             Score <SortIcon col="outcome" />
                           </button>
                         </TableHead>
-                        <TableHead className="min-w-[100px]">
-                          <button onClick={() => toggleSort("location")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                            Location <SortIcon col="location" />
+                        <TableHead className="min-w-[90px]">
+                          <button onClick={() => toggleSort("country")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            Country <SortIcon col="country" />
+                          </button>
+                        </TableHead>
+                        <TableHead className="min-w-[90px]">
+                          <button onClick={() => toggleSort("city")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            City <SortIcon col="city" />
                           </button>
                         </TableHead>
                         <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Category</TableHead>
@@ -1362,7 +1368,7 @@ export default function FraudDetectionPage() {
                     <TableBody>
                       {filteredSessions.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7} className="text-center py-20 text-sm text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center py-20 text-sm text-muted-foreground">
                             No sessions match your filters.
                           </TableCell>
                         </TableRow>
@@ -1408,10 +1414,10 @@ export default function FraudDetectionPage() {
                                 </span>
                               </TableCell>
                               <TableCell className="py-0">
-                                <div>
-                                  <span className="text-xs text-foreground">{session.location.city}</span>
-                                  <span className="text-[10px] text-muted-foreground ml-1">{session.location.country === "United States" ? "US" : session.location.country === "United Kingdom" ? "UK" : session.location.country.length > 10 ? session.location.country.slice(0, 8) + ".." : session.location.country}</span>
-                                </div>
+                                <span className="text-xs text-foreground">{session.location.country}</span>
+                              </TableCell>
+                              <TableCell className="py-0">
+                                <span className="text-xs text-foreground">{session.location.city}</span>
                               </TableCell>
                               <TableCell className="py-0">
                                 {session.categories.length === 0 ? (

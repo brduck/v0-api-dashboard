@@ -1267,11 +1267,11 @@ export default function FraudDetectionPage() {
                     </PopoverContent>
                   </Popover>
 
-                  {/* Finding filter */}
+                  {/* Category filter */}
                   <Popover open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
-                        Finding
+                        Category
                         {categoryFilters.size > 0 && (
                           <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{categoryFilters.size}</span>
                         )}

@@ -871,11 +871,10 @@ export default function FraudDetectionPage() {
             {flaggedView === "categories" ? (
             <>
             {/* Column headers */}
-            <div className="grid grid-cols-[minmax(140px,1.2fr)_minmax(120px,1.5fr)_minmax(100px,1.2fr)_80px_28px] items-center gap-4 px-6 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide border-b border-border">
+            <div className="grid grid-cols-[minmax(140px,1.2fr)_minmax(120px,1.5fr)_minmax(100px,1.2fr)_28px] items-center gap-4 px-6 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide border-b border-border">
               <span>Category</span>
               <span>Flagged Participants</span>
               <span>Checks</span>
-              <span className="text-center">Strength</span>
               <span />
             </div>
 
@@ -899,7 +898,7 @@ export default function FraudDetectionPage() {
                       {/* Row */}
                       <div
                         className={cn(
-                          "grid grid-cols-[minmax(140px,1.2fr)_minmax(120px,1.5fr)_minmax(100px,1.2fr)_80px_28px] items-center gap-4 px-6 py-3 cursor-pointer transition-colors",
+                          "grid grid-cols-[minmax(140px,1.2fr)_minmax(120px,1.5fr)_minmax(100px,1.2fr)_28px] items-center gap-4 px-6 py-3 cursor-pointer transition-colors",
                           isExpanded ? "bg-muted/40" : "hover:bg-muted/20"
                         )}
                         onClick={() => setExpandedCategory(isExpanded ? null : category.id)}
@@ -944,22 +943,6 @@ export default function FraudDetectionPage() {
                           {category.signals.length > 2 && (
                             <span className="text-[10px] text-muted-foreground shrink-0">+{category.signals.length - 2}</span>
                           )}
-                        </div>
-
-                        {/* Strength */}
-                        <div className="flex justify-center">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium cursor-help inline-flex items-center gap-1", sl.color)}>
-                                  {category.strength === "strong" && <AlertTriangle className="h-3 w-3 text-red-500" />}
-                                  {category.strength === "moderate" && <AlertTriangle className="h-3 w-3 text-amber-500" />}
-                                  {sl.text}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-[240px] text-xs"><p>{sl.definition}</p></TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
                         </div>
 
                         {/* Chevron */}

@@ -87,7 +87,7 @@ export default function CreateLinkProtector() {
   const [enableDtectRedirects, setEnableDtectRedirects] = useState(false)
   const [completeUrl, setCompleteUrl] = useState("")
 
-  // Add these new state variables after the maskParticipantId state
+  // Add these new state variables after the maskUserId state
   const [customPausedLinkEnabled, setCustomPausedLinkEnabled] = useState(false)
   const [customPausedLinkUrl, setCustomPausedLinkUrl] = useState("")
 
@@ -137,7 +137,7 @@ export default function CreateLinkProtector() {
         })
         break
       case "high-quality":
-        // High-Quality Participants: All from Human-Only + AI Detection + Quality Questions (Audience Validation)
+        // High-Quality Users: All from Human-Only + AI Detection + Quality Questions (Audience Validation)
         setSecurityFeatures({
           deviceDeduplication: true,
           ipDeduplication: true,
@@ -364,7 +364,7 @@ export default function CreateLinkProtector() {
                           <Badge className="bg-black text-white">Recommended</Badge>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Our default link that directs participants who fail security checks.
+                          Our default link that directs users who fail security checks.
                         </p>
                       </div>
 
@@ -376,7 +376,7 @@ export default function CreateLinkProtector() {
                           <h3 className="font-medium text-base">Custom Termination Link</h3>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Provide a custom link for participants who fail security checks
+                          Provide a custom link for users who fail security checks
                         </p>
                         {formData.terminationType === "custom" && (
                           <Input
@@ -432,7 +432,7 @@ export default function CreateLinkProtector() {
                       </div>
                       <h3 className="font-semibold text-base mb-2">Human-Only Access</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        Allow only verified, human participants. Stop bots, AI Agents, scripts, and duplicate entries.
+                        Allow only verified, human users. Stop bots, AI Agents, scripts, and duplicate entries.
                       </p>
                       <div className="mt-4 pt-3 border-t border-gray-200">
                         <p className="text-xs text-gray-500 font-medium">Enabled Features:</p>
@@ -463,10 +463,10 @@ export default function CreateLinkProtector() {
                           </div>
                         )}
                       </div>
-                      <h3 className="font-semibold text-base mb-2">High-Quality Participants</h3>
+                      <h3 className="font-semibold text-base mb-2">High-Quality Users</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        Filter out automation and low-effort participants. Detect AI generated answers and allow only
-                        real, attentive participants who provide trustworthy data.
+                        Filter out automation and low-effort users. Detect AI generated answers and allow only
+                        real, attentive users who provide trustworthy data.
                       </p>
                       <div className="mt-4 pt-3 border-t border-gray-200">
                         <p className="text-xs text-gray-500 font-medium">Enabled Features:</p>
@@ -504,7 +504,7 @@ export default function CreateLinkProtector() {
                       <div className="mt-4 pt-3 border-t border-gray-200">
                         <p className="text-xs text-gray-500 font-medium">Enabled Features:</p>
                         <ul className="text-xs text-gray-500 mt-1 space-y-1">
-                          <li>• All from High-Quality Participants</li>
+                          <li>• All from High-Quality Users</li>
                           <li>• All Suspicious Signals</li>
                           <li>• Location Validation</li>
                         </ul>
@@ -794,7 +794,7 @@ export default function CreateLinkProtector() {
                               />
                             </div>
                             <p className="text-gray-500 text-sm ml-7">
-                              Blocks multiple attempts from the same supplier participant ID.
+                              Blocks multiple attempts from the same supplier user ID.
                             </p>
                           </div>
                         </>
@@ -851,7 +851,7 @@ export default function CreateLinkProtector() {
                               />
                             </div>
                             <p className="text-gray-500 text-sm ml-7">
-                              Blocks participants who display unusual behaviors that may indicate potential risk.
+                              Blocks users who display unusual behaviors that may indicate potential risk.
                             </p>
 
                             {securityFeatures.suspiciousSignals && (
@@ -1032,7 +1032,7 @@ export default function CreateLinkProtector() {
                                 </div>
 
                                 <p className="text-xs text-gray-500 mt-4">
-                                  Participants matching any of these signals will be blocked from moving to your survey
+                                  Users matching any of these signals will be blocked from moving to your survey
                                 </p>
                               </div>
                             )}

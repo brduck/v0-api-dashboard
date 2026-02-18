@@ -109,14 +109,14 @@ const FRAUD_CATEGORIES = [
     id: "identity-reuse",
     name: "Identity Reuse",
     description: "The same person, device, or network identity appears multiple times, indicating repeated or duplicate attempts.",
-    badParticipants: 165460,
-    suspiciousParticipants: 0,
+    badUsers: 165460,
+    suspiciousUsers: 0,
     strength: "strong" as const,
     icon: Fingerprint,
     signals: [
-      { name: "Duplicate IP", severity: "bad" as const, participants: 148230, description: "Same IP address seen across multiple sessions" },
-      { name: "Duplicate Device", severity: "bad" as const, participants: 131542, description: "Same device fingerprint seen across multiple sessions" },
-      { name: "Duplicate ID", severity: "bad" as const, participants: 92163, description: "Same user identifier submitted more than once" },
+      { name: "Duplicate IP", severity: "bad" as const, users: 148230, description: "Same IP address seen across multiple sessions" },
+      { name: "Duplicate Device", severity: "bad" as const, users: 131542, description: "Same device fingerprint seen across multiple sessions" },
+      { name: "Duplicate ID", severity: "bad" as const, users: 92163, description: "Same user identifier submitted more than once" },
     ],
     coOccurrence: "Duplicate IP and Duplicate Device fired together in 84% of these sessions",
   },
@@ -124,12 +124,12 @@ const FRAUD_CATEGORIES = [
     id: "location-inconsistency",
     name: "Location Inconsistency",
     description: "The person's reported location is internally inconsistent or implausible for normal human activity.",
-    badParticipants: 0,
-    suspiciousParticipants: 87521,
+    badUsers: 0,
+    suspiciousUsers: 87521,
     strength: "moderate" as const,
     icon: MapPin,
     signals: [
-      { name: "Location Validation", severity: "suspicious" as const, participants: 87521, description: "Reported location mismatched IP geolocation or timezone data" },
+      { name: "Location Validation", severity: "suspicious" as const, users: 87521, description: "Reported location mismatched IP geolocation or timezone data" },
     ],
     coOccurrence: "60% were timezone mismatches; 40% were country-level mismatches",
   },
@@ -137,13 +137,13 @@ const FRAUD_CATEGORIES = [
     id: "network-masking",
     name: "Network Masking",
     description: "The person is obscuring their true network origin using anonymization or relay services.",
-    badParticipants: 0,
-    suspiciousParticipants: 82340,
+    badUsers: 0,
+    suspiciousUsers: 82340,
     strength: "strong" as const,
     icon: Shield,
     signals: [
-      { name: "VPN Usage", severity: "suspicious" as const, participants: 74329, description: "Traffic routed through a VPN or proxy service" },
-      { name: "Tor Exit Node", severity: "suspicious" as const, participants: 21873, description: "Connection through the Tor anonymity network" },
+      { name: "VPN Usage", severity: "suspicious" as const, users: 74329, description: "Traffic routed through a VPN or proxy service" },
+      { name: "Tor Exit Node", severity: "suspicious" as const, users: 21873, description: "Connection through the Tor anonymity network" },
     ],
     coOccurrence: "72% of VPN Usage detections also triggered a Location Validation flag",
   },
@@ -151,13 +151,13 @@ const FRAUD_CATEGORIES = [
     id: "non-human-behavior",
     name: "Non-Human Behavior",
     description: "The session shows signs of being driven by automation or software rather than a real human.",
-    badParticipants: 18935,
-    suspiciousParticipants: 12450,
+    badUsers: 18935,
+    suspiciousUsers: 12450,
     strength: "moderate" as const,
     icon: Bot,
     signals: [
-      { name: "Automation Detection", severity: "bad" as const, participants: 18935, description: "Patterns consistent with scripted or automated interaction" },
-      { name: "High-Activity Device", severity: "suspicious" as const, participants: 18542, description: "Device seen in an abnormally high number of sessions" },
+      { name: "Automation Detection", severity: "bad" as const, users: 18935, description: "Patterns consistent with scripted or automated interaction" },
+      { name: "High-Activity Device", severity: "suspicious" as const, users: 18542, description: "Device seen in an abnormally high number of sessions" },
     ],
     coOccurrence: "Automation Detection and High-Activity Device co-fired in 38% of flagged sessions. This overlap is expected as both indicate non-human patterns.",
   },
@@ -165,16 +165,16 @@ const FRAUD_CATEGORIES = [
     id: "environment-manipulation",
     name: "Environment Manipulation",
     description: "The person appears to be altering or restricting their device or browser environment to reduce traceability or interfere with detection.",
-    badParticipants: 0,
-    suspiciousParticipants: 56060,
+    badUsers: 0,
+    suspiciousUsers: 56060,
     strength: "weak" as const,
     icon: Eye,
     signals: [
-      { name: "Device Tampering", severity: "suspicious" as const, participants: 42310, description: "Device fingerprint properties were altered or spoofed" },
-      { name: "Virtual Machine", severity: "suspicious" as const, participants: 38740, description: "Session originated from a virtualized environment" },
-      { name: "Dev Tools", severity: "suspicious" as const, participants: 29180, description: "Browser developer tools were active during the session" },
-      { name: "Privacy-Focused Settings", severity: "suspicious" as const, participants: 24630, description: "Unusually restrictive privacy configuration detected" },
-      { name: "Incognito Mode", severity: "suspicious" as const, participants: 15234, description: "Browsing in private or incognito mode" },
+      { name: "Device Tampering", severity: "suspicious" as const, users: 42310, description: "Device fingerprint properties were altered or spoofed" },
+      { name: "Virtual Machine", severity: "suspicious" as const, users: 38740, description: "Session originated from a virtualized environment" },
+      { name: "Dev Tools", severity: "suspicious" as const, users: 29180, description: "Browser developer tools were active during the session" },
+      { name: "Privacy-Focused Settings", severity: "suspicious" as const, users: 24630, description: "Unusually restrictive privacy configuration detected" },
+      { name: "Incognito Mode", severity: "suspicious" as const, users: 15234, description: "Browsing in private or incognito mode" },
     ],
     coOccurrence: "Virtual Machine + Dev Tools co-occurred in 52% of these sessions",
   },
@@ -182,29 +182,29 @@ const FRAUD_CATEGORIES = [
     id: "behavioral-integrity",
     name: "Behavioral Integrity",
     description: "A human appears to be present, but their interaction patterns indicate low trust, low engagement, or manipulative behavior.",
-    badParticipants: 11240,
-    suspiciousParticipants: 12480,
+    badUsers: 11240,
+    suspiciousUsers: 12480,
     strength: "weak" as const,
     icon: Layers,
     signals: [
-      { name: "AI Detection", severity: "bad" as const, participants: 5891, description: "Responses consistent with AI-generated text" },
-      { name: "Quality Questions", severity: "bad" as const, participants: 7532, description: "Failed attention or quality screening checks" },
-      { name: "Untrusted Browsers/OS", severity: "suspicious" as const, participants: 12480, description: "Interaction patterns indicate low engagement or manipulative behavior" },
+      { name: "AI Detection", severity: "bad" as const, users: 5891, description: "Responses consistent with AI-generated text" },
+      { name: "Quality Questions", severity: "bad" as const, users: 7532, description: "Failed attention or quality screening checks" },
+      { name: "Untrusted Browsers/OS", severity: "suspicious" as const, users: 12480, description: "Interaction patterns indicate low engagement or manipulative behavior" },
     ],
     coOccurrence: "AI Usage and Quality Questions co-occurred in 22% of flagged sessions in this category",
   },
 ]
 
-// Aggregate all signals across categories, sorted by participants desc
+// Aggregate all signals across categories, sorted by users desc
 const ALL_SIGNALS = FRAUD_CATEGORIES.flatMap((cat) =>
   cat.signals.map((sig) => ({
     name: sig.name,
     severity: sig.severity,
-    participants: sig.participants,
-    pct: Number(((sig.participants / totalSessions) * 100).toFixed(1)),
+    users: sig.users,
+    pct: Number(((sig.users / totalSessions) * 100).toFixed(1)),
     category: cat.name,
   }))
-).sort((a, b) => b.participants - a.participants)
+).sort((a, b) => b.users - a.users)
 
 const SIGNAL_COLORS: Record<string, string> = {
   "Duplicate IP": "#f46a6a",
@@ -567,7 +567,7 @@ export default function FraudDetectionPage() {
     else setSelectedRows(new Set(filteredSessions.map((s) => s.visitorId)))
   }
 
-  const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badParticipants + b.suspiciousParticipants) - (a.badParticipants + a.suspiciousParticipants))
+  const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badUsers + b.suspiciousUsers) - (a.badUsers + a.suspiciousUsers))
 
   const goodPct = ((goodCount / totalSessions) * 100).toFixed(1)
   const suspPct = ((suspiciousCount / totalSessions) * 100).toFixed(1)
@@ -739,8 +739,8 @@ export default function FraudDetectionPage() {
               <div className="mt-4 p-3 bg-muted/40 rounded-lg">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {badCount.toLocaleString()} sessions classified as Bad. Most common:{" "}
-                  <span className="font-medium text-foreground">{sorted[0].name} ({Math.round(sorted[0].badParticipants / 1000)}K)</span> and{" "}
-                  <span className="font-medium text-foreground">{sorted[1].name} ({Math.round((sorted[1].badParticipants + sorted[1].suspiciousParticipants) / 1000)}K)</span>
+                  <span className="font-medium text-foreground">{sorted[0].name} ({Math.round(sorted[0].badUsers / 1000)}K)</span> and{" "}
+                  <span className="font-medium text-foreground">{sorted[1].name} ({Math.round((sorted[1].badUsers + sorted[1].suspiciousUsers) / 1000)}K)</span>
                 </p>
               </div>
             </CardContent>
@@ -841,7 +841,7 @@ export default function FraudDetectionPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-sm font-semibold">Sessions Flagged</CardTitle>
-                  <InfoTip text="Each participant has one final outcome (Bad or Suspicious) based on their highest-severity check. Bad and Suspicious counts within each category are mutually exclusive." side="right" />
+                  <InfoTip text="Each user has one final outcome (Bad or Suspicious) based on their highest-severity check. Bad and Suspicious counts within each category are mutually exclusive." side="right" />
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">Note: A single session may contribute to multiple categories</p>
               </div>
@@ -873,14 +873,14 @@ export default function FraudDetectionPage() {
             {/* Column headers */}
             <div className="grid grid-cols-[minmax(140px,1.2fr)_minmax(120px,1.5fr)_minmax(100px,1.2fr)_28px] items-center gap-4 px-6 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide border-b border-border">
               <span>Category</span>
-              <span>Flagged Participants</span>
+              <span>Flagged Users</span>
               <span>Checks</span>
               <span />
             </div>
 
             <div className="divide-y divide-border">
               {(() => {
-                const maxFlagged = Math.max(...FRAUD_CATEGORIES.map((c) => c.badParticipants + c.suspiciousParticipants))
+                const maxFlagged = Math.max(...FRAUD_CATEGORIES.map((c) => c.badUsers + c.suspiciousUsers))
 
                 return FRAUD_CATEGORIES.map((category) => {
                   const isExpanded = expandedCategory === category.id
@@ -888,9 +888,9 @@ export default function FraudDetectionPage() {
                   const Icon = category.icon
                   const badSignals = category.signals.filter((s) => s.severity === "bad")
                   const suspSignals = category.signals.filter((s) => s.severity === "suspicious")
-                  const hasBad = category.badParticipants > 0
-                  const hasSusp = category.suspiciousParticipants > 0
-                  const totalFlagged = category.badParticipants + category.suspiciousParticipants
+                  const hasBad = category.badUsers > 0
+                  const hasSusp = category.suspiciousUsers > 0
+                  const totalFlagged = category.badUsers + category.suspiciousUsers
                   const barPct = (totalFlagged / maxFlagged) * 100
 
                   return (
@@ -951,10 +951,10 @@ export default function FraudDetectionPage() {
 
                       {/* Expanded detail */}
                       {isExpanded && (() => {
-                        // Validate: bad check participants should not exceed bad outcome count
-                        const hasDataError = badSignals.some((s) => s.participants > category.badParticipants) ||
-                          (badSignals.length === 0 && category.badParticipants > 0) ||
-                          (suspSignals.length === 0 && category.suspiciousParticipants > 0)
+                        // Validate: bad check users should not exceed bad outcome count
+                        const hasDataError = badSignals.some((s) => s.users > category.badUsers) ||
+                          (badSignals.length === 0 && category.badUsers > 0) ||
+                          (suspSignals.length === 0 && category.suspiciousUsers > 0)
 
                         return (
                           <div className="px-6 pb-5 pt-3 bg-muted/20 border-t border-border">
@@ -965,15 +965,15 @@ export default function FraudDetectionPage() {
                               {hasBad && (
                                 <div className="flex items-center gap-1.5">
                                   <div className="h-2 w-2 rounded-full" style={{ backgroundColor: "#f46a6a" }} />
-                                  <span className="text-sm font-semibold text-foreground">{category.badParticipants.toLocaleString()}</span>
-                                  <span className="text-xs text-muted-foreground">Bad participants</span>
+                                  <span className="text-sm font-semibold text-foreground">{category.badUsers.toLocaleString()}</span>
+                                  <span className="text-xs text-muted-foreground">Bad users</span>
                                 </div>
                               )}
                               {hasSusp && (
                                 <div className="flex items-center gap-1.5">
                                   <div className="h-2 w-2 rounded-full" style={{ backgroundColor: "#f1b44c" }} />
-                                  <span className="text-sm font-semibold text-foreground">{category.suspiciousParticipants.toLocaleString()}</span>
-                                  <span className="text-xs text-muted-foreground">Suspicious-only participants</span>
+                                  <span className="text-sm font-semibold text-foreground">{category.suspiciousUsers.toLocaleString()}</span>
+                                  <span className="text-xs text-muted-foreground">Suspicious-only users</span>
                                 </div>
                               )}
                             </div>
@@ -989,14 +989,14 @@ export default function FraudDetectionPage() {
                               <div className="mb-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Check Breakdown</span>
-                                  <InfoTip text="Each count represents distinct participants where this check fired. Counts may overlap across checks and do not represent final outcomes." side="right" />
+                                  <InfoTip text="Each count represents distinct users where this check fired. Counts may overlap across checks and do not represent final outcomes." side="right" />
                                 </div>
                                 <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {category.name} category:</p>
                               </div>
                               <div className="rounded-lg border border-border overflow-hidden">
                                 <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-3 py-1.5 bg-muted/50 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                                   <span>Check</span>
-                                  <span className="text-right w-24">Participants</span>
+                                  <span className="text-right w-24">Users</span>
                                   <span className="w-16 text-center">Severity</span>
                                 </div>
                                 {category.signals.map((signal) => (
@@ -1005,7 +1005,7 @@ export default function FraudDetectionPage() {
                                       <span className="text-xs font-mono text-foreground">{signal.name}</span>
                                       <p className="text-[10px] text-muted-foreground mt-0.5">{signal.description}</p>
                                     </div>
-                                    <span className="text-xs font-semibold text-foreground text-right w-24">{signal.participants.toLocaleString()}</span>
+                                    <span className="text-xs font-semibold text-foreground text-right w-24">{signal.users.toLocaleString()}</span>
                                     <span className={cn(
                                       "w-16 text-center text-[10px] font-medium px-2 py-0.5 rounded-full",
                                       signal.severity === "bad" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-700"
@@ -1069,7 +1069,7 @@ export default function FraudDetectionPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-semibold">Geographic Context</CardTitle>
-              <InfoTip text="Top countries where flagged participants originated, grouped by category. Location alone does not determine a participant's outcome." side="right" />
+              <InfoTip text="Top countries where flagged users originated, grouped by category. Location alone does not determine a user's outcome." side="right" />
             </div>
           </CardHeader>
           <CardContent>
@@ -1077,7 +1077,7 @@ export default function FraudDetectionPage() {
               {[
                 {
                   title: "Identity Reuse by Country",
-                  subtitle: "% of 165,460 identity reuse participants",
+                  subtitle: "% of 165,460 identity reuse users",
                   color: CATEGORY_COLORS["Identity Reuse"],
                   countries: [
                     { country: "United States", pct: 22, count: 36401 },
@@ -1091,7 +1091,7 @@ export default function FraudDetectionPage() {
                 },
                 {
                   title: "Network Masking by Country",
-                  subtitle: "% of 82,340 network masking participants",
+                  subtitle: "% of 82,340 network masking users",
                   color: CATEGORY_COLORS["Network Masking"],
                   countries: [
                     { country: "Germany", pct: 18, count: 14821 },

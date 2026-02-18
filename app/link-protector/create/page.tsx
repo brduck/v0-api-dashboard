@@ -72,7 +72,7 @@ export default function CreateLinkProtector() {
 
   // Advanced options state
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
-  const [maskParticipantId, setMaskParticipantId] = useState(false)
+  const [maskUserId, setMaskUserId] = useState(false)
 
   const [enableAll, setEnableAll] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -136,9 +136,9 @@ export default function CreateLinkProtector() {
     // Reset error state
     setSurveyLinkError("")
 
-    // Validate that the survey link contains {dtect.id} if maskParticipantId is enabled
-    if (maskParticipantId && !formData.protectedLink.includes("{dtect.id}")) {
-      setSurveyLinkError('It must include {dtect.id} when "Hide Supplier\'s Participant ID" is enabled')
+    // Validate that the survey link contains {dtect.id} if maskUserId is enabled
+    if (maskUserId && !formData.protectedLink.includes("{dtect.id}")) {
+      setSurveyLinkError('It must include {dtect.id} when "Hide Supplier\'s User ID" is enabled')
 
       // Scroll to the survey link input
       if (surveyLinkRef.current) {
@@ -156,7 +156,7 @@ export default function CreateLinkProtector() {
         ...formData,
         securityFeatures,
         advancedOptions: {
-          maskParticipantId,
+          maskUserId,
         },
         suspiciousSignals,
         selectedCountries,
@@ -257,7 +257,7 @@ export default function CreateLinkProtector() {
                           <Badge className="bg-black text-white">Recommended</Badge>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Our default link to communicate to participants that they failed security checks.
+                          Our default link to communicate to users that they failed security checks.
                         </p>
                       </div>
 
@@ -269,7 +269,7 @@ export default function CreateLinkProtector() {
                           <h3 className="font-medium text-base">Custom Termination Link</h3>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Add your custom link to communicate to participants that they failed security checks.
+                          Add your custom link to communicate to users that they failed security checks.
                         </p>
                         {formData.terminationType === "custom" && (
                           <Input
@@ -305,7 +305,7 @@ export default function CreateLinkProtector() {
                         <div className="space-y-4">
                           <div className="flex items-center justify-between">
                             <div>
-                              <h3 className="font-medium">Hide Supplier's Participant ID</h3>
+                              <h3 className="font-medium">Hide Supplier's User ID</h3>
                               <p className="text-sm text-gray-500">
                                 Replaces the original ID with a private one before redirecting to your Survey Link.
                                 Include <strong>{"{dtect.id}"}</strong> in your Survey Link so we can insert the private
@@ -313,9 +313,9 @@ export default function CreateLinkProtector() {
                               </p>
                             </div>
                             <Switch
-                              checked={maskParticipantId}
+                              checked={maskUserId}
                               onCheckedChange={(checked) => {
-                                setMaskParticipantId(checked)
+                                setMaskUserId(checked)
                               }}
                             />
                           </div>
@@ -680,7 +680,7 @@ export default function CreateLinkProtector() {
                       />
                     </div>
                     <p className="text-gray-500 text-sm ml-7">
-                      Blocks participants who display unusual behaviors that may indicate potential risk.
+                      Blocks users who display unusual behaviors that may indicate potential risk.
                     </p>
 
                     {securityFeatures.suspiciousUsers && (
@@ -852,7 +852,7 @@ export default function CreateLinkProtector() {
                         </div>
 
                         <p className="text-xs text-gray-500 mt-4">
-                          Participants matching any of these signals will be blocked from moving to your survey
+                          Users matching any of these signals will be blocked from moving to your survey
                         </p>
                       </div>
                     )}
@@ -870,7 +870,7 @@ export default function CreateLinkProtector() {
                       />
                     </div>
                     <p className="text-gray-500 text-sm ml-7">
-                      Blocks multiple attempts from the same supplier participant ID.
+                      Blocks multiple attempts from the same supplier user ID.
                     </p>
                   </div>
                 </div>

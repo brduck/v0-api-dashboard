@@ -9,35 +9,35 @@ const projects = [
   {
     id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     name: "E-commerce Verification",
-    totalParticipants: 245789,
+    totalUsers: 245789,
     trafficBlocked: 32456,
     lastActive: "2 hours ago",
   },
   {
     id: "7e9d5eb6-8a42-4f1c-b3cb-1a4c24d8ef1d",
     name: "Financial Services",
-    totalParticipants: 189632,
+    totalUsers: 189632,
     trafficBlocked: 45231,
     lastActive: "5 hours ago",
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440000",
     name: "Gaming Platform",
-    totalParticipants: 523147,
+    totalUsers: 523147,
     trafficBlocked: 78562,
     lastActive: "1 day ago",
   },
   {
     id: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     name: "Social Media App",
-    totalParticipants: 325478,
+    totalUsers: 325478,
     trafficBlocked: 52369,
     lastActive: "3 days ago",
   },
   {
     id: "6ba7b811-9dad-11d1-80b4-00c04fd430c8",
     name: "Healthcare Portal",
-    totalParticipants: 125789,
+    totalUsers: 125789,
     trafficBlocked: 12547,
     lastActive: "1 week ago",
   },
@@ -119,23 +119,23 @@ export default function Projects() {
                       <div className="p-4 md:col-span-2">
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">Total Participants vs Traffic Blocked</span>
+                            <span className="text-sm">Total Users vs Traffic Blocked</span>
                           </div>
                           <div className="flex items-center justify-between text-sm">
-                            <span>{project.totalParticipants.toLocaleString()} participants</span>
+                            <span>{project.totalUsers.toLocaleString()} users</span>
                             <span>{project.trafficBlocked.toLocaleString()} blocked</span>
                           </div>
                           <Progress
-                            value={(project.trafficBlocked / project.totalParticipants) * 100}
+                            value={(project.trafficBlocked / project.totalUsers) * 100}
                             className="h-2 bg-gray-100"
                             indicatorClassName="bg-red-500"
                           />
                           <div className="flex items-center justify-between text-xs text-gray-500">
                             <span>
-                              Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}
+                              Allowed: {(project.totalUsers - project.trafficBlocked).toLocaleString()}
                             </span>
                             <span>
-                              Blocked: {((project.trafficBlocked / project.totalParticipants) * 100).toFixed(1)}%
+                              Blocked: {((project.trafficBlocked / project.totalUsers) * 100).toFixed(1)}%
                             </span>
                           </div>
                         </div>

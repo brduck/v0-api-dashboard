@@ -92,17 +92,17 @@ const ALL_SECURITY_FEATURES = {
   },
   suspiciousUsers: {
     name: "Suspicious Users",
-    description: "Blocks participants who display unusual behaviors that may indicate potential risk",
+    description: "Blocks users who display unusual behaviors that may indicate potential risk",
     color: "bg-red-500",
   },
   duplicateId: {
     name: "Duplicate ID",
-    description: "Blocks multiple attempts from the same supplier participant ID",
+    description: "Blocks multiple attempts from the same supplier user ID",
     color: "bg-emerald-500",
   },
   trafficPaused: {
     name: "Traffic Paused",
-    description: "Participants blocked when traffic collection is paused",
+    description: "Users blocked when traffic collection is paused",
     color: "bg-gray-500",
   },
 }
@@ -276,14 +276,14 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
   }
 
   const handleOpenLink = (link: string) => {
-    // Replace PARTICIPANT_ID_HERE with a random UUID
-    const linkWithRandomId = link.replace("PARTICIPANT_ID_HERE", crypto.randomUUID())
+    // Replace USER_ID_HERE with a random UUID
+    const linkWithRandomId = link.replace("USER_ID_HERE", crypto.randomUUID())
     // Open the link in a new tab
     window.open(linkWithRandomId, "_blank")
 
     toast({
       title: "Link opened with random ID",
-      description: "The link has been opened in a new tab with a random participant ID.",
+      description: "The link has been opened in a new tab with a random user ID.",
     })
   }
 
@@ -465,7 +465,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
     toast({
       title: "Test Mode Enabled",
       description:
-        "All participants will be allowed through to your protected link, but those who fail security checks will be flagged for review.",
+        "All users will be allowed through to your protected link, but those who fail security checks will be flagged for review.",
       variant: "default",
     })
   }
@@ -576,7 +576,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
         <div className="p-4 mt-auto border-t">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Last Participant:</span>
+            <span className="text-gray-500">Last User:</span>
             <span>{project.lastActive}</span>
           </div>
         </div>
@@ -598,7 +598,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
               </div>
               <div className="ml-3">
                 <p className="text-sm text-orange-700">
-                  <strong>Test Mode is enabled.</strong> All participants will be allowed through to your protected
+                  <strong>Test Mode is enabled.</strong> All users will be allowed through to your protected
                   link, but those who fail security checks will be flagged for review.{" "}
                   <button
                     onClick={() => setShowTestModeDialog(true)}
@@ -633,15 +633,15 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center">
-                      <div className="text-sm text-gray-500 mb-1">Total Participants</div>
-                      <div className="text-3xl font-bold">{project.totalParticipants.toLocaleString()}</div>
+                      <div className="text-sm text-gray-500 mb-1">Total Users</div>
+                      <div className="text-3xl font-bold">{project.totalUsers.toLocaleString()}</div>
                     </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center">
-                      <div className="text-sm text-gray-500 mb-1">Participants Blocked</div>
+                      <div className="text-sm text-gray-500 mb-1">Users Blocked</div>
                       <div className="text-3xl font-bold">{project.trafficBlocked.toLocaleString()}</div>
                     </div>
                   </CardContent>
@@ -651,8 +651,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     <div className="flex flex-col items-center">
                       <div className="text-sm text-gray-500 mb-1">Block Rate</div>
                       <div className="text-3xl font-bold">
-                        {project.totalParticipants > 0
-                          ? ((project.trafficBlocked / project.totalParticipants) * 100).toFixed(1)
+                        {project.totalUsers > 0
+                          ? ((project.trafficBlocked / project.totalUsers) * 100).toFixed(1)
                           : "0.0"}
                         %
                       </div>
@@ -680,7 +680,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         </svg>
                         {showTooltip && (
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-800 rounded-md z-10 w-64">
-                            Participants who dropped or are still in progress will not be categorized as blocked or
+                            Users who dropped or are still in progress will not be categorized as blocked or
                             allowed
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                           </div>
@@ -696,8 +696,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         className="h-full bg-red-500 transition-all duration-300"
                         style={{
                           width: `${
-                            project.totalParticipants > 0
-                              ? (project.trafficBlocked / project.totalParticipants) * 100
+                            project.totalUsers > 0
+                              ? (project.trafficBlocked / project.totalUsers) * 100
                               : 0
                           }%`,
                         }}
@@ -706,8 +706,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         className="absolute top-0 right-0 h-full bg-green-500 transition-all duration-300"
                         style={{
                           width: `${
-                            project.totalParticipants > 0
-                              ? ((project.totalParticipants - project.trafficBlocked) / project.totalParticipants) * 100
+                            project.totalUsers > 0
+                              ? ((project.totalUsers - project.trafficBlocked) / project.totalUsers) * 100
                               : 0
                           }%`,
                         }}
@@ -722,7 +722,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     <div className="flex items-center gap-2">
                       <div className="h-3 w-3 rounded-full bg-green-500"></div>
                       <span className="text-sm">
-                        Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}
+                        Allowed: {(project.totalUsers - project.trafficBlocked).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -735,7 +735,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     <div>
                       <CardTitle className="text-lg font-medium">Block Reasons</CardTitle>
                       <p className="text-sm text-gray-500 mt-1 mb-2">
-                        Participants blocked by each reason. One participant can be blocked for multiple reasons
+                        Users blocked by each reason. One user can be blocked for multiple reasons
                       </p>
                     </div>
                     <Button
@@ -850,7 +850,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           </div>
 
                           <p className="text-gray-500 text-sm">
-                            Send this link to participants to go through our security checks.
+                            Send this link to users to go through our security checks.
                           </p>
                         </div>
                         <div className="flex items-center gap-1">
@@ -886,7 +886,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                               <span className="font-medium">Protected Link</span>
                             </div>
 
-                            <p className="text-gray-500 text-sm"> Where participants are redirected if they qualify.</p>
+                            <p className="text-gray-500 text-sm"> Where users are redirected if they qualify.</p>
                           </div>
                         </div>
                         <Button
@@ -912,7 +912,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
 
                             <p className="text-gray-500 text-sm">
                               {" "}
-                              Where participants are redirected if they don't qualify.
+                              Where users are redirected if they don't qualify.
                             </p>
                           </div>
                         </div>
@@ -938,7 +938,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                               <span className="font-medium">Paused Link</span>
                             </div>
                             <p className="text-gray-500 text-sm">
-                              Where participants are redirected when traffic is paused or they return as 'Over Quota'.
+                              Where users are redirected when traffic is paused or they return as 'Over Quota'.
                             </p>
                           </div>
                           <Button
@@ -965,7 +965,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                       <div>
                         <CardTitle className="text-lg font-medium">Redirects to dtect</CardTitle>
                         <p className="text-sm text-gray-500">
-                          Add these dtect redirect links to your survey setup to assign a status to each participant
+                          Add these dtect redirect links to your survey setup to assign a status to each user
                         </p>
                       </div>
                     </div>
@@ -980,7 +980,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                               <span className="font-medium">Complete</span>
                             </div>
                             <p className="text-gray-500 text-sm">
-                              Use this link to redirect participants who complete your survey
+                              Use this link to redirect users who complete your survey
                             </p>
                           </div>
                           <Button
@@ -1008,7 +1008,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                               <span className="font-medium">Over Quota</span>
                             </div>
                             <p className="text-gray-500 text-sm">
-                              Use this link to redirect participants who are over quota
+                              Use this link to redirect users who are over quota
                             </p>
                           </div>
                           <Button
@@ -1036,7 +1036,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                               <span className="font-medium">Termination</span>
                             </div>
                             <p className="text-gray-500 text-sm">
-                              Use this link to redirect participants who are terminated
+                              Use this link to redirect users who are terminated
                             </p>
                           </div>
                           <Button
@@ -1510,7 +1510,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                             <Badge className="ml-2 bg-black text-white">NEW</Badge>
                           </h3>
                           <p className="text-sm text-gray-500">
-                            Blocks participants who display unusual behaviors that may indicate potential risk.
+                            Blocks users who display unusual behaviors that may indicate potential risk.
                           </p>
                         </div>
                       </div>
@@ -1689,7 +1689,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         </div>
 
                         <p className="text-xs text-gray-500 mt-4">
-                          Participants matching any of these signals will be blocked from moving to your survey
+                          Users matching any of these signals will be blocked from moving to your survey
                         </p>
                       </div>
                     )}
@@ -1704,7 +1704,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         <div>
                           <h3 className="font-medium">Duplicate ID</h3>
                           <p className="text-sm text-gray-500">
-                            Blocks multiple attempts from the same supplier participant ID.
+                            Blocks multiple attempts from the same supplier user ID.
                           </p>
                         </div>
                       </div>
@@ -1788,7 +1788,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           <Badge className="bg-black text-white">Recommended</Badge>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Our default link that directs participants who fail security checks.
+                          Our default link that directs users who fail security checks.
                         </p>
                       </div>
 
@@ -1811,7 +1811,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           <h3 className="font-medium text-base">Custom Termination Link</h3>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          Provide a custom link for participants who fail security checks
+                          Provide a custom link for users who fail security checks
                         </p>
                         {project.terminationType === "custom" && (
                           <Input
@@ -1842,7 +1842,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                         <div>
                           <h3 className="font-medium">Survey redirect to dtect</h3>
                           <p className="text-sm text-gray-500">
-                            Enabling this creates a unique ID for surveys redirecting participants back to dtect and we
+                            Enabling this creates a unique ID for surveys redirecting users back to dtect and we
                             route them based on the status returned
                           </p>
                         </div>
@@ -1870,7 +1870,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Complete URL</label>
                             <p className="text-xs text-gray-500">
-                              Provide the URL you want to redirect participants when they qualify in your survey and you
+                              Provide the URL you want to redirect users when they qualify in your survey and you
                               send them back to dtect
                             </p>
                             <Input
@@ -1899,9 +1899,9 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                           <div>
                             <h3 className="font-medium">Custom Link for Paused Traffic</h3>
                             <p className="text-sm text-gray-500">
-                              When enabled, dtect will use this URL to send participants when you pause traffic, or who
+                              When enabled, dtect will use this URL to send users when you pause traffic, or who
                               return from your survey as 'Over Quota' if <strong>Survey redirect to dtect</strong> is
-                              enabled. If disabled, participants in these scenarios will be sent to the project's
+                              enabled. If disabled, users in these scenarios will be sent to the project's
                               Termination Link instead.
                             </p>
                           </div>
@@ -1929,7 +1929,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                             <div className="space-y-2">
                               <label className="text-sm font-medium">Paused/Over Quota URL</label>
                               <p className="text-xs text-gray-500">
-                                Provide the URL to redirect participants blocked by traffic paused or those returning as
+                                Provide the URL to redirect users blocked by traffic paused or those returning as
                                 'Over Quota' from your survey if <strong>Surveys redirects to dtect</strong> is enabled
                               </p>
                               <Input
@@ -1974,7 +1974,7 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
                     <div>
                       <h3 className="font-medium">Test Mode</h3>
                       <p className="text-sm text-gray-500">
-                        All participants will be allowed through to your protected link, but those who fail security
+                        All users will be allowed through to your protected link, but those who fail security
                         checks will be flagged for review.
                       </p>
                     </div>
@@ -1991,8 +1991,8 @@ export default function LinkProtectorDetails({ params }: { params: { id: string 
           <AlertDialogHeader>
             <AlertDialogTitle>Enable Test Mode?</AlertDialogTitle>
             <AlertDialogDescription>
-              When Test Mode is enabled, we will not block participants even if they fail security checks. All
-              participants will be allowed through to your protected link while we continue to flagging them for your
+              When Test Mode is enabled, we will not block users even if they fail security checks. All
+              users will be allowed through to your protected link while we continue to flagging them for your
               review.
             </AlertDialogDescription>
           </AlertDialogHeader>

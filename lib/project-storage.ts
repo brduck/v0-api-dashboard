@@ -19,11 +19,11 @@ export interface Project {
     duplicateId: boolean
   }
   advancedOptions?: {
-    maskParticipantId: boolean
+    maskUserId: boolean
   }
-  totalParticipants: number
+  totalUsers: number
   trafficBlocked: number
-  lastActive: string // This represents the Last Participant timestamp
+  lastActive: string // This represents the Last User timestamp
   status: "active" | "paused"
   createdAt: string
   securityLink?: string
@@ -53,9 +53,9 @@ const sampleProjects: Project[] = [
       duplicateId: true,
     },
     advancedOptions: {
-      maskParticipantId: false,
+      maskUserId: false,
     },
-    totalParticipants: 245789,
+    totalUsers: 245789,
     trafficBlocked: 32456,
     lastActive: "2 hours ago",
     status: "active",
@@ -80,9 +80,9 @@ const sampleProjects: Project[] = [
       duplicateId: true,
     },
     advancedOptions: {
-      maskParticipantId: true,
+      maskUserId: true,
     },
-    totalParticipants: 189632,
+    totalUsers: 189632,
     trafficBlocked: 45231,
     lastActive: "5 hours ago",
     status: "active",
@@ -107,9 +107,9 @@ const sampleProjects: Project[] = [
       duplicateId: true,
     },
     advancedOptions: {
-      maskParticipantId: false,
+      maskUserId: false,
     },
-    totalParticipants: 523147,
+    totalUsers: 523147,
     trafficBlocked: 78562,
     lastActive: "1 day ago",
     status: "active",
@@ -129,7 +129,7 @@ export function getProjects(): Project[] {
       // Initialize with sample studies on first load
       const projectsWithLinks = sampleProjects.map((project) => ({
         ...project,
-        securityLink: `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=PARTICIPANT_ID_HERE`,
+        securityLink: `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=USER_ID_HERE`,
         terminationLink: `https://participation.dtect.io/test-supplier?status=security_terminate&id=${project.id}`,
       }))
       localStorage.setItem("dtect_projects", JSON.stringify(projectsWithLinks))
@@ -138,14 +138,16 @@ export function getProjects(): Project[] {
 
     // Update existing studies with the new link formats
     const projects = JSON.parse(storedProjects)
-    const updatedProjects = projects.map((project: Project) => ({
+    const updatedProjects = projects.map((project: any) => ({
       ...project,
-      securityLink: `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=PARTICIPANT_ID_HERE`,
+      // Migrate old property names
+      totalUsers: project.totalUsers ?? project.totalParticipants ?? 0,
+      securityLink: `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=USER_ID_HERE`,
       terminationLink:
         project.terminationLink ||
         `https://participation.dtect.io/test-supplier?status=security_terminate&id=${project.id}`,
       // Add default advanced options if they don't exist
-      advancedOptions: project.advancedOptions || { maskParticipantId: false },
+      advancedOptions: project.advancedOptions || { maskUserId: false },
     }))
 
     // Save the updated studies back to localStorage
@@ -169,7 +171,7 @@ export function addProject(
   project: Omit<
     Project,
     | "id"
-    | "totalParticipants"
+    | "totalUsers"
     | "trafficBlocked"
     | "lastActive"
     | "status"
@@ -185,16 +187,16 @@ export function addProject(
   const newProject: Project = {
     ...project,
     id: newId,
-    totalParticipants: 0,
+    totalUsers: 0,
     trafficBlocked: 0,
     lastActive: "Just now",
     status: "active",
     createdAt: new Date().toISOString().split("T")[0],
-    advancedOptions: project.advancedOptions || { maskParticipantId: false },
+    advancedOptions: project.advancedOptions || { maskUserId: false },
   }
 
   // Add security link and termination link with the new formats
-  newProject.securityLink = `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=PARTICIPANT_ID_HERE`
+  newProject.securityLink = `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=USER_ID_HERE`
   newProject.terminationLink = `https://participation.dtect.io/test-supplier?status=security_terminate&id=${newId}`
 
   // Save to localStorage

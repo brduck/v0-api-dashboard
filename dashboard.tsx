@@ -88,7 +88,7 @@ export default function Dashboard() {
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
                   <CardTitle className="text-sm font-medium">dtect Score</CardTitle>
-                  <p className="text-xs text-gray-500">Score for participants</p>
+                  <p className="text-xs text-gray-500">Score for users</p>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <ExternalLink className="h-4 w-4 text-gray-500" />
@@ -142,7 +142,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Features Usage</CardTitle>
-              <p className="text-xs text-gray-500">Participants flagged on security checks</p>
+              <p className="text-xs text-gray-500">Users flagged on security checks</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

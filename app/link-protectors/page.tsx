@@ -50,12 +50,12 @@ export default function LinkProtectors() {
     switch (sortBy) {
       case "name":
         return a.name.localeCompare(b.name)
-      case "participants":
-        return b.totalParticipants - a.totalParticipants
+      case "users":
+        return b.totalUsers - a.totalUsers
       case "blocked":
         return b.trafficBlocked - a.trafficBlocked
       case "blockRate":
-        return b.trafficBlocked / b.totalParticipants - a.trafficBlocked / a.totalParticipants
+        return b.trafficBlocked / b.totalUsers - a.trafficBlocked / a.totalUsers
       case "createdAt":
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       case "lastActive":
@@ -139,7 +139,7 @@ export default function LinkProtectors() {
                 <SelectContent>
                   <SelectItem value="lastActive">Last Active</SelectItem>
                   <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="participants">Participants</SelectItem>
+                  <SelectItem value="participants">Users</SelectItem>
                   <SelectItem value="blocked">Blocked Traffic</SelectItem>
                   <SelectItem value="blockRate">Block Rate</SelectItem>
                   <SelectItem value="createdAt">Created Date</SelectItem>
@@ -247,8 +247,8 @@ export default function LinkProtectors() {
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-4">
                                 <div className="text-left">
-                                  <div className="text-sm text-gray-500">Participants</div>
-                                  <div className="font-bold">{project.totalParticipants.toLocaleString()}</div>
+                                  <div className="text-sm text-gray-500">Users</div>
+                                  <div className="font-bold">{project.totalUsers.toLocaleString()}</div>
                                 </div>
                                 <div className="text-left">
                                   <div className="text-sm text-gray-500">Blocked</div>
@@ -257,8 +257,8 @@ export default function LinkProtectors() {
                                 <div className="text-left">
                                   <div className="text-sm text-gray-500">Block Rate</div>
                                   <div className="font-bold">
-                                    {project.totalParticipants > 0
-                                      ? ((project.trafficBlocked / project.totalParticipants) * 100).toFixed(1)
+                                    {project.totalUsers > 0
+                                      ? ((project.trafficBlocked / project.totalUsers) * 100).toFixed(1)
                                       : "0.0"}
                                     %
                                   </div>
@@ -275,8 +275,8 @@ export default function LinkProtectors() {
                                     className="h-full bg-red-500 transition-all duration-300"
                                     style={{
                                       width: `${
-                                        project.totalParticipants > 0
-                                          ? (project.trafficBlocked / project.totalParticipants) * 100
+                                        project.totalUsers > 0
+                                          ? (project.trafficBlocked / project.totalUsers) * 100
                                           : 0
                                       }%`,
                                     }}
@@ -285,10 +285,10 @@ export default function LinkProtectors() {
                                     className="absolute top-0 right-0 h-full bg-green-500 transition-all duration-300"
                                     style={{
                                       width: `${
-                                        project.totalParticipants > 0
+                                        project.totalUsers > 0
                                           ? (
-                                              (project.totalParticipants - project.trafficBlocked) /
-                                                project.totalParticipants
+                                              (project.totalUsers - project.trafficBlocked) /
+                                                project.totalUsers
                                             ) * 100
                                           : 0
                                       }%`,
@@ -299,7 +299,7 @@ export default function LinkProtectors() {
                               <div className="flex items-center justify-between text-xs">
                                 <span>Blocked: {project.trafficBlocked.toLocaleString()}</span>
                                 <span>
-                                  Allowed: {(project.totalParticipants - project.trafficBlocked).toLocaleString()}
+                                  Allowed: {(project.totalUsers - project.trafficBlocked).toLocaleString()}
                                 </span>
                               </div>
                             </div>
@@ -341,7 +341,7 @@ export default function LinkProtectors() {
                   <TableRow>
                     <TableHead className="w-[250px]">Link Protector</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Participants</TableHead>
+                    <TableHead className="text-right">Users</TableHead>
                     <TableHead className="text-right">Blocked</TableHead>
                     <TableHead className="text-right">Block Rate</TableHead>
                     <TableHead>Entry Link</TableHead>
@@ -380,14 +380,14 @@ export default function LinkProtectors() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          {project.totalParticipants.toLocaleString()}
+                          {project.totalUsers.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right font-medium">
                           {project.trafficBlocked.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          {project.totalParticipants > 0
-                            ? ((project.trafficBlocked / project.totalParticipants) * 100).toFixed(1)
+                          {project.totalUsers > 0
+                            ? ((project.trafficBlocked / project.totalUsers) * 100).toFixed(1)
                             : "0.0"}
                           %
                         </TableCell>

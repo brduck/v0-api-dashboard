@@ -33,6 +33,10 @@ import {
   X,
   PanelRightOpen,
   PanelRightClose,
+  Code,
+  BarChart2,
+  Lock,
+  Key,
 } from "lucide-react"
 import {
   Bar,
@@ -58,6 +62,7 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 
 import { cn } from "@/lib/utils"
+import { useTrialTest } from "@/components/trial-test-context"
 
 // ─── SHARED DATA ──────────────────────────────────────────────────────────────
 
@@ -460,6 +465,7 @@ const CHECK_KEYS = [
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 
 export default function FraudDetectionPage() {
+  const { settings } = useTrialTest()
   const [selectedClient, setSelectedClient] = useState<string>("all")
   const [selectedProject, setSelectedProject] = useState<string>("all")
   const [clientOpen, setClientOpen] = useState(false)
@@ -578,6 +584,64 @@ export default function FraudDetectionPage() {
     { name: labels.suspiciousShort, value: suspiciousCount, fill: "#f1b44c" },
     { name: labels.badShort, value: badCount, fill: "#f46a6a" },
   ]
+
+  if (!settings.hasApiAccess) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] p-6 bg-background">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-6">
+          <Code className="w-5 h-5 text-foreground" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight mb-4 text-foreground">Unlock API Access</h1>
+        <p className="text-muted-foreground mb-10 max-w-[600px] text-center font-medium leading-relaxed text-sm">
+          Scale your fraud detection with direct API integration. Access real-time data,<br />
+          automate workflows, and build custom solutions.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[820px] mb-4">
+          <Card className="flex flex-col text-left p-6 shadow-none border border-border bg-card rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted border border-border/50">
+                <BarChart2 className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <h3 className="font-semibold text-[14px] text-foreground">Advanced Analytics</h3>
+            </div>
+            <p className="text-[13px] text-muted-foreground leading-relaxed">
+              Access detailed usage metrics, security check breakdowns,<br />
+              and comprehensive reporting through our dashboard.
+            </p>
+          </Card>
+
+          <Card className="flex flex-col text-left p-6 shadow-none border border-border bg-card rounded-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted border border-border/50">
+                <Lock className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <h3 className="font-semibold text-[14px] text-foreground">Custom Workflows</h3>
+            </div>
+            <p className="text-[13px] text-muted-foreground leading-relaxed">
+              Integrate dtect's security checks directly into your<br />
+              application flow. Configure rules, and build tailored fraud<br />
+              prevention workflows.
+            </p>
+          </Card>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center justify-between bg-muted/30 p-6 rounded-xl w-full max-w-[820px] text-left gap-6 border border-border/50">
+          <div>
+            <h3 className="font-semibold text-[14px] text-foreground mb-1.5">Ready to automate?</h3>
+            <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[500px]">
+              Streamline your workflow with direct API integration. Request access today to unlock<br />
+              volume discounts and enable API keys on your account.
+            </p>
+          </div>
+          <Button className="shrink-0 bg-foreground text-background hover:bg-foreground/90 h-9 px-4 rounded-md font-medium text-xs">
+            <Key className="w-3.5 h-3.5 mr-2" />
+            Request Access
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-8">

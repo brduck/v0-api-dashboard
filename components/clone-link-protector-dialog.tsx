@@ -58,12 +58,10 @@ export function CloneLinkProtectorDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
             Clone Link Protector
           </DialogTitle>
           <DialogDescription>
-            The cloned link protector will have a different entry link and security configuration. All security
-            settings and features will be copied from the original.
+            The cloned link protector will have the security settings, termination link and protected link.
           </DialogDescription>
         </DialogHeader>
 
@@ -81,7 +79,7 @@ export function CloneLinkProtectorDialog({
               autoFocus
             />
             <p className="text-xs text-gray-500">
-              The new link protector will have a unique security link and entry point.
+              The entry link will be updated
             </p>
           </div>
         </div>

@@ -585,7 +585,7 @@ export default function FraudDetectionPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">API Usage</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Fraud Detection</h1>
             <div className="inline-flex rounded-lg border border-border overflow-hidden mt-2">
               <button
                 onClick={() => setView("overview")}

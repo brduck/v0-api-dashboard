@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
 import type { Project } from "@/lib/project-storage"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -33,7 +32,7 @@ export function CloneLinkProtectorDialog({
   const [isLoading, setIsLoading] = useState(false)
 
   // Update the pre-filled name when project changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (project && open) {
       setNewName(`[CLONE] - ${project.name}`)
     }

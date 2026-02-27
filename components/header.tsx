@@ -34,7 +34,7 @@ export function Header() {
             href="/usage"
             className={`text-sm font-medium ${pathname === "/usage" ? "text-black" : "text-gray-500"}`}
           >
-            API
+            Usage
           </Link>
           <Link
             href="/settings"

@@ -5,7 +5,7 @@ import type { Project } from "@/lib/project-storage"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal, AlertTriangle } from "lucide-react"
+import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal, AlertTriangle, Copy } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,10 +14,11 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { getProjects } from "@/lib/project-storage"
+import { getProjects, cloneProject } from "@/lib/project-storage"
 import { useTrialTest } from "@/components/trial-test-context"
 import { useSearchParams } from "next/navigation"
 import { PaymentRequiredOverlay } from "@/components/payment-required-overlay"
+import { CloneLinkProtectorDialog } from "@/components/clone-link-protector-dialog"
 
 export default function LinkProtectorsPage() {
   const router = useRouter()
@@ -31,6 +32,8 @@ export default function LinkProtectorsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("lastActive")
+  const [cloneDialogOpen, setCloneDialogOpen] = useState(false)
+  const [selectedProjectForClone, setSelectedProjectForClone] = useState<Project | null>(null)
 
   // useEffect(() => {
   //   if (settings.isPaymentRequired) {
@@ -97,6 +100,42 @@ export default function LinkProtectorsPage() {
       title: "Link copied to clipboard",
       description: "The link has been copied to your clipboard.",
     })
+  }
+
+  const handleCloneClick = (project: Project, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSelectedProjectForClone(project)
+    setCloneDialogOpen(true)
+  }
+
+  const handleCloneProject = async (newName: string) => {
+    if (!selectedProjectForClone) return
+
+    try {
+      const clonedProject = cloneProject(selectedProjectForClone.id, newName)
+
+      if (clonedProject) {
+        // Refresh the projects list
+        setProjects(getProjects())
+
+        // Show success toast
+        toast({
+          title: "Link Protector cloned successfully",
+          description: `Created new link protector: ${newName}`,
+        })
+
+        // Redirect to the new cloned link protector
+        router.push(`/link-protector/${clonedProject.id}`)
+      }
+    } catch (error) {
+      console.error("Error cloning link protector:", error)
+      toast({
+        title: "Error cloning link protector",
+        description: "An error occurred while cloning. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -288,9 +327,20 @@ export default function LinkProtectorsPage() {
                                       </div>
                                     </div>
                                   </div>
-                                  <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
-                                    View Details
-                                  </Button>
+                                  <div className="flex items-center gap-2">
+                                    <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
+                                      View Details
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="shrink-0 bg-transparent flex items-center gap-1.5 h-9"
+                                      onClick={(e) => handleCloneClick(project, e)}
+                                    >
+                                      <Copy className="h-4 w-4" />
+                                      Clone
+                                    </Button>
+                                  </div>
                                 </div>
                                 <div className="space-y-1">
                                   <div className="w-full">
@@ -427,11 +477,22 @@ export default function LinkProtectorsPage() {
                               </Button>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Link href={`/link-protector/${project.id}`}>
-                                <Button variant="outline" size="sm">
-                                  View
+                              <div className="flex items-center justify-end gap-2">
+                                <Link href={`/link-protector/${project.id}`}>
+                                  <Button variant="outline" size="sm">
+                                    View
+                                  </Button>
+                                </Link>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex items-center gap-1.5"
+                                  onClick={(e) => handleCloneClick(project, e)}
+                                >
+                                  <Copy className="h-4 w-4" />
+                                  Clone
                                 </Button>
-                              </Link>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))
@@ -444,6 +505,13 @@ export default function LinkProtectorsPage() {
           </div>
         </div>
       </div>
+
+      <CloneLinkProtectorDialog
+        project={selectedProjectForClone}
+        open={cloneDialogOpen}
+        onOpenChange={setCloneDialogOpen}
+        onClone={handleCloneProject}
+      />
     </div>
   )
 }

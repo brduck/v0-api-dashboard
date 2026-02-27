@@ -216,3 +216,34 @@ export function deleteProject(id: string): void {
   const updatedProjects = projects.filter((p) => p.id !== id)
   localStorage.setItem("dtect_projects", JSON.stringify(updatedProjects))
 }
+
+// Clone a project with a new name
+export function cloneProject(id: string, newName: string): Project | undefined {
+  const projects = getProjects()
+  const projectToClone = projects.find((p) => p.id === id)
+
+  if (!projectToClone) {
+    return undefined
+  }
+
+  const newId = crypto.randomUUID()
+
+  // Create a cloned project with new ID and name, reset statistics
+  const clonedProject: Project = {
+    ...projectToClone,
+    id: newId,
+    name: newName,
+    totalParticipants: 0,
+    trafficBlocked: 0,
+    lastActive: "Just now",
+    createdAt: new Date().toISOString().split("T")[0],
+    // Generate new security and termination links with the new ID
+    securityLink: `https://participation.dtect.io?uref=17313db1-800f-4de4-9db0-e61610a1246b&id=PARTICIPANT_ID_HERE`,
+    terminationLink: `https://participation.dtect.io/test-supplier?status=security_terminate&id=${newId}`,
+  }
+
+  // Save to localStorage
+  localStorage.setItem("dtect_projects", JSON.stringify([clonedProject, ...projects]))
+
+  return clonedProject
+}

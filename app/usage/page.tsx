@@ -800,7 +800,7 @@ export default function FraudDetectionPage() {
                         className="flex items-center gap-1.5 cursor-pointer"
                       >
                         <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: showGoodInTraffic ? "#34c38f" : "#d1d5db" }} />
-                        <span className={cn("text-xs", showGoodInTraffic ? "text-muted-foreground" : "text-muted-foreground/50 line-through")}>Good</span>
+                        <span className={cn("text-xs", showGoodInTraffic ? "text-muted-foreground" : "text-muted-foreground/50")}>Good</span>
                         <span className={cn("text-xs font-semibold ml-1", showGoodInTraffic ? "text-foreground" : "text-muted-foreground/50")}>{totalGood.toLocaleString()}</span>
                       </button>
                     </div>
@@ -1575,7 +1575,7 @@ export default function FraudDetectionPage() {
                       </div>
                     </div>
 
-                    {/* ── DEVICE ───────────────────────────── */}
+                    {/* ── DEVICE ───────────────────���───────── */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">

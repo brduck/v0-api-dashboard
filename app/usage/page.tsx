@@ -479,7 +479,7 @@ function computeOutcome(checks: Record<string, string>): "good" | "suspicious" |
   return hasSuspicious ? "suspicious" : "good"
 }
 
-// ─── COMPONENT ────────────────────────────────────────────────────────────────
+// ─── COMPONENT ───────────────────────────────────────────────────��────────────
 
 export default function FraudDetectionPage() {
   const [selectedClient, setSelectedClient] = useState<string>("all")
@@ -1053,10 +1053,13 @@ export default function FraudDetectionPage() {
                               </div>
                             </div>
 
-                            <div className="p-2.5 bg-muted/40 rounded-lg">
-                              <p className="text-[11px] text-muted-foreground">
-                                <span className="font-medium text-foreground">Co-occurrence:</span> {category.coOccurrence}
-                              </p>
+                            <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-lg">
+                              <div className="flex items-start gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM7.25 4.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-1.5 0v-3.5ZM8 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>
+                                <p className="text-[11px] leading-relaxed text-blue-800 dark:text-blue-300">
+                                  <span className="font-semibold">Co-occurrence insight:</span> {category.coOccurrence}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         )

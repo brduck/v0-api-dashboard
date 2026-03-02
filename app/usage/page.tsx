@@ -457,6 +457,28 @@ const CHECK_KEYS = [
   "AI Detection", "Quality Questions",
 ] as const
 
+const BAD_SIGNALS = new Set([
+  "Location Lock", "Duplicate Device", "Duplicate IP", "Duplicate ID",
+  "Automation Detection", "Untrusted Browsers/OS", "Blocked IP",
+  "AI Detection", "Quality Questions",
+])
+
+const SUSPICIOUS_SIGNALS = new Set([
+  "Location Validation", "VPN Usage", "Device Tampering", "Virtual Machine",
+  "Dev Tools", "Privacy-Focused Settings", "Tor Exit Node",
+  "High-Activity Device", "Incognito Mode",
+])
+
+function computeOutcome(checks: Record<string, string>): "good" | "suspicious" | "bad" {
+  let hasSuspicious = false
+  for (const [key, value] of Object.entries(checks)) {
+    if (value !== "FAIL") continue
+    if (BAD_SIGNALS.has(key)) return "bad"
+    if (SUSPICIOUS_SIGNALS.has(key)) hasSuspicious = true
+  }
+  return hasSuspicious ? "suspicious" : "good"
+}
+
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 
 export default function FraudDetectionPage() {
@@ -498,7 +520,7 @@ export default function FraudDetectionPage() {
   const filteredSessions = React.useMemo(() => {
     let sessions = SAMPLE_SESSIONS.filter((session) => {
       const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
-      const matchesScore = scoreFilters.size === 0 || scoreFilters.has(session.outcome)
+      const matchesScore = scoreFilters.size === 0 || scoreFilters.has(computeOutcome(session.checks))
       const matchesCheck = checkFilters.size === 0 || Array.from(checkFilters).every((key) => session.checks[key] === "FAIL")
       const matchesCategory = categoryFilters.size === 0 || session.categories.some((cat) => categoryFilters.has(cat))
       return matchesSearch && matchesScore && matchesCheck && matchesCategory
@@ -508,7 +530,7 @@ export default function FraudDetectionPage() {
       let cmp = 0
       switch (sortCol) {
         case "visitorId": cmp = a.visitorId.localeCompare(b.visitorId); break
-        case "outcome": cmp = scoreOrder[a.outcome] - scoreOrder[b.outcome]; break
+        case "outcome": cmp = scoreOrder[computeOutcome(a.checks)] - scoreOrder[computeOutcome(b.checks)]; break
         case "country": cmp = a.location.country.localeCompare(b.location.country); break
         case "city": cmp = a.location.city.localeCompare(b.location.city); break
         case "createdAt": cmp = a.createdAt.localeCompare(b.createdAt); break
@@ -1300,8 +1322,8 @@ export default function FraudDetectionPage() {
                         <span className="font-medium text-foreground">{selectedRows.size}</span> selected
                         {(() => {
                           const selSessions = filteredSessions.filter((ss) => selectedRows.has(ss.visitorId))
-                          const badCount = selSessions.filter((ss) => ss.outcome === "bad").length
-                          const suspCount = selSessions.filter((ss) => ss.outcome === "suspicious").length
+    const badCount = selSessions.filter((ss) => computeOutcome(ss.checks) === "bad").length
+    const suspCount = selSessions.filter((ss) => computeOutcome(ss.checks) === "suspicious").length
                           const parts: string[] = []
                           if (badCount > 0) parts.push(`${badCount} Bad`)
                           if (suspCount > 0) parts.push(`${suspCount} Suspicious`)
@@ -1396,19 +1418,21 @@ export default function FraudDetectionPage() {
                                 <span className="font-mono text-xs text-foreground" title={session.visitorId}>{truncateId(session.visitorId)}</span>
                               </TableCell>
                               <TableCell className="py-0">
+                                {(() => { const oc = computeOutcome(session.checks); return (
                                 <span className={cn(
                                   "inline-flex items-center gap-1 text-xs font-medium capitalize",
-                                  session.outcome === "bad" && "text-red-600",
-                                  session.outcome === "suspicious" && "text-amber-600",
-                                  session.outcome === "good" && "text-emerald-600",
+                                  oc === "bad" && "text-red-600",
+                                  oc === "suspicious" && "text-amber-600",
+                                  oc === "good" && "text-emerald-600",
                                 )}>
                                   <span className={cn("h-1.5 w-1.5 rounded-full shrink-0",
-                                    session.outcome === "bad" && "bg-red-500",
-                                    session.outcome === "suspicious" && "bg-amber-500",
-                                    session.outcome === "good" && "bg-emerald-500",
+                                    oc === "bad" && "bg-red-500",
+                                    oc === "suspicious" && "bg-amber-500",
+                                    oc === "good" && "bg-emerald-500",
                                   )} />
-                                  {session.outcome}
+                                  {oc}
                                 </span>
+                                ) })()}
                               </TableCell>
                               <TableCell className="py-0">
                                 <span className="text-xs text-foreground">{session.location.country}</span>
@@ -1465,19 +1489,21 @@ export default function FraudDetectionPage() {
                   {/* Panel header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
                     <div className="flex items-center gap-2 min-w-0">
+                      {(() => { const oc = computeOutcome(s.checks); return (
                       <span className={cn(
                         "inline-flex items-center gap-1 text-xs font-semibold capitalize",
-                        s.outcome === "bad" && "text-red-600",
-                        s.outcome === "suspicious" && "text-amber-600",
-                        s.outcome === "good" && "text-emerald-600",
+                        oc === "bad" && "text-red-600",
+                        oc === "suspicious" && "text-amber-600",
+                        oc === "good" && "text-emerald-600",
                       )}>
                         <span className={cn("h-2 w-2 rounded-full shrink-0",
-                          s.outcome === "bad" && "bg-red-500",
-                          s.outcome === "suspicious" && "bg-amber-500",
-                          s.outcome === "good" && "bg-emerald-500",
+                          oc === "bad" && "bg-red-500",
+                          oc === "suspicious" && "bg-amber-500",
+                          oc === "good" && "bg-emerald-500",
                         )} />
-                        {s.outcome}
+                        {oc}
                       </span>
+                      ) })()}
                       <span className="font-mono text-[11px] text-muted-foreground truncate" title={s.visitorId}>{truncateId(s.visitorId)}</span>
                       {copyBtn(s.visitorId)}
                     </div>

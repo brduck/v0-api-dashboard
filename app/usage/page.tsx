@@ -1211,7 +1211,7 @@ export default function FraudDetectionPage() {
           return (
             <div className="flex gap-0 h-[calc(100vh-220px)] min-h-[500px]">
               {/* ── LEFT: Data Table ──────────────────────────────────── */}
-              <div className={cn("flex flex-col border border-border rounded-lg overflow-hidden bg-background transition-all", selectedSession ? "flex-1 min-w-0" : "w-full")}>
+              <div className={cn("flex flex-col border border-border rounded-lg overflow-hidden bg-background transition-all w-full")}>
                 {/* Toolbar */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-border flex-wrap bg-background">
                   <div className="relative flex-1 max-w-xs min-w-[180px]">
@@ -1485,7 +1485,7 @@ export default function FraudDetectionPage() {
 
               {/* ── RIGHT: Detail Side Panel ─────────────────────────── */}
               {selectedSession && s && (
-                <div className="w-[400px] shrink-0 border border-border border-l-0 rounded-r-lg bg-background flex flex-col overflow-hidden ml-0">
+                <div className="fixed top-0 right-0 h-screen w-[420px] border-l border-border bg-background flex flex-col overflow-hidden z-50 shadow-xl">
                   {/* Panel header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
                     <div className="flex items-center gap-2 min-w-0">

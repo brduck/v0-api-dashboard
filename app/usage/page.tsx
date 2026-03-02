@@ -228,27 +228,27 @@ const SIGNAL_COLORS: Record<string, string> = {
 // ─── TRAFFIC VOLUME DATA ──────────────────────────────────────────────────────
 
 const WEEKLY_TRAFFIC = [
-  { label: "Jan 6", bad: 24120, suspicious: 11340 },
-  { label: "Jan 13", bad: 26450, suspicious: 12080 },
-  { label: "Jan 20", bad: 31200, suspicious: 14520 },
-  { label: "Jan 27", bad: 28930, suspicious: 13110 },
-  { label: "Feb 3", bad: 33680, suspicious: 15870 },
-  { label: "Feb 10", bad: 29540, suspicious: 13490 },
-  { label: "Feb 17", bad: 35210, suspicious: 16740 },
-  { label: "Feb 24", bad: 32650, suspicious: 14960 },
-  { label: "Mar 3", bad: 38420, suspicious: 17230 },
-  { label: "Mar 10", bad: 36180, suspicious: 16100 },
-  { label: "Mar 17", bad: 41350, suspicious: 18640 },
-  { label: "Mar 24", bad: 39870, suspicious: 17890 },
+  { label: "Jan 6", bad: 24120, suspicious: 11340, good: 78540 },
+  { label: "Jan 13", bad: 26450, suspicious: 12080, good: 81230 },
+  { label: "Jan 20", bad: 31200, suspicious: 14520, good: 84670 },
+  { label: "Jan 27", bad: 28930, suspicious: 13110, good: 82410 },
+  { label: "Feb 3", bad: 33680, suspicious: 15870, good: 87920 },
+  { label: "Feb 10", bad: 29540, suspicious: 13490, good: 85340 },
+  { label: "Feb 17", bad: 35210, suspicious: 16740, good: 89150 },
+  { label: "Feb 24", bad: 32650, suspicious: 14960, good: 86780 },
+  { label: "Mar 3", bad: 38420, suspicious: 17230, good: 91340 },
+  { label: "Mar 10", bad: 36180, suspicious: 16100, good: 88960 },
+  { label: "Mar 17", bad: 41350, suspicious: 18640, good: 93210 },
+  { label: "Mar 24", bad: 39870, suspicious: 17890, good: 91958 },
 ]
 
 const MONTHLY_TRAFFIC = [
-  { label: "Oct", bad: 82340, suspicious: 38210 },
-  { label: "Nov", bad: 91560, suspicious: 42870 },
-  { label: "Dec", bad: 105200, suspicious: 49310 },
-  { label: "Jan", bad: 110700, suspicious: 51050 },
-  { label: "Feb", bad: 131080, suspicious: 61060 },
-  { label: "Mar", bad: 155820, suspicious: 69860 },
+  { label: "Oct", bad: 82340, suspicious: 38210, good: 245130 },
+  { label: "Nov", bad: 91560, suspicious: 42870, good: 268450 },
+  { label: "Dec", bad: 105200, suspicious: 49310, good: 289710 },
+  { label: "Jan", bad: 110700, suspicious: 51050, good: 326850 },
+  { label: "Feb", bad: 131080, suspicious: 61060, good: 349040 },
+  { label: "Mar", bad: 155820, suspicious: 69860, good: 365328 },
 ]
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -472,6 +472,7 @@ export default function FraudDetectionPage() {
   const [view, setView] = useState<"overview" | "session-details">("overview")
   const [flaggedView, setFlaggedView] = useState<"categories" | "signals">("categories")
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
+  const [showGoodInTraffic, setShowGoodInTraffic] = useState(false)
   const [sessionSearch, setSessionSearch] = useState("")
   const [scoreFilters, setScoreFilters] = useState<Set<string>>(new Set())
   const [checkFilters, setCheckFilters] = useState<Set<string>>(new Set())
@@ -778,6 +779,7 @@ export default function FraudDetectionPage() {
                 const data = trafficResolution === "weekly" ? WEEKLY_TRAFFIC : MONTHLY_TRAFFIC
                 const totalBad = data.reduce((s, d) => s + d.bad, 0)
                 const totalSusp = data.reduce((s, d) => s + d.suspicious, 0)
+                const totalGood = data.reduce((s, d) => s + d.good, 0)
 
                 return (
                   <>
@@ -792,6 +794,15 @@ export default function FraudDetectionPage() {
                         <span className="text-xs text-muted-foreground">Suspicious</span>
                         <span className="text-xs font-semibold text-foreground ml-1">{totalSusp.toLocaleString()}</span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowGoodInTraffic((v) => !v)}
+                        className="flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: showGoodInTraffic ? "#34c38f" : "#d1d5db" }} />
+                        <span className={cn("text-xs", showGoodInTraffic ? "text-muted-foreground" : "text-muted-foreground/50 line-through")}>Good</span>
+                        <span className={cn("text-xs font-semibold ml-1", showGoodInTraffic ? "text-foreground" : "text-muted-foreground/50")}>{totalGood.toLocaleString()}</span>
+                      </button>
                     </div>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -819,10 +830,13 @@ export default function FraudDetectionPage() {
                           }}
                           formatter={(value: number, name: string) => [
                             value.toLocaleString(),
-                            name === "bad" ? "Bad" : "Suspicious",
+                            name === "bad" ? "Bad" : name === "suspicious" ? "Suspicious" : "Good",
                           ]}
                           cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
                         />
+                        {showGoodInTraffic && (
+                          <Bar dataKey="good" fill="#34c38f" radius={[3, 3, 0, 0]} stackId="stack" />
+                        )}
                         <Bar dataKey="bad" fill="#f46a6a" radius={[3, 3, 0, 0]} stackId="stack" />
                         <Bar dataKey="suspicious" fill="#f1b44c" radius={[3, 3, 0, 0]} stackId="stack" />
                       </BarChart>
@@ -873,7 +887,7 @@ export default function FraudDetectionPage() {
             {/* Column headers */}
             <div className="grid grid-cols-[minmax(140px,1.2fr)_minmax(120px,1.5fr)_minmax(100px,1.2fr)_28px] items-center gap-4 px-6 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide border-b border-border">
               <span>Category</span>
-              <span>Flagged Participants</span>
+              <span>Flagged Sessions</span>
               <span>Checks</span>
               <span />
             </div>
@@ -1069,7 +1083,7 @@ export default function FraudDetectionPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-semibold">Geographic Context</CardTitle>
-              <InfoTip text="Top countries where flagged participants originated, grouped by category. Location alone does not determine a participant's outcome." side="right" />
+              <InfoTip text="Top countries where flagged sessions originated, grouped by category. Location alone does not determine a session's outcome." side="right" />
             </div>
           </CardHeader>
           <CardContent>

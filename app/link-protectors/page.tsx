@@ -170,7 +170,7 @@ export default function LinkProtectorsPage() {
           <DialogHeader>
             <DialogTitle>Clone Link Protector</DialogTitle>
             <DialogDescription>
-              Create a new Link Protector based on the current configuration.
+              You're creating a clone of this Link Protector with the same configuration.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
@@ -178,15 +178,15 @@ export default function LinkProtectorsPage() {
               <div className="flex items-start gap-3 text-sm">
                 <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                 <div>
-                  <span className="font-semibold text-gray-900">What will be copied?</span>
-                  <p className="text-gray-500 mt-0.5">Security settings, Protected Link, and Termination Link.</p>
+                  <span className="font-semibold text-gray-900">It includes</span>
+                  <p className="text-gray-500 mt-0.5">All current security settings, Protected Link, and, Termination Link.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 text-sm">
                 <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
                 <div>
-                  <span className="font-semibold text-gray-900">What will be new?</span>
-                  <p className="text-gray-500 mt-0.5">New Entry Link with no prior traffic history.</p>
+                  <span className="font-semibold text-gray-900">What's new?</span>
+                  <p className="text-gray-500 mt-0.5">New Entry Link URL with no prior traffic data.</p>
                 </div>
               </div>
             </div>

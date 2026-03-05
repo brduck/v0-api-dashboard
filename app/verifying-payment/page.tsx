@@ -40,7 +40,7 @@ export default function VerifyingPaymentPage() {
         {/* Loading Spinner */}
         <div className="flex items-center justify-center gap-3">
           <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--brand))]" />
-          <span className="text-sm text-muted-foreground">This may take a few moments...</span>
+          <span className="text-sm text-muted-foreground">This may take a few seconds...</span>
         </div>
 
         {/* Progress Dots */}

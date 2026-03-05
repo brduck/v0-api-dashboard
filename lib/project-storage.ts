@@ -20,7 +20,9 @@ export interface Project {
   }
   advancedOptions?: {
     maskParticipantId: boolean
+    testMode?: boolean
   }
+  testMode?: boolean
   totalParticipants: number
   trafficBlocked: number
   lastActive: string // This represents the Last Participant timestamp

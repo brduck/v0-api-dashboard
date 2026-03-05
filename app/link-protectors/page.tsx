@@ -5,7 +5,7 @@ import type { Project } from "@/lib/project-storage"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal, AlertTriangle } from "lucide-react"
+import { Filter, Grid, List, Plus, Search, Shield, SlidersHorizontal, AlertTriangle, Copy, Loader2, CheckCircle2, Info } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -13,8 +13,9 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { getProjects } from "@/lib/project-storage"
+import { getProjects, addProject } from "@/lib/project-storage"
 import { useTrialTest } from "@/components/trial-test-context"
 import { useSearchParams } from "next/navigation"
 import { PaymentRequiredOverlay } from "@/components/payment-required-overlay"
@@ -31,6 +32,11 @@ export default function LinkProtectorsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("lastActive")
+
+  const [cloneModalOpen, setCloneModalOpen] = useState(false)
+  const [projectToClone, setProjectToClone] = useState<Project | null>(null)
+  const [cloneName, setCloneName] = useState("")
+  const [isCloning, setIsCloning] = useState(false)
 
   // useEffect(() => {
   //   if (settings.isPaymentRequired) {
@@ -99,9 +105,117 @@ export default function LinkProtectorsPage() {
     })
   }
 
+  const handleCloneClick = (project: Project, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setProjectToClone(project)
+    setCloneName(`[CLONE] - ${project.name}`)
+    setCloneModalOpen(true)
+  }
+
+  const handleConfirmClone = async () => {
+    if (!projectToClone) return
+    setIsCloning(true)
+
+    try {
+      // Simulate brief network delay for UX
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const {
+        id,
+        totalParticipants,
+        trafficBlocked,
+        lastActive,
+        status,
+        createdAt,
+        securityLink,
+        terminationLink,
+        ...rest
+      } = projectToClone
+
+      const newProjectData = {
+        ...rest,
+        name: cloneName,
+        securityFeatures: { ...projectToClone.securityFeatures },
+        advancedOptions: projectToClone.advancedOptions ? { ...projectToClone.advancedOptions } : undefined,
+      } as Parameters<typeof addProject>[0]
+      
+      const newProject = addProject(newProjectData)
+      
+      setProjects((prev) => [newProject, ...prev])
+      setCloneModalOpen(false)
+      setProjectToClone(null)
+      toast({
+        title: "Link Protector cloned",
+        description: `Successfully cloned as ${cloneName}`,
+      })
+      
+      router.push(`/link-protector/${newProject.id}`)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clone the Link Protector.",
+        variant: "destructive",
+      })
+      setIsCloning(false)
+    }
+  }
+
   return (
     <div className="relative min-h-screen">
       {settings.isPaymentRequired && <PaymentRequiredOverlay />}
+
+      <Dialog open={cloneModalOpen} onOpenChange={setCloneModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clone Link Protector</DialogTitle>
+            <DialogDescription>
+              You're creating a clone of this Link Protector with the same configuration.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 space-y-4">
+              <div className="flex items-start gap-3 text-sm">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-semibold text-gray-900">It includes</span>
+                  <p className="text-gray-500 mt-0.5">All current security settings, Protected Link, and, Termination Link.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 text-sm">
+                <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-semibold text-gray-900">What's new?</span>
+                  <p className="text-gray-500 mt-0.5">New Entry Link URL with no prior traffic data.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 mt-2">
+              <label htmlFor="cloneName" className="text-sm font-medium">New Link Protector Name</label>
+              <Input
+                id="cloneName"
+                value={cloneName}
+                onChange={(e) => setCloneName(e.target.value)}
+                placeholder="Name"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCloneModalOpen(false)} disabled={isCloning}>Cancel</Button>
+            <Button onClick={handleConfirmClone} disabled={isCloning}>
+              {isCloning ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cloning...
+                </>
+              ) : (
+                "Clone Link Protector"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex h-full flex-col">
         <div className="p-4 md:p-6" style={{ "--progress-foreground": "rgb(220, 38, 38)" } as React.CSSProperties}>
@@ -288,9 +402,20 @@ export default function LinkProtectorsPage() {
                                       </div>
                                     </div>
                                   </div>
-                                  <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
-                                    View Details
-                                  </Button>
+                                  <div className="flex items-center gap-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="shrink-0 bg-transparent"
+                                      onClick={(e) => handleCloneClick(project, e)}
+                                    >
+                                      <Copy className="h-4 w-4 mr-1 md:mr-2" />
+                                      <span className="hidden md:inline">Clone</span>
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
+                                      View Details
+                                    </Button>
+                                  </div>
                                 </div>
                                 <div className="space-y-1">
                                   <div className="w-full">
@@ -427,11 +552,20 @@ export default function LinkProtectorsPage() {
                               </Button>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Link href={`/link-protector/${project.id}`}>
-                                <Button variant="outline" size="sm">
-                                  View
+                              <div className="flex justify-end items-center gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={(e) => handleCloneClick(project, e)}
+                                >
+                                  Clone
                                 </Button>
-                              </Link>
+                                <Link href={`/link-protector/${project.id}`}>
+                                  <Button variant="outline" size="sm">
+                                    View
+                                  </Button>
+                                </Link>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))

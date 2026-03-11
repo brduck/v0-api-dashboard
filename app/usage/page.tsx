@@ -977,69 +977,116 @@ export default function FraudDetectionPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className={cn("pt-2", flaggedView === "categories" || flaggedView === "sources" ? "px-0" : "px-6")}>
+            <CardContent className={cn("pt-0", flaggedView === "categories" || flaggedView === "sources" ? "px-0" : "px-6")}>
               {flaggedView === "categories" ? (
-                <div className="divide-y divide-border">
-                  {sorted.map((category) => {
-                    const Icon = category.icon
-                    const total = category.badParticipants + category.suspiciousParticipants
-                    const pct = ((total / flaggedCount) * 100).toFixed(1)
-                    const isExpanded = expandedCategory === category.id
-                    return (
-                      <div key={category.id}>
-                        <button
-                          onClick={() => setExpandedCategory(isExpanded ? null : category.id)}
-                          className="w-full flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors text-left"
-                        >
-                          <div className={cn("flex items-center justify-center w-9 h-9 rounded-lg", "bg-muted/50")}>
-                            <Icon className="h-4.5 w-4.5 text-muted-foreground" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="text-sm font-medium text-foreground truncate">{getCategoryLabel(category.name)}</span>
-                          </div>
-                          <div className="flex items-center gap-6 shrink-0">
-                            <div className="text-right">
-                              <span className="text-sm font-semibold text-foreground">{total.toLocaleString()}</span>
-                              <span className="text-[10px] text-muted-foreground ml-1">({pct}%)</span>
-                            </div>
-                            <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
-                          </div>
-                        </button>
-                        {isExpanded && (
-                          <div className="px-6 pb-4 pl-[4.5rem] space-y-3">
-                            <p className="text-xs text-muted-foreground">{category.description}</p>
-                            <div className="grid gap-2">
-                              {category.signals.map((sig) => {
-                                const sigPct = ((sig.participants / flaggedCount) * 100).toFixed(1)
-                                return (
-                                  <div key={sig.name} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
-                                    <div className={cn("w-1.5 h-8 rounded-full", sig.severity === "bad" ? "bg-red-400" : "bg-amber-400")} />
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium text-foreground">{sig.name}</span>
-                                        <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium", sig.severity === "bad" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600")}>{sig.severity === "bad" ? "Bad" : "Suspicious"}</span>
-                                      </div>
-                                      <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sig.description}</p>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                      <span className="text-xs font-medium text-foreground">{sig.participants.toLocaleString()}</span>
-                                      <span className="text-[10px] text-muted-foreground ml-1">({sigPct}%)</span>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                            {category.coOccurrence && (
-                              <div className="flex items-start gap-2 p-2 rounded-lg bg-blue-50/50 border border-blue-100">
-                                <Info className="h-3.5 w-3.5 text-blue-500 mt-0.5 shrink-0" />
-                                <p className="text-[10px] text-blue-700">{category.coOccurrence}</p>
+                <div>
+                  {/* Column Headers */}
+                  <div className="grid grid-cols-[minmax(200px,1fr)_minmax(300px,2fr)_minmax(200px,1fr)_40px] items-center gap-4 px-6 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide border-b border-border">
+                    <span>Category</span>
+                    <span>Flagged Participants</span>
+                    <span>Checks</span>
+                    <span></span>
+                  </div>
+                  
+                  <div className="divide-y divide-border">
+                    {sorted.map((category) => {
+                      const Icon = category.icon
+                      const total = category.badParticipants + category.suspiciousParticipants
+                      const pct = (total / flaggedCount) * 100
+                      const isExpanded = expandedCategory === category.id
+                      const maxBarWidth = sorted[0].badParticipants + sorted[0].suspiciousParticipants
+                      const barPct = (total / maxBarWidth) * 100
+                      
+                      // Category colors matching the screenshot
+                      const categoryColors: Record<string, { bg: string; icon: string; bar: string }> = {
+                        "identity-reuse": { bg: "bg-red-50", icon: "text-red-500", bar: "bg-red-400" },
+                        "location-inconsistency": { bg: "bg-blue-50", icon: "text-blue-500", bar: "bg-blue-400" },
+                        "network-masking": { bg: "bg-amber-50", icon: "text-amber-500", bar: "bg-amber-400" },
+                        "non-human-behavior": { bg: "bg-indigo-50", icon: "text-indigo-500", bar: "bg-indigo-400" },
+                        "environment-manipulation": { bg: "bg-blue-50", icon: "text-blue-500", bar: "bg-blue-400" },
+                        "behavioral-integrity": { bg: "bg-emerald-50", icon: "text-emerald-500", bar: "bg-emerald-400" },
+                      }
+                      const colors = categoryColors[category.id] || { bg: "bg-muted", icon: "text-muted-foreground", bar: "bg-muted-foreground" }
+                      
+                      // Get first 2 checks and overflow count
+                      const checkNames = category.signals.map(s => s.name)
+                      const displayedChecks = checkNames.slice(0, 2)
+                      const overflowCount = checkNames.length - 2
+                      
+                      return (
+                        <div key={category.id}>
+                          <button
+                            onClick={() => setExpandedCategory(isExpanded ? null : category.id)}
+                            className="w-full grid grid-cols-[minmax(200px,1fr)_minmax(300px,2fr)_minmax(200px,1fr)_40px] items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors text-left"
+                          >
+                            {/* Category */}
+                            <div className="flex items-center gap-3">
+                              <div className={cn("flex items-center justify-center w-9 h-9 rounded-lg", colors.bg)}>
+                                <Icon className={cn("h-4 w-4", colors.icon)} />
                               </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
+                              <span className="text-sm font-medium text-foreground">{getCategoryLabel(category.name)}</span>
+                            </div>
+                            
+                            {/* Flagged Participants - Progress bar with count */}
+                            <div className="flex items-center gap-4">
+                              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                <div className={cn("h-full rounded-full transition-all", colors.bar)} style={{ width: `${barPct}%` }} />
+                              </div>
+                              <span className="text-sm font-semibold text-foreground tabular-nums w-20 text-right">{total.toLocaleString()}</span>
+                            </div>
+                            
+                            {/* Checks */}
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {displayedChecks.map((check) => (
+                                <span key={check} className="text-xs font-medium text-red-500">{check}</span>
+                              ))}
+                              {overflowCount > 0 && (
+                                <span className="text-xs text-muted-foreground">+{overflowCount}</span>
+                              )}
+                            </div>
+                            
+                            {/* Chevron */}
+                            <div className="flex justify-end">
+                              <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-90")} />
+                            </div>
+                          </button>
+                          
+                          {isExpanded && (
+                            <div className="px-6 pb-4 pl-[4.5rem] space-y-3">
+                              <p className="text-xs text-muted-foreground">{category.description}</p>
+                              <div className="grid gap-2">
+                                {category.signals.map((sig) => {
+                                  const sigPct = ((sig.participants / flaggedCount) * 100).toFixed(1)
+                                  return (
+                                    <div key={sig.name} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
+                                      <div className={cn("w-1.5 h-8 rounded-full", sig.severity === "bad" ? "bg-red-400" : "bg-amber-400")} />
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-medium text-foreground">{sig.name}</span>
+                                          <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium", sig.severity === "bad" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600")}>{sig.severity === "bad" ? "Bad" : "Suspicious"}</span>
+                                        </div>
+                                        <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{sig.description}</p>
+                                      </div>
+                                      <div className="text-right shrink-0">
+                                        <span className="text-xs font-medium text-foreground">{sig.participants.toLocaleString()}</span>
+                                        <span className="text-[10px] text-muted-foreground ml-1">({sigPct}%)</span>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                              {category.coOccurrence && (
+                                <div className="flex items-start gap-2 p-2 rounded-lg bg-blue-50/50 border border-blue-100">
+                                  <Info className="h-3.5 w-3.5 text-blue-500 mt-0.5 shrink-0" />
+                                  <p className="text-[10px] text-blue-700">{category.coOccurrence}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               ) : flaggedView === "signals" ? (
                 <div>

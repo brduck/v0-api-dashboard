@@ -62,6 +62,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 import { cn } from "@/lib/utils"
 
+// ============================================================================
 // SHARED DATA
 
 const CLIENTS = [

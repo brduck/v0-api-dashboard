@@ -300,11 +300,11 @@ const labels = {
   summaryVerb: "labeled",
 }
 
-// ─── LEAD-GEN SCENARIO CONFIG ─────────────────────────────────────────────────
+// ─── LEAD-GEN CONFIG ──────────────────────────────────────────────────────────
 
 const LEAD_SOURCES = ["Facebook Ads", "Google PPC", "Affiliate Network X", "Partner ABC", "Direct"] as const
 
-// Marketing-friendly category labels for Lead-Gen scenario
+// Marketing-friendly category labels
 const LEAD_GEN_CATEGORY_LABELS: Record<string, string> = {
   "Network Masking": "Hidden Location",
   "Identity Reuse": "Repeat Submission",
@@ -323,7 +323,7 @@ const LEAD_COST_BY_SOURCE: Record<string, number> = {
   "Direct": 8,
 }
 
-// Summary stats for Lead-Gen scenario
+// Summary stats
 const LEAD_GEN_STATS = {
   leadsChecked: 1355345,
   leadsFlagged: 247892,
@@ -567,14 +567,12 @@ export default function FraudDetectionPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
   const tableRef = React.useRef<HTMLDivElement>(null)
   
-  // Scenario state
-  const [scenario, setScenario] = useState<"market-research" | "lead-gen">("market-research")
   const [sourceFilters, setSourceFilters] = useState<Set<string>>(new Set())
   const [sourceDropdownOpen, setSourceDropdownOpen] = useState(false)
   
-  // Helper to get category label based on scenario
+  // Helper to get category label (always use Lead-Gen friendly labels)
   const getCategoryLabel = (category: string) => {
-    if (scenario === "lead-gen" && LEAD_GEN_CATEGORY_LABELS[category]) {
+    if (LEAD_GEN_CATEGORY_LABELS[category]) {
       return LEAD_GEN_CATEGORY_LABELS[category]
     }
     return category
@@ -684,51 +682,28 @@ export default function FraudDetectionPage() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">Quality Overview</h1>
+            <p className="text-sm text-muted-foreground mt-1">Lead-Gen / Affiliate</p>
             
-            {/* Scenario tabs */}
-            <div className="flex items-center gap-4 mt-3">
-              <div className="inline-flex rounded-lg border border-border overflow-hidden">
-                <button
-                  onClick={() => setScenario("market-research")}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium transition-colors",
-                    scenario === "market-research" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Market Research
-                </button>
-                <button
-                  onClick={() => setScenario("lead-gen")}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
-                    scenario === "lead-gen" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Lead-Gen / Affiliate
-                </button>
-              </div>
-              
-              {/* View tabs */}
-              <div className="inline-flex rounded-lg border border-border overflow-hidden">
-                <button
-                  onClick={() => setView("overview")}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium transition-colors",
-                    view === "overview" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  Overview
-                </button>
-                <button
-                  onClick={() => setView("session-details")}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
-                    view === "session-details" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {scenario === "lead-gen" ? "Lead Details" : "Session Details"}
-                </button>
-              </div>
+            {/* View tabs */}
+            <div className="inline-flex rounded-lg border border-border overflow-hidden mt-3">
+              <button
+                onClick={() => setView("overview")}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium transition-colors",
+                  view === "overview" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setView("session-details")}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
+                  view === "session-details" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Lead Details
+              </button>
             </div>
           </div>
 
@@ -742,7 +717,7 @@ export default function FraudDetectionPage() {
                 <SelectItem value="7days">Last 7 days</SelectItem>
                 <SelectItem value="30days">Last 30 days</SelectItem>
                 <SelectItem value="90days">Last 90 days</SelectItem>
-                {scenario === "lead-gen" && <SelectItem value="campaign">This Campaign</SelectItem>}
+                <SelectItem value="campaign">This Campaign</SelectItem>
               </SelectContent>
             </Select>
 
@@ -813,7 +788,7 @@ export default function FraudDetectionPage() {
         {view === "overview" ? (
         <>
         {/* ── Lead-Gen Summary Stats Bar ────────────────────────── */}
-        {scenario === "lead-gen" && (
+        {(
           <Card className="border border-border shadow-sm bg-gradient-to-r from-emerald-50/50 to-background">
             <CardContent className="py-4">
               <div className="flex items-center justify-between flex-wrap gap-4">
@@ -1485,8 +1460,8 @@ export default function FraudDetectionPage() {
                     </PopoverContent>
                   </Popover>
 
-                  {/* Source filter - Lead-Gen only */}
-                  {scenario === "lead-gen" && (
+                  {/* Source filter */}
+                  {(
                     <Popover open={sourceDropdownOpen} onOpenChange={setSourceDropdownOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
@@ -1514,8 +1489,8 @@ export default function FraudDetectionPage() {
                     </Popover>
                   )}
 
-                  {/* Cost Saved sort - Lead-Gen only */}
-                  {scenario === "lead-gen" && (
+                  {/* Cost Saved sort */}
+                  {(
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -1575,13 +1550,11 @@ export default function FraudDetectionPage() {
                             Visitor ID <SortIcon col="visitorId" />
                           </button>
                         </TableHead>
-                        {scenario === "lead-gen" && (
-                          <TableHead className="min-w-[100px]">
-                            <button onClick={() => toggleSort("source")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                              Source <SortIcon col="source" />
-                            </button>
-                          </TableHead>
-                        )}
+                        <TableHead className="min-w-[100px]">
+                          <button onClick={() => toggleSort("source")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            Source <SortIcon col="source" />
+                          </button>
+                        </TableHead>
                         <TableHead className="w-[85px]">
                           <button onClick={() => toggleSort("outcome")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                             Score <SortIcon col="outcome" />
@@ -1597,15 +1570,13 @@ export default function FraudDetectionPage() {
                             City <SortIcon col="city" />
                           </button>
                         </TableHead>
-                        <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">{scenario === "lead-gen" ? "Flag Reason" : "Category"}</TableHead>
+                        <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Flag Reason</TableHead>
                         <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Signal</TableHead>
-                        {scenario === "lead-gen" && (
-                          <TableHead className="min-w-[100px]">
-                            <button onClick={() => toggleSort("costSaved")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
-                              Est. Cost Saved <SortIcon col="costSaved" />
-                            </button>
-                          </TableHead>
-                        )}
+                        <TableHead className="min-w-[100px]">
+                          <button onClick={() => toggleSort("costSaved")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                            Est. Cost Saved <SortIcon col="costSaved" />
+                          </button>
+                        </TableHead>
                         <TableHead className="min-w-[140px] text-right pr-4">
                           <button onClick={() => toggleSort("createdAt")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors ml-auto">
                             Created At <SortIcon col="createdAt" />
@@ -1616,8 +1587,8 @@ export default function FraudDetectionPage() {
                     <TableBody>
                       {filteredSessions.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={scenario === "lead-gen" ? 11 : 8} className="text-center py-20 text-sm text-muted-foreground">
-                            No {scenario === "lead-gen" ? "leads" : "sessions"} match your filters.
+                          <TableCell colSpan={11} className="text-center py-20 text-sm text-muted-foreground">
+                            No leads match your filters.
                           </TableCell>
                         </TableRow>
                       ) : (
@@ -1646,11 +1617,9 @@ export default function FraudDetectionPage() {
                               <TableCell className="py-0">
                                 <span className="font-mono text-xs text-foreground" title={session.visitorId}>{truncateId(session.visitorId)}</span>
                               </TableCell>
-                              {scenario === "lead-gen" && (
-                                <TableCell className="py-0">
-                                  <span className="text-xs text-foreground">{session.source}</span>
-                                </TableCell>
-                              )}
+                              <TableCell className="py-0">
+                                <span className="text-xs text-foreground">{session.source}</span>
+                              </TableCell>
                               <TableCell className="py-0">
                                 {(() => { const oc = computeOutcome(session.checks); return (
                                 <span className={cn(
@@ -1695,16 +1664,14 @@ export default function FraudDetectionPage() {
                                   </div>
                                 )}
                               </TableCell>
-                              {/* Cost Saved column - Lead-Gen only */}
-                              {scenario === "lead-gen" && (
-                                <TableCell className="py-0">
-                                  {computeOutcome(session.checks) !== "good" ? (
-                                    <span className="text-xs font-medium text-emerald-600">${session.leadCost.toFixed(2)}</span>
-                                  ) : (
-                                    <span className="text-[10px] text-muted-foreground/40">--</span>
-                                  )}
-                                </TableCell>
-                              )}
+                              {/* Cost Saved column */}
+                              <TableCell className="py-0">
+                                {computeOutcome(session.checks) !== "good" ? (
+                                  <span className="text-xs font-medium text-emerald-600">${session.leadCost.toFixed(2)}</span>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground/40">--</span>
+                                )}
+                              </TableCell>
                               <TableCell className="py-0 text-right pr-4">
                                 <span className="text-xs text-muted-foreground tabular-nums">{session.createdAt}</span>
                               </TableCell>
@@ -1720,13 +1687,11 @@ export default function FraudDetectionPage() {
                 <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/30 shrink-0">
                   <div className="flex items-center gap-4">
                     <span className="text-[11px] text-muted-foreground">
-                      Showing <span className="font-medium text-foreground">{filteredSessions.length}</span> of <span className="font-medium text-foreground">{totalSessions.toLocaleString()}</span> {scenario === "lead-gen" ? "leads" : "sessions"}
+                      Showing <span className="font-medium text-foreground">{filteredSessions.length}</span> of <span className="font-medium text-foreground">{totalSessions.toLocaleString()}</span> leads
                     </span>
-                    {scenario === "lead-gen" && (
-                      <span className="text-[11px] text-emerald-600 font-medium">
-                        Total waste prevented: ${filteredSessions.filter(s => computeOutcome(s.checks) !== "good").reduce((sum, s) => sum + s.leadCost, 0).toLocaleString()} this month
-                      </span>
-                    )}
+                    <span className="text-[11px] text-emerald-600 font-medium">
+                      Total waste prevented: ${filteredSessions.filter(s => computeOutcome(s.checks) !== "good").reduce((sum, s) => sum + s.leadCost, 0).toLocaleString()} this month
+                    </span>
                   </div>
                   <span className="text-[10px] text-muted-foreground">
                     Use <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[9px] font-mono">Arrow Up</kbd> <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[9px] font-mono">Arrow Down</kbd> to navigate
@@ -1757,9 +1722,7 @@ export default function FraudDetectionPage() {
                       ) })()}
                       <span className="font-mono text-[11px] text-muted-foreground truncate" title={s.visitorId}>{truncateId(s.visitorId)}</span>
                       {copyBtn(s.visitorId)}
-                      {scenario === "lead-gen" && (
-                        <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-muted-foreground">{s.source}</span>
-                      )}
+                      <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-muted-foreground">{s.source}</span>
                     </div>
                     <button onClick={() => setSelectedSession(null)} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted" aria-label="Close panel">
                       <X className="h-4 w-4" />
@@ -1768,8 +1731,8 @@ export default function FraudDetectionPage() {
 
                   {/* Scrollable content */}
                   <div className="flex-1 overflow-y-auto">
-                    {/* Lead-Gen Warning Panel */}
-                    {scenario === "lead-gen" && computeOutcome(s.checks) !== "good" && (
+                    {/* Warning Panel */}
+                    {computeOutcome(s.checks) !== "good" && (
                       <div className="px-4 py-3 bg-amber-50 border-b-2 border-amber-300">
                         <div className="flex items-center gap-2 mb-2">
                           <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -1812,23 +1775,11 @@ export default function FraudDetectionPage() {
                       </div>
                     )}
                     
-                    {/* Failed checks strip - Market Research only */}
-                    {scenario === "market-research" && failedChecks.length > 0 && (
-                      <div className="px-4 py-2.5 bg-red-50/50 border-b border-border">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-semibold text-red-600 uppercase tracking-wide mr-0.5">Failed:</span>
-                          {failedChecks.map((fc) => (
-                            <span key={fc} className="px-1.5 py-0.5 rounded bg-red-100 text-[10px] font-medium text-red-700">{fc}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     {/* Categories / Findings */}
                     {s.categories.length > 0 && (
                       <div className="px-4 py-2.5 border-b border-border">
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-0.5">{scenario === "lead-gen" ? "Flag Reasons:" : "Findings:"}</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-0.5">Flag Reasons:</span>
                           {s.categories.map((cat) => (
                             <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-foreground">{getCategoryLabel(cat)}</span>
                           ))}
@@ -1836,8 +1787,8 @@ export default function FraudDetectionPage() {
                       </div>
                     )}
                     
-                    {/* Evidence header for Lead-Gen */}
-                    {scenario === "lead-gen" && computeOutcome(s.checks) !== "good" && (
+                    {/* Evidence header */}
+                    {computeOutcome(s.checks) !== "good" && (
                       <div className="px-4 py-2 bg-muted/30 border-b border-border">
                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Evidence</span>
                       </div>

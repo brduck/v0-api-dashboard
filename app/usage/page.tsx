@@ -672,17 +672,17 @@ export default function FraudDetectionPage() {
     else setSelectedRows(new Set(filteredSessions.map((s) => s.visitorId)))
   }
 
-  const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badParticipants + b.suspiciousParticipants) - (a.badParticipants + a.suspiciousParticipants))
+  const sorted = [...FRAUD_CATEGORIES].sort((a, b) => (b.badParticipants + b.suspiciousParticipants) - (a.badParticipants + a.suspiciousParticipants));
 
-  const goodPct = ((goodCount / totalSessions) * 100).toFixed(1)
-  const suspPct = ((suspiciousCount / totalSessions) * 100).toFixed(1)
-  const badPct = ((badCount / totalSessions) * 100).toFixed(1)
+  const goodPct = ((goodCount / totalSessions) * 100).toFixed(1);
+  const suspPct = ((suspiciousCount / totalSessions) * 100).toFixed(1);
+  const badPct = ((badCount / totalSessions) * 100).toFixed(1);
 
   const donutData = [
     { name: labels.goodShort, value: goodCount, fill: "#34c38f" },
     { name: labels.suspiciousShort, value: suspiciousCount, fill: "#f1b44c" },
     { name: labels.badShort, value: badCount, fill: "#f46a6a" },
-  ]
+  ];
 
   return (
     <div className="container mx-auto p-6 space-y-8">

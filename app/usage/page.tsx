@@ -63,7 +63,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 import { cn } from "@/lib/utils"
 
-// ─── SHARED DATA ──────────────────────────────────────────────────────────────
+// SHARED DATA
 
 const CLIENTS = [
   {
@@ -229,7 +229,7 @@ const SIGNAL_COLORS: Record<string, string> = {
   "Untrusted Browsers/OS": "#5b9bd5",
 }
 
-// ─── TRAFFIC VOLUME DATA ──────────────────────────────────────────────────────
+// TRAFFIC VOLUME DATA
 
 const WEEKLY_TRAFFIC = [
   { label: "Jan 6", bad: 24120, suspicious: 11340, good: 78540 },
@@ -264,7 +264,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Behavioral Integrity": "#34c38f",
 }
 
-// ─── HELPERS ───────────────────────────────────────────────────────────────────
+// HELPERS
 
 const STRENGTH_DEFINITIONS: Record<string, string> = {
   Strong: "Multiple corroborating checks frequently co-occur in these sessions",
@@ -300,7 +300,7 @@ const labels = {
   summaryVerb: "labeled",
 }
 
-// ─── LEAD-GEN CONFIG ──────────────────────────────────────────────────────────
+// LEAD-GEN CONFIG
 
 const LEAD_SOURCES = ["Facebook Ads", "Google PPC", "Affiliate Network X", "Partner ABC", "Direct"] as const
 
@@ -342,7 +342,7 @@ const SOURCE_PERFORMANCE = [
   { source: "Direct", leads: 5400, fraudRate: 5, waste: 1200 },
 ]
 
-// ─── SESSION DETAILS SAMPLE DATA ─────────────────────────────────────────────
+// SESSION DETAILS SAMPLE DATA
 
 type CheckResult = "PASS" | "FAIL" | "EMPTY"
 
@@ -547,7 +547,7 @@ function computeOutcome(checks: Record<string, string>): "good" | "suspicious" |
   return hasSuspicious ? "suspicious" : "good"
 }
 
-// ─── COMPONENT ───────────────────────────────────────────────────────────────
+// COMPONENT
 
 export default function FraudDetectionPage() {
   const [selectedClient, setSelectedClient] = useState<string>("all")
@@ -595,7 +595,7 @@ export default function FraudDetectionPage() {
 
   React.useEffect(() => { setSelectedProject("all") }, [selectedClient])
 
-  // ── Session filtering, sorting, keyboard nav ──
+  // Session filtering, sorting, keyboard nav
   const filteredSessions = React.useMemo(() => {
     let sessions = SAMPLE_SESSIONS.filter((session) => {
       const matchesSearch = sessionSearch === "" || session.visitorId.toLowerCase().includes(sessionSearch.toLowerCase())
@@ -686,7 +686,7 @@ export default function FraudDetectionPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      {/* ── Header ─────────────────────────────────────────────────── */}
+      {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -796,7 +796,7 @@ export default function FraudDetectionPage() {
 
         {view === "overview" ? (
         <>
-        {/* ── Lead-Gen Summary Stats Bar ────────────────────────── */}
+        {/* Lead-Gen Summary Stats Bar */}
         <Card className="border border-border shadow-sm bg-gradient-to-r from-emerald-50/50 to-background">
             <CardContent className="py-4">
               <div className="flex items-center justify-between flex-wrap gap-4">
@@ -854,7 +854,7 @@ export default function FraudDetectionPage() {
             </CardContent>
           </Card>
         
-        {/* ── 1. Traffic Composition + Category Breakdown ────────── */}
+        {/* 1. Traffic Composition + Category Breakdown */}
         <div className="grid lg:grid-cols-5 gap-4">
           {/* Left: Donut + breakdown */}
           <Card className="lg:col-span-2 border border-border shadow-sm">
@@ -1021,7 +1021,7 @@ export default function FraudDetectionPage() {
           </Card>
         </div>
 
-        {/* ── 3. Sessions Flagged ────────────────────────────────── */}
+        {/* 3. Sessions Flagged */}
         <Card className="border border-border shadow-sm">
           <CardHeader className="pb-0">
             <div className="flex items-center justify-between">
@@ -1313,7 +1313,7 @@ export default function FraudDetectionPage() {
           </CardContent>
         </Card>
 
-        {/* ── 4. Geographic Context ─────────────────────────────────── */}
+        {/* 4. Geographic Context */}
         <Card className="border border-border shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
@@ -1386,7 +1386,7 @@ export default function FraudDetectionPage() {
         </>
         ) : (
         <>
-        {/* ── SESSION DETAILS VIEW ────────────────────────────────── */}
+        {/* SESSION DETAILS VIEW */}
         {(() => {
           const truncateId = (id: string) => id.length <= 13 ? id : `${id.slice(0, 7)}...${id.slice(-4)}`
 
@@ -1423,7 +1423,7 @@ export default function FraudDetectionPage() {
 
           return (
             <div className="flex gap-0 h-[calc(100vh-220px)] min-h-[500px]">
-              {/* ── LEFT: Data Table ──────────────────────────────────── */}
+              {/* LEFT: Data Table */}
               <div className={cn("flex flex-col border border-border rounded-lg overflow-hidden bg-background transition-all w-full")}>
                 {/* Toolbar */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-border flex-wrap bg-background">
@@ -1761,7 +1761,7 @@ export default function FraudDetectionPage() {
                 </div>
               </div>
 
-              {/* ── RIGHT: Detail Side Panel ─────────────────────────── */}
+              {/* RIGHT: Detail Side Panel */}
               {selectedSession && s && (
                 <div className="fixed top-0 right-0 h-screen w-[420px] border-l border-border bg-background flex flex-col overflow-hidden z-50 shadow-xl">
                   {/* Panel header */}
@@ -1856,7 +1856,7 @@ export default function FraudDetectionPage() {
                       </div>
                     )}
 
-                    {/* ── LOCATION ─────────────────────────── */}
+                    {/* LOCATION */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">
@@ -1883,7 +1883,7 @@ export default function FraudDetectionPage() {
                       </div>
                     </div>
 
-                    {/* ── NETWORK ──────────────────────────── */}
+                    {/* NETWORK */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">
@@ -1919,7 +1919,7 @@ export default function FraudDetectionPage() {
                       </div>
                     </div>
 
-                    {/* ── DEVICE ──────────────────────────── */}
+                    {/* DEVICE */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">

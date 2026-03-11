@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const content = fs.readFileSync('app/usage/page.tsx', 'utf8');
+const content = fs.readFileSync('/vercel/share/v0-project/app/usage/page.tsx', 'utf8');
 const lines = content.split('\n');
 
 let balance = 0;

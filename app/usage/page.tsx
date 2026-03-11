@@ -797,8 +797,7 @@ export default function FraudDetectionPage() {
         {view === "overview" ? (
         <>
         {/* ── Lead-Gen Summary Stats Bar ────────────────────────── */}
-        {(
-          <Card className="border border-border shadow-sm bg-gradient-to-r from-emerald-50/50 to-background">
+        <Card className="border border-border shadow-sm bg-gradient-to-r from-emerald-50/50 to-background">
             <CardContent className="py-4">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-2">
@@ -854,7 +853,6 @@ export default function FraudDetectionPage() {
               </div>
             </CardContent>
           </Card>
-        )}
         
         {/* ── 1. Traffic Composition + Category Breakdown ────────── */}
         <div className="grid lg:grid-cols-5 gap-4">
@@ -1529,47 +1527,43 @@ export default function FraudDetectionPage() {
                   </Popover>
 
                   {/* Source filter */}
-                  {(
-                    <Popover open={sourceDropdownOpen} onOpenChange={setSourceDropdownOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
-                          Source
-                          {sourceFilters.size > 0 && (
-                            <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{sourceFilters.size}</span>
-                          )}
-                          <ChevronsUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-1" align="start">
-                        {LEAD_SOURCES.map((src) => {
-                          const sel = sourceFilters.has(src)
-                          return (
-                            <button key={src} onClick={() => { const next = new Set(sourceFilters); if (sel) next.delete(src); else next.add(src); setSourceFilters(next) }} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors">
-                              <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", sel ? "bg-foreground border-foreground" : "border-input")}>
-                                {sel && <Check className="h-2.5 w-2.5 text-background" />}
-                              </div>
-                              <span className="font-medium">{src}</span>
-                            </button>
-                          )
-                        })}
-                        {sourceFilters.size > 0 && (<><div className="my-1 border-t border-border" /><button onClick={() => setSourceFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></>)}
-                      </PopoverContent>
-                    </Popover>
-                  )}
+                  <Popover open={sourceDropdownOpen} onOpenChange={setSourceDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
+                        Source
+                        {sourceFilters.size > 0 && (
+                          <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{sourceFilters.size}</span>
+                        )}
+                        <ChevronsUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-1" align="start">
+                      {LEAD_SOURCES.map((src) => {
+                        const sel = sourceFilters.has(src)
+                        return (
+                          <button key={src} onClick={() => { const next = new Set(sourceFilters); if (sel) next.delete(src); else next.add(src); setSourceFilters(next) }} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors">
+                            <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", sel ? "bg-foreground border-foreground" : "border-input")}>
+                              {sel && <Check className="h-2.5 w-2.5 text-background" />}
+                            </div>
+                            <span className="font-medium">{src}</span>
+                          </button>
+                        )
+                      })}
+                      {sourceFilters.size > 0 && (<><div className="my-1 border-t border-border" /><button onClick={() => setSourceFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></>)}
+                    </PopoverContent>
+                  </Popover>
 
                   {/* Cost Saved sort */}
-                  {(
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className={cn("h-8 text-xs gap-1 font-normal bg-transparent", sortCol === "costSaved" && "bg-muted")}
-                      onClick={() => toggleSort("costSaved")}
-                    >
-                      <DollarSign className="h-3.5 w-3.5" />
-                      Cost Saved
-                      <SortIcon col="costSaved" />
-                    </Button>
-                  )}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className={cn("h-8 text-xs gap-1 font-normal bg-transparent", sortCol === "costSaved" && "bg-muted")}
+                    onClick={() => toggleSort("costSaved")}
+                  >
+                    <DollarSign className="h-3.5 w-3.5" />
+                    Cost Saved
+                    <SortIcon col="costSaved" />
+                  </Button>
 
                   <div className="flex-1" />
 

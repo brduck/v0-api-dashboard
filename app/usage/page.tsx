@@ -333,6 +333,15 @@ const LEAD_GEN_STATS = {
   topFraudSourceRate: 34,
 }
 
+// Source performance data
+const SOURCE_PERFORMANCE = [
+  { source: "Partner XYZ", leads: 45230, fraudRate: 34, waste: 48240 },
+  { source: "Facebook Ads", leads: 89450, fraudRate: 12, waste: 19340 },
+  { source: "Google PPC", leads: 125800, fraudRate: 8, waste: 12560 },
+  { source: "Affiliate Network X", leads: 22100, fraudRate: 28, waste: 15090 },
+  { source: "Direct", leads: 5400, fraudRate: 5, waste: 1200 },
+]
+
 // ─── SESSION DETAILS SAMPLE DATA ─────────────────────────────────────────────
 
 type CheckResult = "PASS" | "FAIL" | "EMPTY"
@@ -551,7 +560,7 @@ export default function FraudDetectionPage() {
   const [expandedSignal, setExpandedSignal] = useState<string | null>(null)
   const [expandedSession, setExpandedSession] = useState<string | null>(null)
   const [view, setView] = useState<"overview" | "session-details">("overview")
-  const [flaggedView, setFlaggedView] = useState<"categories" | "signals">("categories")
+  const [flaggedView, setFlaggedView] = useState<"categories" | "signals" | "sources">("categories")
   const [trafficResolution, setTrafficResolution] = useState<"weekly" | "monthly">("weekly")
   const [showGoodInTraffic, setShowGoodInTraffic] = useState(false)
   const [sessionSearch, setSessionSearch] = useState("")
@@ -1044,10 +1053,19 @@ export default function FraudDetectionPage() {
                 >
                   By Signal
                 </button>
+                <button
+                  onClick={() => setFlaggedView("sources")}
+                  className={cn(
+                    "px-3 py-1 text-xs font-medium transition-colors border-l border-border",
+                    flaggedView === "sources" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  By Source
+                </button>
               </div>
             </div>
           </CardHeader>
-          <CardContent className={cn("pt-2", flaggedView === "categories" ? "px-0" : "px-6")}>
+          <CardContent className={cn("pt-2", flaggedView === "categories" || flaggedView === "sources" ? "px-0" : "px-6")}>
             {flaggedView === "categories" ? (
             <>
             {/* Column headers */}
@@ -1243,7 +1261,57 @@ export default function FraudDetectionPage() {
                   ))}
                 </div>
               </div>
-            )}
+            ) : flaggedView === "sources" ? (
+              /* By Source view */
+              <div>
+                {/* Table header */}
+                <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-4 px-6 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide border-b border-border bg-muted/30">
+                  <span>Source</span>
+                  <span className="text-right">Leads</span>
+                  <span className="text-right">Fraud Rate</span>
+                  <span className="text-right">Waste</span>
+                </div>
+                
+                {/* Table rows */}
+                <div className="divide-y divide-border">
+                  {SOURCE_PERFORMANCE.map((row) => (
+                    <div 
+                      key={row.source} 
+                      className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-4 px-6 py-3 hover:bg-muted/20 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-foreground">{row.source}</span>
+                      </div>
+                      <span className="text-sm text-foreground text-right tabular-nums">{row.leads.toLocaleString()}</span>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <span className={cn(
+                          "text-sm font-medium text-right tabular-nums",
+                          row.fraudRate >= 25 ? "text-amber-600" : "text-foreground"
+                        )}>
+                          {row.fraudRate}%
+                        </span>
+                        {row.fraudRate >= 25 && (
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium text-emerald-600 text-right tabular-nums">${row.waste.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Footer totals */}
+                <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr] items-center gap-4 px-6 py-3 border-t border-border bg-muted/30">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase">Total</span>
+                  <span className="text-sm font-semibold text-foreground text-right tabular-nums">
+                    {SOURCE_PERFORMANCE.reduce((sum, r) => sum + r.leads, 0).toLocaleString()}
+                  </span>
+                  <span className="text-sm font-medium text-muted-foreground text-right">--</span>
+                  <span className="text-sm font-bold text-emerald-600 text-right tabular-nums">
+                    ${SOURCE_PERFORMANCE.reduce((sum, r) => sum + r.waste, 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 

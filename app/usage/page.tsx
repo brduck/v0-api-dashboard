@@ -1347,7 +1347,7 @@ export default function FraudDetectionPage() {
           </CardContent>
         </Card>
 
-        {/* ── 4. Geographic Context ─────────────────────��───────────── */}
+        {/* ── 4. Geographic Context ────────────────────────────────── */}
         <Card className="border border-border shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
@@ -1945,7 +1945,7 @@ export default function FraudDetectionPage() {
                       </div>
                     </div>
 
-                    {/* ── NETWORK ──────────────────────��───── */}
+                    {/* ── NETWORK ─────────────────────────── */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">
@@ -1981,7 +1981,7 @@ export default function FraudDetectionPage() {
                       </div>
                     </div>
 
-                    {/* ── DEVICE ───────────────────���───────── */}
+                    {/* ── DEVICE ──────────────────────────── */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">

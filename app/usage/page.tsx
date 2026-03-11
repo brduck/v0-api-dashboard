@@ -547,7 +547,7 @@ function computeOutcome(checks: Record<string, string>): "good" | "suspicious" |
   return hasSuspicious ? "suspicious" : "good"
 }
 
-// ─── COMPONENT ───────────────────────────────────────────────────���────────────
+// ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function FraudDetectionPage() {
   const [selectedClient, setSelectedClient] = useState<string>("all")
@@ -1347,7 +1347,7 @@ export default function FraudDetectionPage() {
           </CardContent>
         </Card>
 
-        {/* ── 4. Geographic Context ─────────────────────────────────── */}
+        {/* ── 4. Geographic Context ─────────────────────��───────────── */}
         <Card className="border border-border shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">

@@ -957,15 +957,6 @@ export default function FraudDetectionPage() {
                     By Category
                   </button>
                   <button
-                    onClick={() => setFlaggedView("signals")}
-                    className={cn(
-                      "px-3 py-1 text-xs font-medium transition-colors border-l border-border",
-                      flaggedView === "signals" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    By Signal
-                  </button>
-                  <button
                     onClick={() => setFlaggedView("sources")}
                     className={cn(
                       "px-3 py-1 text-xs font-medium transition-colors border-l border-border",
@@ -973,6 +964,15 @@ export default function FraudDetectionPage() {
                     )}
                   >
                     By Source
+                  </button>
+                  <button
+                    onClick={() => setFlaggedView("signals")}
+                    className={cn(
+                      "px-3 py-1 text-xs font-medium transition-colors border-l border-border",
+                      flaggedView === "signals" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    By Signal
                   </button>
                 </div>
               </div>
@@ -985,8 +985,6 @@ export default function FraudDetectionPage() {
                     const total = category.badParticipants + category.suspiciousParticipants
                     const pct = ((total / flaggedCount) * 100).toFixed(1)
                     const isExpanded = expandedCategory === category.id
-                    const sl = strengthLabel(category.strength)
-                    const catSignals = ALL_SIGNALS.filter((s) => s.category === category.name)
                     return (
                       <div key={category.id}>
                         <button
@@ -997,23 +995,7 @@ export default function FraudDetectionPage() {
                             <Icon className="h-4.5 w-4.5 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-foreground truncate">{getCategoryLabel(category.name)}</span>
-                              <TooltipProvider delayDuration={150}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium cursor-help", sl.color)}>{sl.text}</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs text-xs">{sl.definition}</TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {getCategoryLabel(category.name)} category:</p>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {catSignals.map((sig) => (
-                                <span key={sig.name} className="px-1.5 py-0.5 rounded bg-muted text-[10px] text-muted-foreground">{sig.name}</span>
-                              ))}
-                            </div>
+                            <span className="text-sm font-medium text-foreground truncate">{getCategoryLabel(category.name)}</span>
                           </div>
                           <div className="flex items-center gap-6 shrink-0">
                             <div className="text-right">
@@ -1465,7 +1447,7 @@ export default function FraudDetectionPage() {
                 <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium", risk === "low" ? "bg-emerald-50 text-emerald-600" : risk === "medium" ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600")}>{risk}</span>
               )
               return (
-                <div className="w-[420px] border border-border rounded-lg bg-card flex flex-col overflow-hidden shrink-0">
+                <div className="w-[420px] border border-border rounded-lg bg-card flex flex-col overflow-hidden shrink-0 h-full">
                   {/* Panel header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
                     <div className="flex items-center gap-2 min-w-0">

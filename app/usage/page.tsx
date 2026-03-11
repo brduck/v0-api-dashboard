@@ -33,6 +33,10 @@ import {
   X,
   PanelRightOpen,
   PanelRightClose,
+  DollarSign,
+  TrendingUp,
+  Users,
+  Target,
 } from "lucide-react"
 import {
   Bar,
@@ -296,6 +300,39 @@ const labels = {
   summaryVerb: "labeled",
 }
 
+// ─── LEAD-GEN SCENARIO CONFIG ─────────────────────────────────────────────────
+
+const LEAD_SOURCES = ["Facebook Ads", "Google PPC", "Affiliate Network X", "Partner ABC", "Direct"] as const
+
+// Marketing-friendly category labels for Lead-Gen scenario
+const LEAD_GEN_CATEGORY_LABELS: Record<string, string> = {
+  "Network Masking": "Hidden Location",
+  "Identity Reuse": "Repeat Submission",
+  "Non-Human Behavior": "Bot Activity",
+  "Environment Manipulation": "Suspicious Setup",
+  "Location Inconsistency": "Location Mismatch",
+  "Behavioral Integrity": "Unusual Behavior",
+}
+
+// Estimated cost per lead for different sources
+const LEAD_COST_BY_SOURCE: Record<string, number> = {
+  "Facebook Ads": 15,
+  "Google PPC": 22,
+  "Affiliate Network X": 18,
+  "Partner ABC": 12,
+  "Direct": 8,
+}
+
+// Summary stats for Lead-Gen scenario
+const LEAD_GEN_STATS = {
+  leadsChecked: 1355345,
+  leadsFlagged: 247892,
+  fraudRate: 18.3,
+  wastePrevented: 145230,
+  topFraudSource: "Partner XYZ",
+  topFraudSourceRate: 34,
+}
+
 // ─── SESSION DETAILS SAMPLE DATA ─────────────────────────────────────────────
 
 type CheckResult = "PASS" | "FAIL" | "EMPTY"
@@ -306,6 +343,8 @@ interface SessionDetail {
   createdAt: string
   categories: string[]
   checks: Record<string, CheckResult>
+  source: typeof LEAD_SOURCES[number]
+  leadCost: number
   location: {
     city: string
     country: string
@@ -353,6 +392,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:00:07",
     categories: [],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Facebook Ads",
+    leadCost: 15,
     location: { city: "Austin, TX", country: "United States", coords: "30.2672, -97.7431", risk: "low", ipTimezone: "America/Chicago", browserTimezone: "America/Chicago", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
     network: { ip: "73.162.45.112", asn: "Comcast Cable", type: "Residential", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Nov 12, 2025", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null },
     device: { deviceId: "dev_f3a912bc-x1", type: "Macintosh (Apple)", os: "macOS 15.2", browser: "Safari 18.1", risk: "low", firstSeen: "Jan 10, 2026", sessionsThisProject: 1, sessionsAllProjects: 2, projectsCount: 1, warning: null, userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15" },
@@ -363,6 +404,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:00:36",
     categories: ["Non-Human Behavior"],
     checks: { "Location Validation": "PASS", "Automation Detection": "FAIL", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Affiliate Network X",
+    leadCost: 18,
     location: { city: "Mumbai", country: "India", coords: "19.0760, 72.8777", risk: "low", ipTimezone: "Asia/Kolkata", browserTimezone: "Asia/Kolkata", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 2 },
     network: { ip: "49.36.128.91", asn: "Reliance Jio", type: "Mobile", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Dec 20, 2025", sessionsThisProject: 3, sessionsAllProjects: 8, projectsCount: 3, warning: null },
     device: { deviceId: "dev_7bc412f9-m2", type: "Linux (Server)", os: "Ubuntu 22.04", browser: "Headless Chrome 120.0", risk: "high", firstSeen: "Jan 28, 2026", sessionsThisProject: 3, sessionsAllProjects: 47, projectsCount: 12, warning: "Headless browser pattern", userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/120.0.6099.109 Safari/537.36" },
@@ -373,6 +416,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:01:04",
     categories: [],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Google PPC",
+    leadCost: 22,
     location: { city: "London", country: "United Kingdom", coords: "51.5074, -0.1278", risk: "low", ipTimezone: "Europe/London", browserTimezone: "Europe/London", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
     network: { ip: "86.21.143.77", asn: "BT Group", type: "Residential", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Oct 5, 2025", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null },
     device: { deviceId: "dev_a2c891de-w3", type: "Windows PC", os: "Windows 11", browser: "Chrome 131.0", risk: "low", firstSeen: "Feb 1, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" },
@@ -383,6 +428,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:01:27",
     categories: ["Network Masking"],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "FAIL", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Partner ABC",
+    leadCost: 12,
     location: { city: "Frankfurt", country: "Germany", coords: "50.1109, 8.6821", risk: "medium", ipTimezone: "Europe/Berlin", browserTimezone: "America/Sao_Paulo", offsetMinutes: 240, tzMismatch: true, recentLocations24h: 2, recentLocations7d: 5 },
     network: { ip: "185.220.101.34", asn: "Tor Exit Node", type: "Hosting", typeRisk: "high", proxy: "Tor detected", risk: "high", firstSeen: "Feb 6, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: "Tor exit node" },
     device: { deviceId: "dev_c9d3e2f1-t4", type: "Linux PC", os: "Tails 6.0", browser: "Tor Browser 13.0", risk: "high", firstSeen: "Feb 6, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: "Privacy-hardened OS", userAgent: "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0" },
@@ -393,6 +440,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:02:03",
     categories: ["Identity Reuse", "Location Inconsistency"],
     checks: { "Location Validation": "FAIL", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "FAIL", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Affiliate Network X",
+    leadCost: 18,
     location: { city: "Madrid", country: "Spain", coords: "40.4168, -3.7038", risk: "medium", ipTimezone: "Europe/Madrid", browserTimezone: "America/Sao_Paulo", offsetMinutes: 240, tzMismatch: true, recentLocations24h: 3, recentLocations7d: 12 },
     network: { ip: "185.15.22.1", asn: "M247 Ltd", type: "Hosting", typeRisk: "high", proxy: "VPN detected", risk: "high", firstSeen: "Dec 1, 2025", sessionsThisProject: 1, sessionsAllProjects: 15, projectsCount: 5, warning: "Duplicate IP across accounts" },
     device: { deviceId: "dev_8x92123-ax", type: "Macintosh (Apple)", os: "macOS 26.0.1", browser: "Chrome 143.0", risk: "high", firstSeen: "Jan 15, 2024", sessionsThisProject: 3, sessionsAllProjects: 450, projectsCount: 42, warning: "Professional attacker pattern", userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36" },
@@ -403,6 +452,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:02:04",
     categories: ["Identity Reuse", "Non-Human Behavior"],
     checks: { "Location Validation": "PASS", "Automation Detection": "FAIL", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "FAIL", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Partner ABC",
+    leadCost: 12,
     location: { city: "Sao Paulo", country: "Brazil", coords: "-23.5505, -46.6333", risk: "low", ipTimezone: "America/Sao_Paulo", browserTimezone: "America/Sao_Paulo", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 3 },
     network: { ip: "177.84.23.192", asn: "Vivo SA", type: "Residential", typeRisk: "low", proxy: null, risk: "medium", firstSeen: "Nov 3, 2025", sessionsThisProject: 5, sessionsAllProjects: 22, projectsCount: 8, warning: "Duplicate IP across accounts" },
     device: { deviceId: "dev_44bc9f21-s5", type: "Android Phone", os: "Android 15", browser: "Chrome Mobile 131.0", risk: "medium", firstSeen: "Dec 10, 2025", sessionsThisProject: 5, sessionsAllProjects: 22, projectsCount: 8, warning: "High session velocity", userAgent: "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.39 Mobile Safari/537.36" },
@@ -413,6 +464,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:02:10",
     categories: [],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Google PPC",
+    leadCost: 22,
     location: { city: "Tokyo", country: "Japan", coords: "35.6762, 139.6503", risk: "low", ipTimezone: "Asia/Tokyo", browserTimezone: "Asia/Tokyo", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
     network: { ip: "126.78.210.43", asn: "SoftBank Corp", type: "Residential", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Sep 15, 2025", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null },
     device: { deviceId: "dev_e1d49a3c-j6", type: "iPhone (Apple)", os: "iOS 18.2", browser: "Safari Mobile 18.2", risk: "low", firstSeen: "Jan 20, 2026", sessionsThisProject: 1, sessionsAllProjects: 1, projectsCount: 1, warning: null, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.1" },
@@ -423,6 +476,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:02:17",
     categories: ["Identity Reuse"],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "FAIL", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Facebook Ads",
+    leadCost: 15,
     location: { city: "Manila", country: "Philippines", coords: "14.5995, 120.9842", risk: "low", ipTimezone: "Asia/Manila", browserTimezone: "Asia/Manila", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 2 },
     network: { ip: "112.198.77.45", asn: "Globe Telecom", type: "Mobile", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Jan 5, 2026", sessionsThisProject: 2, sessionsAllProjects: 6, projectsCount: 3, warning: null },
     device: { deviceId: "dev_b3f28a71-p8", type: "Android Phone", os: "Android 14", browser: "Chrome Mobile 130.0", risk: "medium", firstSeen: "Dec 15, 2025", sessionsThisProject: 4, sessionsAllProjects: 18, projectsCount: 6, warning: "Duplicate device across accounts", userAgent: "Mozilla/5.0 (Linux; Android 14; SM-A546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.58 Mobile Safari/537.36" },
@@ -433,6 +488,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:02:33",
     categories: ["Behavioral Integrity"],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "FAIL", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "PASS", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Direct",
+    leadCost: 8,
     location: { city: "Lagos", country: "Nigeria", coords: "6.5244, 3.3792", risk: "low", ipTimezone: "Africa/Lagos", browserTimezone: "Africa/Lagos", offsetMinutes: 0, tzMismatch: false, recentLocations24h: 1, recentLocations7d: 1 },
     network: { ip: "197.210.52.88", asn: "MTN Nigeria", type: "Mobile", typeRisk: "low", proxy: null, risk: "low", firstSeen: "Jan 30, 2026", sessionsThisProject: 1, sessionsAllProjects: 3, projectsCount: 2, warning: null },
     device: { deviceId: "dev_91ca7b3e-n9", type: "Android Phone", os: "Android 13", browser: "UC Browser 15.5", risk: "medium", firstSeen: "Feb 2, 2026", sessionsThisProject: 1, sessionsAllProjects: 3, projectsCount: 2, warning: "Untrusted browser", userAgent: "Mozilla/5.0 (Linux; U; Android 13; en-US; Infinix X6831) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/15.5.6.46 Mobile Safari/534.30" },
@@ -443,6 +500,8 @@ const SAMPLE_SESSIONS: SessionDetail[] = [
     createdAt: "2026-02-06 14:03:15",
     categories: ["Network Masking"],
     checks: { "Location Validation": "PASS", "Automation Detection": "PASS", "Untrusted Browsers/OS": "PASS", "Blocked IP": "PASS", "Location Lock": "PASS", "Duplicate Device": "PASS", "Duplicate IP": "PASS", "Duplicate ID": "PASS", "VPN Usage": "FAIL", "Device Tampering": "PASS", "Virtual Machine": "PASS", "Dev Tools": "PASS", "Privacy-Focused Settings": "PASS", "Tor Exit Node": "PASS", "High-Activity Device": "PASS", "Incognito Mode": "PASS", "AI Detection": "EMPTY", "Quality Questions": "EMPTY" },
+    source: "Facebook Ads",
+    leadCost: 15,
     location: { city: "Amsterdam", country: "Netherlands", coords: "52.3676, 4.9041", risk: "medium", ipTimezone: "Europe/Amsterdam", browserTimezone: "Asia/Kolkata", offsetMinutes: 270, tzMismatch: true, recentLocations24h: 2, recentLocations7d: 4 },
     network: { ip: "45.76.182.211", asn: "Vultr Holdings", type: "Hosting", typeRisk: "high", proxy: "VPN detected", risk: "high", firstSeen: "Feb 5, 2026", sessionsThisProject: 1, sessionsAllProjects: 4, projectsCount: 3, warning: "Datacenter IP" },
     device: { deviceId: "dev_d4e56f78-v0", type: "Windows PC", os: "Windows 11", browser: "Chrome 131.0", risk: "low", firstSeen: "Feb 5, 2026", sessionsThisProject: 1, sessionsAllProjects: 4, projectsCount: 3, warning: null, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" },
@@ -479,7 +538,7 @@ function computeOutcome(checks: Record<string, string>): "good" | "suspicious" |
   return hasSuspicious ? "suspicious" : "good"
 }
 
-// ─── COMPONENT ───────────────────────────────────────────────────��────────────
+// ─── COMPONENT ───────────────────────────────────────────────────���────────────
 
 export default function FraudDetectionPage() {
   const [selectedClient, setSelectedClient] = useState<string>("all")
@@ -504,9 +563,22 @@ export default function FraudDetectionPage() {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState<string | null>(null)
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
-  const [sortCol, setSortCol] = useState<"visitorId" | "outcome" | "country" | "city" | "createdAt">("createdAt")
+  const [sortCol, setSortCol] = useState<"visitorId" | "outcome" | "country" | "city" | "createdAt" | "source" | "costSaved">("createdAt")
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc")
   const tableRef = React.useRef<HTMLDivElement>(null)
+  
+  // Scenario state
+  const [scenario, setScenario] = useState<"market-research" | "lead-gen">("market-research")
+  const [sourceFilters, setSourceFilters] = useState<Set<string>>(new Set())
+  const [sourceDropdownOpen, setSourceDropdownOpen] = useState(false)
+  
+  // Helper to get category label based on scenario
+  const getCategoryLabel = (category: string) => {
+    if (scenario === "lead-gen" && LEAD_GEN_CATEGORY_LABELS[category]) {
+      return LEAD_GEN_CATEGORY_LABELS[category]
+    }
+    return category
+  }
 
   const availableProjects = React.useMemo(() => {
     if (!selectedClient || selectedClient === "all") return []
@@ -523,7 +595,8 @@ export default function FraudDetectionPage() {
       const matchesScore = scoreFilters.size === 0 || scoreFilters.has(computeOutcome(session.checks))
       const matchesCheck = checkFilters.size === 0 || Array.from(checkFilters).every((key) => session.checks[key] === "FAIL")
       const matchesCategory = categoryFilters.size === 0 || session.categories.some((cat) => categoryFilters.has(cat))
-      return matchesSearch && matchesScore && matchesCheck && matchesCategory
+      const matchesSource = sourceFilters.size === 0 || sourceFilters.has(session.source)
+      return matchesSearch && matchesScore && matchesCheck && matchesCategory && matchesSource
     })
     const scoreOrder = { bad: 0, suspicious: 1, good: 2 }
     sessions.sort((a, b) => {
@@ -534,11 +607,13 @@ export default function FraudDetectionPage() {
         case "country": cmp = a.location.country.localeCompare(b.location.country); break
         case "city": cmp = a.location.city.localeCompare(b.location.city); break
         case "createdAt": cmp = a.createdAt.localeCompare(b.createdAt); break
+        case "source": cmp = a.source.localeCompare(b.source); break
+        case "costSaved": cmp = a.leadCost - b.leadCost; break
       }
       return sortDir === "asc" ? cmp : -cmp
     })
     return sessions
-  }, [sessionSearch, scoreFilters, checkFilters, categoryFilters, sortCol, sortDir])
+  }, [sessionSearch, scoreFilters, checkFilters, categoryFilters, sourceFilters, sortCol, sortDir])
 
   const selectedSessionData = React.useMemo(
     () => filteredSessions.find((s) => s.visitorId === selectedSession) ?? null,
@@ -608,34 +683,68 @@ export default function FraudDetectionPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Fraud Detection</h1>
-            <div className="inline-flex rounded-lg border border-border overflow-hidden mt-2">
-              <button
-                onClick={() => setView("overview")}
-                className={cn(
-                  "px-3 py-1.5 text-xs font-medium transition-colors",
-                  view === "overview" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Overview
-              </button>
-              <button
-                onClick={() => setView("session-details")}
-                className={cn(
-                  "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
-                  view === "session-details" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Session Details
-              </button>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Quality Overview</h1>
+            
+            {/* Scenario tabs */}
+            <div className="flex items-center gap-4 mt-3">
+              <div className="inline-flex rounded-lg border border-border overflow-hidden">
+                <button
+                  onClick={() => setScenario("market-research")}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-colors",
+                    scenario === "market-research" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Market Research
+                </button>
+                <button
+                  onClick={() => setScenario("lead-gen")}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
+                    scenario === "lead-gen" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Lead-Gen / Affiliate
+                </button>
+              </div>
+              
+              {/* View tabs */}
+              <div className="inline-flex rounded-lg border border-border overflow-hidden">
+                <button
+                  onClick={() => setView("overview")}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-colors",
+                    view === "overview" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Overview
+                </button>
+                <button
+                  onClick={() => setView("session-details")}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium transition-colors border-l border-border",
+                    view === "session-details" ? "bg-foreground text-background" : "bg-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {scenario === "lead-gen" ? "Lead Details" : "Session Details"}
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Button variant="outline" size="sm" className="gap-2 bg-transparent text-xs">
-              <Calendar className="h-3.5 w-3.5" />
-              Last 30 days
-            </Button>
+            <Select defaultValue="30days">
+              <SelectTrigger className="w-[140px] h-8 text-xs bg-transparent">
+                <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7days">Last 7 days</SelectItem>
+                <SelectItem value="30days">Last 30 days</SelectItem>
+                <SelectItem value="90days">Last 90 days</SelectItem>
+                {scenario === "lead-gen" && <SelectItem value="campaign">This Campaign</SelectItem>}
+              </SelectContent>
+            </Select>
 
             <Popover open={clientOpen} onOpenChange={setClientOpen}>
               <PopoverTrigger asChild>
@@ -703,6 +812,66 @@ export default function FraudDetectionPage() {
 
         {view === "overview" ? (
         <>
+        {/* ── Lead-Gen Summary Stats Bar ────────────────────────── */}
+        {scenario === "lead-gen" && (
+          <Card className="border border-border shadow-sm bg-gradient-to-r from-emerald-50/50 to-background">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Last 30 Days</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-8">
+                  <div className="text-center">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-lg font-bold text-foreground">{LEAD_GEN_STATS.leadsChecked.toLocaleString()}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">leads checked</p>
+                  </div>
+                  
+                  <div className="h-8 w-px bg-border" />
+                  
+                  <div className="text-center">
+                    <div className="flex items-center gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="text-lg font-bold text-foreground">{LEAD_GEN_STATS.leadsFlagged.toLocaleString()}</span>
+                      <span className="text-xs text-amber-600 font-medium">({LEAD_GEN_STATS.fraudRate}%)</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">flagged (fraud rate)</p>
+                  </div>
+                  
+                  <div className="h-8 w-px bg-border" />
+                  
+                  <div className="text-center">
+                    <div className="flex items-center gap-1.5">
+                      <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
+                      <span className="text-lg font-bold text-emerald-600">${LEAD_GEN_STATS.wastePrevented.toLocaleString()}</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">waste prevented</p>
+                  </div>
+                  
+                  <div className="h-8 w-px bg-border" />
+                  
+                  <div className="text-center">
+                    <div className="flex items-center gap-1.5">
+                      <Target className="h-3.5 w-3.5 text-red-500" />
+                      <span className="text-sm font-semibold text-foreground">{LEAD_GEN_STATS.topFraudSource}</span>
+                      <span className="text-xs text-red-600 font-medium">({LEAD_GEN_STATS.topFraudSourceRate}% fraud)</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">top fraud source</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* ── 1. Traffic Composition + Category Breakdown ────────── */}
         <div className="grid lg:grid-cols-5 gap-4">
           {/* Left: Donut + breakdown */}
@@ -947,7 +1116,7 @@ export default function FraudDetectionPage() {
                           >
                             <Icon className="h-3.5 w-3.5" style={{ color: CATEGORY_COLORS[category.name] }} />
                           </div>
-                          <span className="text-sm font-medium text-foreground truncate">{category.name}</span>
+                          <span className="text-sm font-medium text-foreground truncate">{getCategoryLabel(category.name)}</span>
                         </div>
 
                         {/* Progress bar + count */}
@@ -1027,7 +1196,7 @@ export default function FraudDetectionPage() {
                                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Check Breakdown</span>
                                   <InfoTip text="Each count represents distinct participants where this check fired. Counts may overlap across checks and do not represent final outcomes." side="right" />
                                 </div>
-                                <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {category.name} category:</p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">These checks support the {getCategoryLabel(category.name)} category:</p>
                               </div>
                               <div className="rounded-lg border border-border overflow-hidden">
                                 <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-3 py-1.5 bg-muted/50 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
@@ -1308,13 +1477,56 @@ export default function FraudDetectionPage() {
                             <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", sel ? "bg-foreground border-foreground" : "border-input")}>
                               {sel && <Check className="h-2.5 w-2.5 text-background" />}
                             </div>
-                            <span className="font-medium">{cat.name}</span>
+                            <span className="font-medium">{getCategoryLabel(cat.name)}</span>
                           </button>
                         )
                       })}
                       {categoryFilters.size > 0 && (<><div className="my-1 border-t border-border" /><button onClick={() => setCategoryFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></>)}
                     </PopoverContent>
                   </Popover>
+
+                  {/* Source filter - Lead-Gen only */}
+                  {scenario === "lead-gen" && (
+                    <Popover open={sourceDropdownOpen} onOpenChange={setSourceDropdownOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 text-xs gap-1 font-normal bg-transparent">
+                          Source
+                          {sourceFilters.size > 0 && (
+                            <span className="ml-0.5 h-4 min-w-[16px] px-1 rounded bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">{sourceFilters.size}</span>
+                          )}
+                          <ChevronsUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-1" align="start">
+                        {LEAD_SOURCES.map((src) => {
+                          const sel = sourceFilters.has(src)
+                          return (
+                            <button key={src} onClick={() => { const next = new Set(sourceFilters); if (sel) next.delete(src); else next.add(src); setSourceFilters(next) }} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs hover:bg-muted transition-colors">
+                              <div className={cn("h-3.5 w-3.5 rounded-sm border flex items-center justify-center", sel ? "bg-foreground border-foreground" : "border-input")}>
+                                {sel && <Check className="h-2.5 w-2.5 text-background" />}
+                              </div>
+                              <span className="font-medium">{src}</span>
+                            </button>
+                          )
+                        })}
+                        {sourceFilters.size > 0 && (<><div className="my-1 border-t border-border" /><button onClick={() => setSourceFilters(new Set())} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-sm text-xs text-muted-foreground hover:bg-muted transition-colors">Clear</button></>)}
+                      </PopoverContent>
+                    </Popover>
+                  )}
+
+                  {/* Cost Saved sort - Lead-Gen only */}
+                  {scenario === "lead-gen" && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={cn("h-8 text-xs gap-1 font-normal bg-transparent", sortCol === "costSaved" && "bg-muted")}
+                      onClick={() => toggleSort("costSaved")}
+                    >
+                      <DollarSign className="h-3.5 w-3.5" />
+                      Cost Saved
+                      <SortIcon col="costSaved" />
+                    </Button>
+                  )}
 
                   <div className="flex-1" />
 
@@ -1363,6 +1575,13 @@ export default function FraudDetectionPage() {
                             Visitor ID <SortIcon col="visitorId" />
                           </button>
                         </TableHead>
+                        {scenario === "lead-gen" && (
+                          <TableHead className="min-w-[100px]">
+                            <button onClick={() => toggleSort("source")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                              Source <SortIcon col="source" />
+                            </button>
+                          </TableHead>
+                        )}
                         <TableHead className="w-[85px]">
                           <button onClick={() => toggleSort("outcome")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
                             Score <SortIcon col="outcome" />
@@ -1378,8 +1597,15 @@ export default function FraudDetectionPage() {
                             City <SortIcon col="city" />
                           </button>
                         </TableHead>
-                        <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Category</TableHead>
+                        <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">{scenario === "lead-gen" ? "Flag Reason" : "Category"}</TableHead>
                         <TableHead className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground min-w-[120px]">Signal</TableHead>
+                        {scenario === "lead-gen" && (
+                          <TableHead className="min-w-[100px]">
+                            <button onClick={() => toggleSort("costSaved")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                              Est. Cost Saved <SortIcon col="costSaved" />
+                            </button>
+                          </TableHead>
+                        )}
                         <TableHead className="min-w-[140px] text-right pr-4">
                           <button onClick={() => toggleSort("createdAt")} className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors ml-auto">
                             Created At <SortIcon col="createdAt" />
@@ -1390,8 +1616,8 @@ export default function FraudDetectionPage() {
                     <TableBody>
                       {filteredSessions.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center py-20 text-sm text-muted-foreground">
-                            No sessions match your filters.
+                          <TableCell colSpan={scenario === "lead-gen" ? 11 : 8} className="text-center py-20 text-sm text-muted-foreground">
+                            No {scenario === "lead-gen" ? "leads" : "sessions"} match your filters.
                           </TableCell>
                         </TableRow>
                       ) : (
@@ -1420,6 +1646,11 @@ export default function FraudDetectionPage() {
                               <TableCell className="py-0">
                                 <span className="font-mono text-xs text-foreground" title={session.visitorId}>{truncateId(session.visitorId)}</span>
                               </TableCell>
+                              {scenario === "lead-gen" && (
+                                <TableCell className="py-0">
+                                  <span className="text-xs text-foreground">{session.source}</span>
+                                </TableCell>
+                              )}
                               <TableCell className="py-0">
                                 {(() => { const oc = computeOutcome(session.checks); return (
                                 <span className={cn(
@@ -1447,8 +1678,8 @@ export default function FraudDetectionPage() {
                                 {session.categories.length === 0 ? (
                                   <span className="text-[10px] text-muted-foreground/40">--</span>
                                 ) : (
-                                  <span className="text-[10px] text-muted-foreground font-medium truncate block max-w-[140px]" title={session.categories.join(", ")}>
-                                    {session.categories[0]}{session.categories.length > 1 && <span className="text-muted-foreground/50 ml-0.5">+{session.categories.length - 1}</span>}
+                                  <span className="text-[10px] text-muted-foreground font-medium truncate block max-w-[140px]" title={session.categories.map(c => getCategoryLabel(c)).join(", ")}>
+                                    {getCategoryLabel(session.categories[0])}{session.categories.length > 1 && <span className="text-muted-foreground/50 ml-0.5">+{session.categories.length - 1}</span>}
                                   </span>
                                 )}
                               </TableCell>
@@ -1464,6 +1695,16 @@ export default function FraudDetectionPage() {
                                   </div>
                                 )}
                               </TableCell>
+                              {/* Cost Saved column - Lead-Gen only */}
+                              {scenario === "lead-gen" && (
+                                <TableCell className="py-0">
+                                  {computeOutcome(session.checks) !== "good" ? (
+                                    <span className="text-xs font-medium text-emerald-600">${session.leadCost.toFixed(2)}</span>
+                                  ) : (
+                                    <span className="text-[10px] text-muted-foreground/40">--</span>
+                                  )}
+                                </TableCell>
+                              )}
                               <TableCell className="py-0 text-right pr-4">
                                 <span className="text-xs text-muted-foreground tabular-nums">{session.createdAt}</span>
                               </TableCell>
@@ -1477,9 +1718,16 @@ export default function FraudDetectionPage() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/30 shrink-0">
-                  <span className="text-[11px] text-muted-foreground">
-                    Showing <span className="font-medium text-foreground">{filteredSessions.length}</span> of <span className="font-medium text-foreground">{totalSessions.toLocaleString()}</span> sessions
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[11px] text-muted-foreground">
+                      Showing <span className="font-medium text-foreground">{filteredSessions.length}</span> of <span className="font-medium text-foreground">{totalSessions.toLocaleString()}</span> {scenario === "lead-gen" ? "leads" : "sessions"}
+                    </span>
+                    {scenario === "lead-gen" && (
+                      <span className="text-[11px] text-emerald-600 font-medium">
+                        Total waste prevented: ${filteredSessions.filter(s => computeOutcome(s.checks) !== "good").reduce((sum, s) => sum + s.leadCost, 0).toLocaleString()} this month
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10px] text-muted-foreground">
                     Use <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[9px] font-mono">Arrow Up</kbd> <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[9px] font-mono">Arrow Down</kbd> to navigate
                   </span>
@@ -1509,6 +1757,9 @@ export default function FraudDetectionPage() {
                       ) })()}
                       <span className="font-mono text-[11px] text-muted-foreground truncate" title={s.visitorId}>{truncateId(s.visitorId)}</span>
                       {copyBtn(s.visitorId)}
+                      {scenario === "lead-gen" && (
+                        <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-muted-foreground">{s.source}</span>
+                      )}
                     </div>
                     <button onClick={() => setSelectedSession(null)} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted" aria-label="Close panel">
                       <X className="h-4 w-4" />
@@ -1517,8 +1768,52 @@ export default function FraudDetectionPage() {
 
                   {/* Scrollable content */}
                   <div className="flex-1 overflow-y-auto">
-                    {/* Failed checks strip */}
-                    {failedChecks.length > 0 && (
+                    {/* Lead-Gen Warning Panel */}
+                    {scenario === "lead-gen" && computeOutcome(s.checks) !== "good" && (
+                      <div className="px-4 py-3 bg-amber-50 border-b-2 border-amber-300">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-600" />
+                          <span className="text-xs font-bold text-amber-800 uppercase">Suspicious - Do Not Pay For This Lead</span>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-wide">Why We Flagged It:</span>
+                          <ul className="mt-1 space-y-0.5">
+                            {failedChecks.includes("Duplicate Device") && (
+                              <li className="text-[11px] text-amber-900">• Repeat submission from same device</li>
+                            )}
+                            {failedChecks.includes("Duplicate IP") && (
+                              <li className="text-[11px] text-amber-900">• Duplicate IP address detected</li>
+                            )}
+                            {(failedChecks.includes("VPN Usage") || failedChecks.includes("Tor Exit Node")) && (
+                              <li className="text-[11px] text-amber-900">• VPN detected - hiding true location</li>
+                            )}
+                            {s.location.tzMismatch && (
+                              <li className="text-[11px] text-amber-900">• TZ mismatch indicates location spoofing</li>
+                            )}
+                            {failedChecks.includes("Automation Detection") && (
+                              <li className="text-[11px] text-amber-900">• Bot or automated submission detected</li>
+                            )}
+                            {failedChecks.includes("Untrusted Browsers/OS") && (
+                              <li className="text-[11px] text-amber-900">• Untrusted browser or device configuration</li>
+                            )}
+                            {failedChecks.length === 0 && s.categories.map(cat => (
+                              <li key={cat} className="text-[11px] text-amber-900">• {getCategoryLabel(cat)} detected</li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 p-2 bg-amber-100 rounded">
+                          <DollarSign className="h-4 w-4 text-amber-700" />
+                          <span className="text-xs font-semibold text-amber-800">
+                            Cost Impact: ${s.leadCost.toFixed(2)} (based on your avg lead cost)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Failed checks strip - Market Research only */}
+                    {scenario === "market-research" && failedChecks.length > 0 && (
                       <div className="px-4 py-2.5 bg-red-50/50 border-b border-border">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="text-[10px] font-semibold text-red-600 uppercase tracking-wide mr-0.5">Failed:</span>
@@ -1529,15 +1824,22 @@ export default function FraudDetectionPage() {
                       </div>
                     )}
 
-                    {/* Categories */}
+                    {/* Categories / Findings */}
                     {s.categories.length > 0 && (
                       <div className="px-4 py-2.5 border-b border-border">
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-0.5">Findings:</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mr-0.5">{scenario === "lead-gen" ? "Flag Reasons:" : "Findings:"}</span>
                           {s.categories.map((cat) => (
-                            <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-foreground">{cat}</span>
+                            <span key={cat} className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-medium text-foreground">{getCategoryLabel(cat)}</span>
                           ))}
                         </div>
+                      </div>
+                    )}
+                    
+                    {/* Evidence header for Lead-Gen */}
+                    {scenario === "lead-gen" && computeOutcome(s.checks) !== "good" && (
+                      <div className="px-4 py-2 bg-muted/30 border-b border-border">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Evidence</span>
                       </div>
                     )}
 

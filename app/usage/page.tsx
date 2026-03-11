@@ -547,7 +547,7 @@ function computeOutcome(checks: Record<string, string>): "good" | "suspicious" |
   return hasSuspicious ? "suspicious" : "good"
 }
 
-// ─── COMPONENT ───────────────────────────────────────────────────���────────────
+// ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function FraudDetectionPage() {
   const [selectedClient, setSelectedClient] = useState<string>("all")
@@ -1925,7 +1925,7 @@ export default function FraudDetectionPage() {
                       </div>
                     </div>
 
-                    {/* ── DEVICE ───────────────────���───────── */}
+                    {/* ── DEVICE ──────────────────────────── */}
                     <div className="px-4 py-3 border-b border-border">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">
